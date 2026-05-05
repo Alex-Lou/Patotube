@@ -1,0 +1,252 @@
+---
+import '../styles/global.css';
+
+const repo = 'Alex-Lou/Patotube';
+const releasesBase = `https://github.com/${repo}/releases/latest/download`;
+
+const downloads = [
+  {
+    label: 'Windows',
+    sub: '.exe installer',
+    href: `${releasesBase}/Patotube_x64-setup.exe`,
+    icon: '\u{1F5A5}\u{FE0F}',
+    primary: true,
+  },
+  {
+    label: 'Android',
+    sub: '.apk sideload',
+    href: `${releasesBase}/Patotube.apk`,
+    icon: '\u{1F4F1}',
+    primary: true,
+  },
+  { label: 'macOS', sub: 'coming soon', href: '#', icon: '\u{1F34E}', primary: false },
+  { label: 'Linux', sub: 'coming soon', href: '#', icon: '\u{1F427}', primary: false },
+];
+
+const features = [
+  {
+    title: 'YouTube and SoundCloud, today',
+    body: 'And another 1800+ sites that yt-dlp speaks. Drop the URL, the app figures out the rest.',
+  },
+  {
+    title: 'MP4 video or MP3 audio',
+    body: 'Pick the kind, pick the quality, hit download. ffmpeg ships in the bundle, no extra install.',
+  },
+  {
+    title: 'Dark by default, 7 languages',
+    body: 'English, French, Spanish, Arabic (RTL), Japanese, Chinese, Icelandic. Toggle theme any time.',
+  },
+  {
+    title: 'Light, fast, native',
+    body: 'Built on Tauri. Tiny binary, real OS window, no Electron bloat, no telemetry.',
+  },
+  {
+    title: 'Spotify and Deezer soon',
+    body: 'Match-via-YouTube workflow under design. Templates already in the UI, behind a coming-soon flag.',
+  },
+  {
+    title: 'Open source',
+    body: 'MIT licensed. Read the code, file an issue, send a pull request. Same rules for everyone.',
+  },
+];
+
+const year = new Date().getFullYear();
+---
+
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <meta name="description" content="Patotube — modern lightweight media downloader. Drop a URL, get an MP3 or MP4. Desktop and Android." />
+    <meta property="og:title" content="Patotube" />
+    <meta property="og:description" content="Drop a URL, get the file. YouTube, SoundCloud and more." />
+    <meta property="og:image" content="/Patotube/patotube.png" />
+    <link rel="icon" type="image/png" href="/Patotube/patotube.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <title>Patotube — drop a URL, get the file</title>
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 glass">
+      <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+        <a href="/" class="flex items-center gap-2.5 group">
+          <img
+            src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/patotube.png`}
+            alt="Patotube"
+            class="size-8 group-hover:animate-float"
+            width="32"
+            height="32"
+          />
+          <span class="font-bold text-lg tracking-tight">Patotube</span>
+        </a>
+        <div class="flex items-center gap-3 text-sm">
+          <a
+            href="#features"
+            class="text-fg-muted hover:text-fg transition-colors hidden sm:inline">Features</a
+          >
+          <a
+            href={`https://github.com/${repo}`}
+            class="text-fg-muted hover:text-fg transition-colors"
+            >GitHub</a
+          >
+          <a
+            href="#download"
+            class="px-3 py-1.5 rounded-lg bg-duck text-bg font-semibold hover:brightness-110 transition-all"
+            >Download</a
+          >
+        </div>
+      </nav>
+    </header>
+
+    <!-- Hero -->
+    <section class="relative">
+      <div class="max-w-6xl mx-auto px-6 pt-20 pb-12 sm:pt-32 sm:pb-20 text-center">
+        <img
+          src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/patotube.png`}
+          alt=""
+          class="size-32 sm:size-40 mx-auto mb-8 animate-float drop-shadow-[0_8px_32px_hsl(45_96%_56%/0.4)]"
+          width="160"
+          height="160"
+        />
+        <h1
+          class="text-5xl sm:text-7xl font-extrabold tracking-tight animate-fade-up"
+        >
+          Drop a URL, <br class="sm:hidden" /><span class="text-gradient-duck"
+            >get the file.</span
+          >
+        </h1>
+        <p
+          class="mt-6 max-w-xl mx-auto text-lg sm:text-xl text-fg-muted animate-fade-up"
+          style="animation-delay:80ms"
+        >
+          Modern, lightweight media downloader for Windows and Android. YouTube,
+          SoundCloud, and 1800+ other sites. MP4 video or MP3 audio. Dark by
+          default. 7 languages.
+        </p>
+        <div
+          class="mt-10 flex flex-wrap justify-center gap-3 animate-fade-up"
+          style="animation-delay:160ms"
+        >
+          <a
+            href="#download"
+            class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-duck text-bg font-bold shadow-lg shadow-duck/20 hover:shadow-duck/40 hover:scale-[1.02] transition-all"
+          >
+            Download free
+          </a>
+          <a
+            href={`https://github.com/${repo}`}
+            class="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-border bg-bg-card hover:bg-bg-soft transition-colors"
+          >
+            View source
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Downloads -->
+    <section id="download" class="py-16 sm:py-24">
+      <div class="max-w-5xl mx-auto px-6">
+        <h2
+          class="text-3xl sm:text-4xl font-bold text-center tracking-tight"
+        >
+          Pick your platform
+        </h2>
+        <p class="mt-3 text-center text-fg-muted">
+          Free. No account. No ads. No telemetry.
+        </p>
+        <div
+          class="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4"
+        >
+          {
+            downloads.map((d) => (
+              <a
+                href={d.href}
+                class:list={[
+                  'group relative rounded-2xl p-5 sm:p-6 border transition-all',
+                  d.primary
+                    ? 'bg-bg-card border-border hover:border-duck/60 hover:bg-bg-soft hover:-translate-y-0.5 hover:shadow-xl hover:shadow-duck/10'
+                    : 'bg-bg-card/50 border-border/50 cursor-not-allowed opacity-60',
+                ]}
+                aria-disabled={!d.primary}
+              >
+                <div class="text-3xl sm:text-4xl mb-3">{d.icon}</div>
+                <div class="font-bold">{d.label}</div>
+                <div class="text-xs text-fg-muted mt-0.5">{d.sub}</div>
+                {d.primary && (
+                  <div class="mt-4 text-xs text-duck font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                    Click to download &rarr;
+                  </div>
+                )}
+              </a>
+            ))
+          }
+        </div>
+        <p class="mt-8 text-xs text-center text-fg-subtle">
+          Windows builds are unsigned for now &mdash; SmartScreen may flag them.
+          Click <em>More info &rarr; Run anyway</em>.
+          <br />
+          Android APK requires enabling installs from unknown sources for the
+          file you downloaded.
+        </p>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="py-16 sm:py-24 border-t border-border">
+      <div class="max-w-6xl mx-auto px-6">
+        <h2 class="text-3xl sm:text-4xl font-bold text-center tracking-tight">
+          What it does, what it doesn&rsquo;t.
+        </h2>
+        <div class="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {
+            features.map((f) => (
+              <div class="rounded-xl p-6 bg-bg-card border border-border hover:border-border/80 transition-colors">
+                <h3 class="font-semibold text-lg">{f.title}</h3>
+                <p class="mt-2 text-sm text-fg-muted leading-relaxed">{f.body}</p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="mt-auto border-t border-border py-10">
+      <div
+        class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-fg-muted"
+      >
+        <div class="flex items-center gap-2">
+          <img
+            src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/patotube.png`}
+            alt=""
+            class="size-5"
+            width="20"
+            height="20"
+          />
+          <span>&copy; {year} Patotube contributors &middot; MIT</span>
+        </div>
+        <div class="flex items-center gap-5">
+          <a
+            href={`https://github.com/${repo}`}
+            class="hover:text-fg transition-colors">GitHub</a
+          >
+          <a
+            href={`https://github.com/${repo}/issues`}
+            class="hover:text-fg transition-colors">Issues</a
+          >
+          <a
+            href={`https://github.com/${repo}/releases`}
+            class="hover:text-fg transition-colors">Releases</a
+          >
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
