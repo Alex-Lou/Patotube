@@ -1,0 +1,27 @@
+{
+  "name": "patotube",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Modern, lightweight media downloader. Desktop + Android.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
+  "scripts": {
+    "dev": "pnpm --filter patotube-app dev",
+    "build": "pnpm --filter patotube-app build",
+    "tauri": "pnpm --filter patotube-app tauri",
+    "landing:dev": "pnpm --filter patotube-landing dev",
+    "landing:build": "pnpm --filter patotube-landing build",
+    "format": "prettier --write .",
+    "lint": "eslint app/src --ext .ts,.tsx",
+    "typecheck": "pnpm --filter patotube-app typecheck"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3",
+    "prettier-plugin-tailwindcss": "^0.6.8"
+  },
+  "packageManager": "pnpm@9.12.0"
+}
