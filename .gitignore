@@ -1,0 +1,48 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+build/
+out/
+.next/
+.astro/
+.vite/
+*.tsbuildinfo
+
+# Tauri / Rust
+**/target/
+**/src-tauri/gen/
+**/src-tauri/binaries/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+
+# Local env
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Local tools (rustup, gh installers)
+.tools/
+
+# Test coverage
+coverage/
+
+# Temp
+*.tmp
+.cache/
