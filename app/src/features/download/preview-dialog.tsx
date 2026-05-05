@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import type { FormatChoice, MediaInfo } from '@/lib/core/types';
-import { DEFAULT_FORMAT } from '@/lib/core/formats';
+import { useSettings } from '@/lib/core/settings';
 import { formatDuration } from '@/lib/utils';
 import { FormatPicker } from './format-picker';
 import { PlatformBadge } from './platform-badge';
@@ -22,15 +22,16 @@ interface PreviewDialogProps {
 
 export function PreviewDialog({ info, onClose, onConfirm }: PreviewDialogProps) {
   const { t } = useTranslation();
-  const [format, setFormat] = useState<FormatChoice>(DEFAULT_FORMAT);
+  const defaultFormat = useSettings((s) => s.defaultFormat);
+  const [format, setFormat] = useState<FormatChoice>(defaultFormat);
   const [imgError, setImgError] = useState(false);
 
   useEffect(() => {
     if (info) {
-      setFormat(DEFAULT_FORMAT);
+      setFormat(defaultFormat);
       setImgError(false);
     }
-  }, [info]);
+  }, [info, defaultFormat]);
 
   return (
     <Dialog open={!!info} onOpenChange={(o) => !o && onClose()}>
