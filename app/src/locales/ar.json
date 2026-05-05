@@ -1,0 +1,87 @@
+{
+  "app": {
+    "name": "Patotube",
+    "tagline": "ألصِق رابطًا، احصل على الملف."
+  },
+  "theme": {
+    "toggle": "تبديل السمة",
+    "toDark": "الوضع الداكن",
+    "toLight": "الوضع الفاتح"
+  },
+  "locale": {
+    "language": "اللغة",
+    "change": "تغيير اللغة"
+  },
+  "url": {
+    "label": "رابط الوسائط",
+    "placeholder": "ألصِق رابط YouTube أو SoundCloud وغيرها",
+    "fetch": "تحليل",
+    "paste": "لصق من الحافظة",
+    "clear": "مسح"
+  },
+  "errors": {
+    "empty": "أدخل رابطًا من فضلك",
+    "invalid": "الرابط غير صالح",
+    "unsupported": "هذه المنصة غير مدعومة بعد",
+    "comingSoon": "{{platform}} قريبًا",
+    "fetchFailed": "تعذّر جلب المعلومات",
+    "downloadFailed": "فشل التنزيل",
+    "noTauri": "افتح تطبيق سطح المكتب للتنزيل"
+  },
+  "format": {
+    "label": "الصيغة",
+    "video": "فيديو",
+    "audio": "صوت فقط",
+    "videoMp4": "فيديو MP4",
+    "audioMp3": "صوت MP3",
+    "quality": "الجودة",
+    "best": "الأفضل المتاحة",
+    "high": "عالية (1080p)",
+    "medium": "متوسطة (720p)",
+    "low": "منخفضة (480p)",
+    "audioBitrate": "معدل البت",
+    "kbps": "{{value}} ك.بت/ث"
+  },
+  "preview": {
+    "title": "تأكيد التنزيل",
+    "duration": "المدة",
+    "uploader": "الناشر",
+    "confirm": "تنزيل",
+    "cancel": "إلغاء",
+    "loading": "جلب المعلومات...",
+    "noThumbnail": "لا توجد صورة مصغّرة"
+  },
+  "queue": {
+    "title": "التنزيلات",
+    "empty": "لا توجد تنزيلات بعد. ألصِق رابطًا أعلاه.",
+    "pending": "قيد الانتظار",
+    "downloading": "جاري التنزيل",
+    "converting": "جاري التحويل",
+    "done": "تم",
+    "failed": "فشل",
+    "openFile": "فتح الملف",
+    "openFolder": "إظهار في المجلد",
+    "remove": "إزالة",
+    "retry": "إعادة المحاولة",
+    "clear": "مسح المكتملة"
+  },
+  "platform": {
+    "youtube": "YouTube",
+    "soundcloud": "SoundCloud",
+    "spotify": "Spotify",
+    "deezer": "Deezer",
+    "generic": "ويب",
+    "comingSoon": "قريبًا"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "downloadFolder": "مجلد التنزيل",
+    "browse": "استعراض",
+    "concurrent": "التنزيلات المتوازية",
+    "theme": "السمة",
+    "about": "حول"
+  },
+  "footer": {
+    "openSource": "مفتوح المصدر"
+  }
+}

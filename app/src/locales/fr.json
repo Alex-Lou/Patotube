@@ -1,0 +1,87 @@
+{
+  "app": {
+    "name": "Patotube",
+    "tagline": "Une URL, un fichier."
+  },
+  "theme": {
+    "toggle": "Changer de thème",
+    "toDark": "Passer en sombre",
+    "toLight": "Passer en clair"
+  },
+  "locale": {
+    "language": "Langue",
+    "change": "Changer de langue"
+  },
+  "url": {
+    "label": "URL du média",
+    "placeholder": "Colle une URL YouTube, SoundCloud, etc.",
+    "fetch": "Analyser",
+    "paste": "Coller depuis le presse-papiers",
+    "clear": "Effacer"
+  },
+  "errors": {
+    "empty": "Entre une URL",
+    "invalid": "URL invalide",
+    "unsupported": "Cette plateforme n'est pas encore supportée",
+    "comingSoon": "{{platform}} arrive bientôt",
+    "fetchFailed": "Impossible de récupérer les infos",
+    "downloadFailed": "Échec du téléchargement",
+    "noTauri": "Lance l'app desktop pour télécharger"
+  },
+  "format": {
+    "label": "Format",
+    "video": "Vidéo",
+    "audio": "Audio seul",
+    "videoMp4": "Vidéo MP4",
+    "audioMp3": "Audio MP3",
+    "quality": "Qualité",
+    "best": "Meilleure dispo",
+    "high": "Haute (1080p)",
+    "medium": "Moyenne (720p)",
+    "low": "Basse (480p)",
+    "audioBitrate": "Débit",
+    "kbps": "{{value}} kbps"
+  },
+  "preview": {
+    "title": "Confirmer le téléchargement",
+    "duration": "Durée",
+    "uploader": "Auteur",
+    "confirm": "Télécharger",
+    "cancel": "Annuler",
+    "loading": "Récupération des infos...",
+    "noThumbnail": "Pas de miniature"
+  },
+  "queue": {
+    "title": "Téléchargements",
+    "empty": "Aucun téléchargement. Colle une URL ci-dessus.",
+    "pending": "En attente",
+    "downloading": "Téléchargement",
+    "converting": "Conversion",
+    "done": "Terminé",
+    "failed": "Échec",
+    "openFile": "Ouvrir le fichier",
+    "openFolder": "Afficher dans le dossier",
+    "remove": "Retirer",
+    "retry": "Réessayer",
+    "clear": "Effacer les terminés"
+  },
+  "platform": {
+    "youtube": "YouTube",
+    "soundcloud": "SoundCloud",
+    "spotify": "Spotify",
+    "deezer": "Deezer",
+    "generic": "Web",
+    "comingSoon": "Bientôt"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "downloadFolder": "Dossier de téléchargement",
+    "browse": "Parcourir",
+    "concurrent": "Téléchargements parallèles",
+    "theme": "Thème",
+    "about": "À propos"
+  },
+  "footer": {
+    "openSource": "Open source"
+  }
+}
