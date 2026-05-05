@@ -44,10 +44,6 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "externalBin": [
-      "binaries/yt-dlp",
-      "binaries/ffmpeg"
-    ],
     "category": "Utility",
     "shortDescription": "Modern lightweight media downloader",
     "longDescription": "Drop a URL, get an MP3 or MP4. YouTube, SoundCloud and many more.",
