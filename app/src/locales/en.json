@@ -1,0 +1,87 @@
+{
+  "app": {
+    "name": "Patotube",
+    "tagline": "Drop a URL, get the file."
+  },
+  "theme": {
+    "toggle": "Toggle theme",
+    "toDark": "Switch to dark",
+    "toLight": "Switch to light"
+  },
+  "locale": {
+    "language": "Language",
+    "change": "Change language"
+  },
+  "url": {
+    "label": "Media URL",
+    "placeholder": "Paste a YouTube, SoundCloud, etc. URL",
+    "fetch": "Fetch",
+    "paste": "Paste from clipboard",
+    "clear": "Clear"
+  },
+  "errors": {
+    "empty": "Please enter a URL",
+    "invalid": "URL is not valid",
+    "unsupported": "This platform is not supported yet",
+    "comingSoon": "{{platform}} support is coming soon",
+    "fetchFailed": "Could not fetch info",
+    "downloadFailed": "Download failed",
+    "noTauri": "Run this inside the desktop app to download"
+  },
+  "format": {
+    "label": "Format",
+    "video": "Video",
+    "audio": "Audio only",
+    "videoMp4": "MP4 video",
+    "audioMp3": "MP3 audio",
+    "quality": "Quality",
+    "best": "Best available",
+    "high": "High (1080p)",
+    "medium": "Medium (720p)",
+    "low": "Low (480p)",
+    "audioBitrate": "Bitrate",
+    "kbps": "{{value}} kbps"
+  },
+  "preview": {
+    "title": "Confirm download",
+    "duration": "Duration",
+    "uploader": "Uploader",
+    "confirm": "Download",
+    "cancel": "Cancel",
+    "loading": "Fetching info...",
+    "noThumbnail": "No thumbnail available"
+  },
+  "queue": {
+    "title": "Downloads",
+    "empty": "No downloads yet. Paste a URL above.",
+    "pending": "Pending",
+    "downloading": "Downloading",
+    "converting": "Converting",
+    "done": "Done",
+    "failed": "Failed",
+    "openFile": "Open file",
+    "openFolder": "Show in folder",
+    "remove": "Remove",
+    "retry": "Retry",
+    "clear": "Clear completed"
+  },
+  "platform": {
+    "youtube": "YouTube",
+    "soundcloud": "SoundCloud",
+    "spotify": "Spotify",
+    "deezer": "Deezer",
+    "generic": "Web",
+    "comingSoon": "Coming soon"
+  },
+  "settings": {
+    "title": "Settings",
+    "downloadFolder": "Download folder",
+    "browse": "Browse",
+    "concurrent": "Parallel downloads",
+    "theme": "Theme",
+    "about": "About"
+  },
+  "footer": {
+    "openSource": "Open source"
+  }
+}

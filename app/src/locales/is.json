@@ -1,0 +1,87 @@
+{
+  "app": {
+    "name": "Patotube",
+    "tagline": "Límdu inn slóð, fáðu skrána."
+  },
+  "theme": {
+    "toggle": "Skipta um þema",
+    "toDark": "Skipta í dökkt",
+    "toLight": "Skipta í ljóst"
+  },
+  "locale": {
+    "language": "Tungumál",
+    "change": "Breyta tungumáli"
+  },
+  "url": {
+    "label": "Slóð á efni",
+    "placeholder": "Límdu inn slóð frá YouTube, SoundCloud o.s.frv.",
+    "fetch": "Sækja",
+    "paste": "Líma af klippiborði",
+    "clear": "Hreinsa"
+  },
+  "errors": {
+    "empty": "Sláðu inn slóð",
+    "invalid": "Slóðin er ógild",
+    "unsupported": "Þessi vettvangur er ekki studdur ennþá",
+    "comingSoon": "Stuðningur við {{platform}} er á leiðinni",
+    "fetchFailed": "Tókst ekki að sækja upplýsingar",
+    "downloadFailed": "Niðurhal mistókst",
+    "noTauri": "Opnaðu skjáborðsforritið til að hlaða niður"
+  },
+  "format": {
+    "label": "Snið",
+    "video": "Myndband",
+    "audio": "Aðeins hljóð",
+    "videoMp4": "MP4 myndband",
+    "audioMp3": "MP3 hljóð",
+    "quality": "Gæði",
+    "best": "Besta í boði",
+    "high": "Hátt (1080p)",
+    "medium": "Miðlungs (720p)",
+    "low": "Lágt (480p)",
+    "audioBitrate": "Bitahraði",
+    "kbps": "{{value}} kbps"
+  },
+  "preview": {
+    "title": "Staðfesta niðurhal",
+    "duration": "Lengd",
+    "uploader": "Birti",
+    "confirm": "Hlaða niður",
+    "cancel": "Hætta við",
+    "loading": "Sæki upplýsingar...",
+    "noThumbnail": "Engin smámynd"
+  },
+  "queue": {
+    "title": "Niðurhöl",
+    "empty": "Engin niðurhöl ennþá. Límdu slóð fyrir ofan.",
+    "pending": "Bíður",
+    "downloading": "Hleður niður",
+    "converting": "Umbreytir",
+    "done": "Lokið",
+    "failed": "Mistókst",
+    "openFile": "Opna skrá",
+    "openFolder": "Sýna í möppu",
+    "remove": "Fjarlægja",
+    "retry": "Reyna aftur",
+    "clear": "Hreinsa lokuð"
+  },
+  "platform": {
+    "youtube": "YouTube",
+    "soundcloud": "SoundCloud",
+    "spotify": "Spotify",
+    "deezer": "Deezer",
+    "generic": "Vefur",
+    "comingSoon": "Á leiðinni"
+  },
+  "settings": {
+    "title": "Stillingar",
+    "downloadFolder": "Niðurhalsmappa",
+    "browse": "Velja",
+    "concurrent": "Samhliða niðurhöl",
+    "theme": "Þema",
+    "about": "Um"
+  },
+  "footer": {
+    "openSource": "Opinn hugbúnaður"
+  }
+}
