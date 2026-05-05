@@ -65,7 +65,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     heroLine1: 'Drop a URL,',
     heroLine2: 'get the file.',
     heroDesc:
-      'Modern, lightweight media downloader for Windows and Android. YouTube, SoundCloud, and 1800+ other sites. MP4 video or MP3 audio. Dark by default. 7 languages.',
+      'Modern, lightweight media downloader for Windows and Android. YouTube, SoundCloud, and many other sites. MP4 video or MP3 audio. Dark by default. 7 languages.',
     heroCtaPrimary: 'Download free',
     heroCtaSecondary: 'View source',
     downloadsTitle: 'Pick your platform',
@@ -84,7 +84,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     featuresTitle: "What it does, what it doesn't.",
     featureYtTitle: 'YouTube and SoundCloud, today',
     featureYtBody:
-      'And another 1800+ sites that yt-dlp speaks. Drop the URL, the app figures out the rest.',
+      'Plus many other sites that yt-dlp speaks. Drop the URL, the app figures out the rest.',
     featureFormatsTitle: 'MP4 video or MP3 audio',
     featureFormatsBody:
       'Pick the kind, pick the quality, hit download. ffmpeg ships in the bundle, no extra install.',
@@ -112,7 +112,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     heroLine1: 'Une URL,',
     heroLine2: 'un fichier.',
     heroDesc:
-      "Téléchargeur média moderne et léger pour Windows et Android. YouTube, SoundCloud et 1800+ autres sites. Vidéo MP4 ou audio MP3. Mode sombre par défaut. 7 langues.",
+      "Téléchargeur média moderne et léger pour Windows et Android. YouTube, SoundCloud et plein d'autres sites. Vidéo MP4 ou audio MP3. Mode sombre par défaut. 7 langues.",
     heroCtaPrimary: 'Télécharger gratuitement',
     heroCtaSecondary: 'Voir le code',
     downloadsTitle: 'Choisis ta plateforme',
@@ -131,7 +131,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     featuresTitle: "Ce qu'elle fait, ce qu'elle ne fait pas.",
     featureYtTitle: "YouTube et SoundCloud, dès aujourd'hui",
     featureYtBody:
-      "Plus 1800+ autres sites supportés par yt-dlp. Colle l'URL, l'app gère le reste.",
+      "Plus plein d'autres sites supportés par yt-dlp. Colle l'URL, l'app gère le reste.",
     featureFormatsTitle: 'Vidéo MP4 ou audio MP3',
     featureFormatsBody:
       "Choisis le type, choisis la qualité, télécharge. ffmpeg est embarqué, rien à installer en plus.",
@@ -159,7 +159,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     heroLine1: 'Pega una URL,',
     heroLine2: 'recibe el archivo.',
     heroDesc:
-      'Descargador de medios moderno y ligero para Windows y Android. YouTube, SoundCloud y 1800+ sitios más. Vídeo MP4 o audio MP3. Oscuro por defecto. 7 idiomas.',
+      'Descargador de medios moderno y ligero para Windows y Android. YouTube, SoundCloud y muchos sitios más. Vídeo MP4 o audio MP3. Oscuro por defecto. 7 idiomas.',
     heroCtaPrimary: 'Descargar gratis',
     heroCtaSecondary: 'Ver el código',
     downloadsTitle: 'Elige tu plataforma',
@@ -178,7 +178,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     featuresTitle: 'Lo que hace, lo que no hace.',
     featureYtTitle: 'YouTube y SoundCloud, hoy',
     featureYtBody:
-      'Y otros 1800+ sitios que yt-dlp soporta. Pega la URL, la app se encarga del resto.',
+      'Y muchos otros sitios soportados por yt-dlp. Pega la URL, la app se encarga del resto.',
     featureFormatsTitle: 'Vídeo MP4 o audio MP3',
     featureFormatsBody:
       'Elige el tipo, elige la calidad, descarga. ffmpeg viene incluido, sin instalación extra.',
@@ -206,7 +206,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     heroLine1: 'ألصِق رابطًا،',
     heroLine2: 'احصل على الملف.',
     heroDesc:
-      'تطبيق حديث وخفيف لتنزيل الوسائط على Windows و Android. يوتيوب، ساوند كلاود، و1800+ موقع آخر. فيديو MP4 أو صوت MP3. الوضع الداكن افتراضيًا. 7 لغات.',
+      'تطبيق حديث وخفيف لتنزيل الوسائط على Windows و Android. يوتيوب، ساوند كلاود، والعديد من المواقع. فيديو MP4 أو صوت MP3. الوضع الداكن افتراضيًا. 7 لغات.',
     heroCtaPrimary: 'تنزيل مجاني',
     heroCtaSecondary: 'عرض المصدر',
     downloadsTitle: 'اختر منصتك',
@@ -225,7 +225,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     featuresTitle: 'ما يفعله، وما لا يفعله.',
     featureYtTitle: 'يوتيوب وساوند كلاود اليوم',
     featureYtBody:
-      'و1800+ موقع آخر يتقنه yt-dlp. ألصِق الرابط، والتطبيق يتولى الباقي.',
+      'وعدد كبير من المواقع الأخرى التي يدعمها yt-dlp. ألصِق الرابط، والتطبيق يتولى الباقي.',
     featureFormatsTitle: 'فيديو MP4 أو صوت MP3',
     featureFormatsBody:
       'اختر النوع، اختر الجودة، نزّل. ffmpeg مرفق، لا حاجة لتثبيت إضافي.',
@@ -253,7 +253,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     heroLine1: 'URLを貼って、',
     heroLine2: 'ファイルをゲット。',
     heroDesc:
-      'Windows と Android 向けのモダンで軽量なメディアダウンローダー。YouTube、SoundCloud、その他1800+ サイト対応。MP4動画またはMP3音声。デフォルトはダーク。7言語対応。',
+      'Windows と Android 向けのモダンで軽量なメディアダウンローダー。YouTube、SoundCloud、その他多数のサイト対応。MP4動画またはMP3音声。デフォルトはダーク。7言語対応。',
     heroCtaPrimary: '無料でダウンロード',
     heroCtaSecondary: 'ソースを見る',
     downloadsTitle: 'プラットフォームを選択',
@@ -272,7 +272,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     featuresTitle: '何ができて、何ができないか。',
     featureYtTitle: 'YouTube と SoundCloud は今日から',
     featureYtBody:
-      'さらに yt-dlp が話せる1800+ サイト。URLを貼るだけで、あとはアプリにお任せ。',
+      'さらに yt-dlp が対応する多数のサイト。URLを貼るだけで、あとはアプリにお任せ。',
     featureFormatsTitle: 'MP4動画 または MP3音声',
     featureFormatsBody:
       '種類を選び、画質を選び、ダウンロード。ffmpeg 同梱、追加インストール不要。',
@@ -300,7 +300,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     heroLine1: '粘贴链接，',
     heroLine2: '获取文件。',
     heroDesc:
-      '面向 Windows 和 Android 的现代轻量媒体下载器。支持 YouTube、SoundCloud 及 1800+ 网站。MP4 视频或 MP3 音频。默认深色模式。7 种语言。',
+      '面向 Windows 和 Android 的现代轻量媒体下载器。支持 YouTube、SoundCloud 及众多网站。MP4 视频或 MP3 音频。默认深色模式。7 种语言。',
     heroCtaPrimary: '免费下载',
     heroCtaSecondary: '查看源码',
     downloadsTitle: '选择你的平台',
@@ -319,7 +319,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     featuresTitle: '它能做什么，不能做什么。',
     featureYtTitle: 'YouTube 和 SoundCloud，今天就用',
     featureYtBody:
-      '以及 yt-dlp 支持的 1800+ 个网站。粘贴链接，剩下的交给应用。',
+      '以及 yt-dlp 支持的众多网站。粘贴链接，剩下的交给应用。',
     featureFormatsTitle: 'MP4 视频或 MP3 音频',
     featureFormatsBody:
       '选类型，选画质，下载。ffmpeg 已内置，无需额外安装。',
@@ -347,7 +347,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     heroLine1: 'Límdu inn slóð,',
     heroLine2: 'fáðu skrána.',
     heroDesc:
-      'Nútímalegur og léttur miðlasækir fyrir Windows og Android. YouTube, SoundCloud og 1800+ síður til viðbótar. MP4 myndband eða MP3 hljóð. Dökkt sjálfgefið. 7 tungumál.',
+      'Nútímalegur og léttur miðlasækir fyrir Windows og Android. YouTube, SoundCloud og margar fleiri síður. MP4 myndband eða MP3 hljóð. Dökkt sjálfgefið. 7 tungumál.',
     heroCtaPrimary: 'Sækja ókeypis',
     heroCtaSecondary: 'Skoða kóða',
     downloadsTitle: 'Veldu vettvang',
@@ -366,7 +366,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     featuresTitle: 'Hvað það gerir, hvað það gerir ekki.',
     featureYtTitle: 'YouTube og SoundCloud, í dag',
     featureYtBody:
-      'Og 1800+ aðrar síður sem yt-dlp talar. Límdu inn slóðina, forritið sér um restina.',
+      'Og margar aðrar síður sem yt-dlp styður. Límdu inn slóðina, forritið sér um restina.',
     featureFormatsTitle: 'MP4 myndband eða MP3 hljóð',
     featureFormatsBody:
       'Veldu tegund, veldu gæði, sæktu. ffmpeg fylgir með, engin auka uppsetning.',

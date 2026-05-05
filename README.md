@@ -10,7 +10,7 @@ Modern, lightweight media downloader. Drop a URL, get an MP3 or MP4. Desktop and
 
 - YouTube
 - SoundCloud
-- 1800+ other sites supported by `yt-dlp` (Bandcamp, Vimeo, Twitch, Twitter, etc.)
+- Many other sites supported by `yt-dlp` (Bandcamp, Vimeo, Twitch, Twitter, etc.)
 
 **Coming soon** (UI placeholders)
 
