@@ -1,0 +1,87 @@
+{
+  "app": {
+    "name": "Patotube",
+    "tagline": "URLを貼って、ファイルをゲット。"
+  },
+  "theme": {
+    "toggle": "テーマを切り替え",
+    "toDark": "ダークモードへ",
+    "toLight": "ライトモードへ"
+  },
+  "locale": {
+    "language": "言語",
+    "change": "言語を変更"
+  },
+  "url": {
+    "label": "メディアURL",
+    "placeholder": "YouTubeやSoundCloudなどのURLを貼り付け",
+    "fetch": "取得",
+    "paste": "クリップボードから貼り付け",
+    "clear": "クリア"
+  },
+  "errors": {
+    "empty": "URLを入力してください",
+    "invalid": "URLが無効です",
+    "unsupported": "このプラットフォームはまだサポートされていません",
+    "comingSoon": "{{platform}} は近日対応予定",
+    "fetchFailed": "情報を取得できませんでした",
+    "downloadFailed": "ダウンロードに失敗しました",
+    "noTauri": "ダウンロードはデスクトップアプリで実行してください"
+  },
+  "format": {
+    "label": "フォーマット",
+    "video": "動画",
+    "audio": "音声のみ",
+    "videoMp4": "MP4動画",
+    "audioMp3": "MP3音声",
+    "quality": "画質",
+    "best": "最高品質",
+    "high": "高 (1080p)",
+    "medium": "中 (720p)",
+    "low": "低 (480p)",
+    "audioBitrate": "ビットレート",
+    "kbps": "{{value}} kbps"
+  },
+  "preview": {
+    "title": "ダウンロードを確認",
+    "duration": "再生時間",
+    "uploader": "投稿者",
+    "confirm": "ダウンロード",
+    "cancel": "キャンセル",
+    "loading": "情報を取得中...",
+    "noThumbnail": "サムネイルなし"
+  },
+  "queue": {
+    "title": "ダウンロード",
+    "empty": "ダウンロードはまだありません。上にURLを貼ってください。",
+    "pending": "待機中",
+    "downloading": "ダウンロード中",
+    "converting": "変換中",
+    "done": "完了",
+    "failed": "失敗",
+    "openFile": "ファイルを開く",
+    "openFolder": "フォルダで表示",
+    "remove": "削除",
+    "retry": "再試行",
+    "clear": "完了済みをクリア"
+  },
+  "platform": {
+    "youtube": "YouTube",
+    "soundcloud": "SoundCloud",
+    "spotify": "Spotify",
+    "deezer": "Deezer",
+    "generic": "Web",
+    "comingSoon": "近日対応"
+  },
+  "settings": {
+    "title": "設定",
+    "downloadFolder": "ダウンロード先",
+    "browse": "参照",
+    "concurrent": "並列ダウンロード数",
+    "theme": "テーマ",
+    "about": "情報"
+  },
+  "footer": {
+    "openSource": "オープンソース"
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "app": {
+    "name": "Patotube",
+    "tagline": "Pega una URL, recibe el archivo."
+  },
+  "theme": {
+    "toggle": "Cambiar tema",
+    "toDark": "Modo oscuro",
+    "toLight": "Modo claro"
+  },
+  "locale": {
+    "language": "Idioma",
+    "change": "Cambiar idioma"
+  },
+  "url": {
+    "label": "URL del medio",
+    "placeholder": "Pega una URL de YouTube, SoundCloud, etc.",
+    "fetch": "Analizar",
+    "paste": "Pegar del portapapeles",
+    "clear": "Limpiar"
+  },
+  "errors": {
+    "empty": "Introduce una URL",
+    "invalid": "URL no válida",
+    "unsupported": "Esta plataforma aún no es compatible",
+    "comingSoon": "{{platform}} llegará pronto",
+    "fetchFailed": "No se pudo obtener la información",
+    "downloadFailed": "Falló la descarga",
+    "noTauri": "Abre la app de escritorio para descargar"
+  },
+  "format": {
+    "label": "Formato",
+    "video": "Vídeo",
+    "audio": "Solo audio",
+    "videoMp4": "Vídeo MP4",
+    "audioMp3": "Audio MP3",
+    "quality": "Calidad",
+    "best": "La mejor disponible",
+    "high": "Alta (1080p)",
+    "medium": "Media (720p)",
+    "low": "Baja (480p)",
+    "audioBitrate": "Tasa de bits",
+    "kbps": "{{value}} kbps"
+  },
+  "preview": {
+    "title": "Confirmar descarga",
+    "duration": "Duración",
+    "uploader": "Autor",
+    "confirm": "Descargar",
+    "cancel": "Cancelar",
+    "loading": "Obteniendo información...",
+    "noThumbnail": "Sin miniatura"
+  },
+  "queue": {
+    "title": "Descargas",
+    "empty": "Sin descargas todavía. Pega una URL arriba.",
+    "pending": "En espera",
+    "downloading": "Descargando",
+    "converting": "Convirtiendo",
+    "done": "Hecho",
+    "failed": "Falló",
+    "openFile": "Abrir archivo",
+    "openFolder": "Mostrar en carpeta",
+    "remove": "Quitar",
+    "retry": "Reintentar",
+    "clear": "Limpiar completadas"
+  },
+  "platform": {
+    "youtube": "YouTube",
+    "soundcloud": "SoundCloud",
+    "spotify": "Spotify",
+    "deezer": "Deezer",
+    "generic": "Web",
+    "comingSoon": "Próximamente"
+  },
+  "settings": {
+    "title": "Ajustes",
+    "downloadFolder": "Carpeta de descargas",
+    "browse": "Explorar",
+    "concurrent": "Descargas en paralelo",
+    "theme": "Tema",
+    "about": "Acerca de"
+  },
+  "footer": {
+    "openSource": "Código abierto"
+  }
+}
