@@ -1,0 +1,89 @@
+use serde::Deserialize;
+use tauri::{AppHandle, Manager, State};
+use tokio::sync::oneshot;
+
+use crate::downloader::{self, MediaInfo};
+use crate::jobs::JobRegistry;
+
+#[derive(Debug, Deserialize, Clone)]
+#[serde(tag = "kind", rename_all = "lowercase")]
+pub enum FormatChoice {
+    Video { quality: String },
+    Audio { bitrate: u32 },
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StartDownloadInput {
+    pub job_id: String,
+    pub url: String,
+    pub format: FormatChoice,
+    pub output_dir: String,
+}
+
+#[tauri::command]
+pub async fn fetch_media_info(app: AppHandle, url: String) -> Result<MediaInfo, String> {
+    downloader::fetch_info(&app, &url).await
+}
+
+#[tauri::command]
+pub async fn start_download(
+    app: AppHandle,
+    registry: State<'_, JobRegistry>,
+    job_id: String,
+    url: String,
+    format: FormatChoice,
+    output_dir: String,
+) -> Result<(), String> {
+    let input = StartDownloadInput {
+        job_id,
+        url,
+        format,
+        output_dir,
+    };
+    downloader::start(&app, &registry, input).await
+}
+
+#[tauri::command]
+pub async fn cancel_download(
+    registry: State<'_, JobRegistry>,
+    job_id: String,
+) -> Result<(), String> {
+    registry.cancel(&job_id).await;
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn pick_folder(app: AppHandle) -> Result<Option<String>, String> {
+    use tauri_plugin_dialog::DialogExt;
+    let (tx, rx) = oneshot::channel();
+    app.dialog().file().pick_folder(move |fp| {
+        let _ = tx.send(fp.map(|p| p.to_string()));
+    });
+    rx.await.map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn default_download_dir(app: AppHandle) -> Result<String, String> {
+    let path = app
+        .path()
+        .download_dir()
+        .map_err(|e| e.to_string())?;
+    Ok(path.to_string_lossy().to_string())
+}
+
+#[tauri::command]
+pub fn open_path(app: AppHandle, path: String) -> Result<(), String> {
+    use tauri_plugin_opener::OpenerExt;
+    app.opener()
+        .open_path(path, None::<&str>)
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn show_in_folder(app: AppHandle, path: String) -> Result<(), String> {
+    use tauri_plugin_opener::OpenerExt;
+    app.opener()
+        .reveal_item_in_dir(path)
+        .map_err(|e| e.to_string())
+}
