@@ -1,6 +1,5 @@
 use serde::Deserialize;
 use tauri::{AppHandle, Manager, State};
-use tokio::sync::oneshot;
 
 use crate::downloader::{self, MediaInfo};
 use crate::jobs::JobRegistry;
@@ -55,12 +54,20 @@ pub async fn cancel_download(
 
 #[tauri::command]
 pub async fn pick_folder(app: AppHandle) -> Result<Option<String>, String> {
-    use tauri_plugin_dialog::DialogExt;
-    let (tx, rx) = oneshot::channel();
-    app.dialog().file().pick_folder(move |fp| {
-        let _ = tx.send(fp.map(|p| p.to_string()));
-    });
-    rx.await.map_err(|e| e.to_string())
+    #[cfg(desktop)]
+    {
+        use tauri_plugin_dialog::DialogExt;
+        let (tx, rx) = tokio::sync::oneshot::channel();
+        app.dialog().file().pick_folder(move |fp| {
+            let _ = tx.send(fp.map(|p| p.to_string()));
+        });
+        rx.await.map_err(|e| e.to_string())
+    }
+    #[cfg(not(desktop))]
+    {
+        let _ = app;
+        Ok(None)
+    }
 }
 
 #[tauri::command]
