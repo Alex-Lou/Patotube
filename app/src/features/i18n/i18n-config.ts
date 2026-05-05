@@ -3,14 +3,17 @@ export type Locale = (typeof SUPPORTED_LOCALES)[number];
 
 export const RTL_LOCALES = new Set<Locale>(['ar']);
 
-export const LOCALE_META: Record<Locale, { label: string; native: string; flag: string }> = {
-  en: { label: 'English', native: 'English', flag: '🇬🇧' },
-  fr: { label: 'French', native: 'Français', flag: '🇫🇷' },
-  es: { label: 'Spanish', native: 'Español', flag: '🇪🇸' },
-  ar: { label: 'Arabic', native: 'العربية', flag: '🇸🇦' },
-  ja: { label: 'Japanese', native: '日本語', flag: '🇯🇵' },
-  zh: { label: 'Chinese', native: '中文', flag: '🇨🇳' },
-  is: { label: 'Icelandic', native: 'Íslenska', flag: '🇮🇸' },
+export const LOCALE_META: Record<
+  Locale,
+  { label: string; native: string; flag: string; abbr: string }
+> = {
+  en: { label: 'English', native: 'English', flag: '🇬🇧', abbr: 'EN' },
+  fr: { label: 'French', native: 'Français', flag: '🇫🇷', abbr: 'FR' },
+  es: { label: 'Spanish', native: 'Español', flag: '🇪🇸', abbr: 'ES' },
+  ar: { label: 'Arabic', native: 'العربية', flag: '🇸🇦', abbr: 'AR' },
+  ja: { label: 'Japanese', native: '日本語', flag: '🇯🇵', abbr: 'JA' },
+  zh: { label: 'Chinese', native: '中文', flag: '🇨🇳', abbr: 'ZH' },
+  is: { label: 'Icelandic', native: 'Íslenska', flag: '🇮🇸', abbr: 'IS' },
 };
 
 export const DEFAULT_LOCALE: Locale = 'en';
