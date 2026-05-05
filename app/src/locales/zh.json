@@ -1,0 +1,87 @@
+{
+  "app": {
+    "name": "Patotube",
+    "tagline": "粘贴链接，获取文件。"
+  },
+  "theme": {
+    "toggle": "切换主题",
+    "toDark": "切换到深色",
+    "toLight": "切换到浅色"
+  },
+  "locale": {
+    "language": "语言",
+    "change": "更改语言"
+  },
+  "url": {
+    "label": "媒体链接",
+    "placeholder": "粘贴 YouTube、SoundCloud 等链接",
+    "fetch": "解析",
+    "paste": "从剪贴板粘贴",
+    "clear": "清空"
+  },
+  "errors": {
+    "empty": "请输入链接",
+    "invalid": "链接无效",
+    "unsupported": "暂不支持该平台",
+    "comingSoon": "{{platform}} 即将支持",
+    "fetchFailed": "无法获取信息",
+    "downloadFailed": "下载失败",
+    "noTauri": "请在桌面应用中下载"
+  },
+  "format": {
+    "label": "格式",
+    "video": "视频",
+    "audio": "仅音频",
+    "videoMp4": "MP4 视频",
+    "audioMp3": "MP3 音频",
+    "quality": "画质",
+    "best": "最佳",
+    "high": "高 (1080p)",
+    "medium": "中 (720p)",
+    "low": "低 (480p)",
+    "audioBitrate": "比特率",
+    "kbps": "{{value}} kbps"
+  },
+  "preview": {
+    "title": "确认下载",
+    "duration": "时长",
+    "uploader": "上传者",
+    "confirm": "下载",
+    "cancel": "取消",
+    "loading": "正在获取信息…",
+    "noThumbnail": "无缩略图"
+  },
+  "queue": {
+    "title": "下载",
+    "empty": "暂无下载。请在上方粘贴链接。",
+    "pending": "等待中",
+    "downloading": "下载中",
+    "converting": "转换中",
+    "done": "完成",
+    "failed": "失败",
+    "openFile": "打开文件",
+    "openFolder": "在文件夹中显示",
+    "remove": "移除",
+    "retry": "重试",
+    "clear": "清除已完成"
+  },
+  "platform": {
+    "youtube": "YouTube",
+    "soundcloud": "SoundCloud",
+    "spotify": "Spotify",
+    "deezer": "Deezer",
+    "generic": "网页",
+    "comingSoon": "即将支持"
+  },
+  "settings": {
+    "title": "设置",
+    "downloadFolder": "下载目录",
+    "browse": "浏览",
+    "concurrent": "并行下载数",
+    "theme": "主题",
+    "about": "关于"
+  },
+  "footer": {
+    "openSource": "开源"
+  }
+}
