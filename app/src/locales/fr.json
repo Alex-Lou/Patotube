@@ -90,6 +90,18 @@
   "drop": {
     "hint": "Lâche ton URL ici"
   },
+  "update": {
+    "section": "Mises à jour",
+    "checkButton": "Vérifier les mises à jour",
+    "checking": "Vérification…",
+    "upToDate": "Tu es à jour.",
+    "available": "Mise à jour dispo : v{{version}}",
+    "installNow": "Installer",
+    "downloading": "Téléchargement de la mise à jour…",
+    "checkFailed": "Échec de la vérification",
+    "failed": "Échec de la mise à jour",
+    "notInDesktop": "Les mises à jour se vérifient depuis l'app desktop."
+  },
   "footer": {
     "openSource": "Open source"
   }

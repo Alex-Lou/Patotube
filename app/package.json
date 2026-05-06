@@ -1,6 +1,6 @@
 {
   "name": "patotube-app",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "tauri": "tauri",
     "typecheck": "tsc -b --noEmit",
-    "sidecars": "node scripts/fetch-sidecars.mjs"
+    "sidecars": "node scripts/fetch-sidecars.mjs",
+    "release:manifest": "node scripts/make-latest-json.mjs"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.2",
@@ -27,6 +28,8 @@
     "@tauri-apps/plugin-fs": "^2.0.2",
     "@tauri-apps/plugin-os": "^2.0.0",
     "@tauri-apps/plugin-shell": "^2.0.1",
+    "@tauri-apps/plugin-updater": "^2.3.0",
+    "@tauri-apps/plugin-process": "^2.2.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^11.11.17",

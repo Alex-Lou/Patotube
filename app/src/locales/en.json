@@ -90,6 +90,18 @@
   "drop": {
     "hint": "Drop URL anywhere"
   },
+  "update": {
+    "section": "Updates",
+    "checkButton": "Check for updates",
+    "checking": "Checking…",
+    "upToDate": "You are up to date.",
+    "available": "Update available: v{{version}}",
+    "installNow": "Install now",
+    "downloading": "Downloading update…",
+    "checkFailed": "Update check failed",
+    "failed": "Update failed",
+    "notInDesktop": "Updates are checked from the desktop app."
+  },
   "footer": {
     "openSource": "Open source"
   }
