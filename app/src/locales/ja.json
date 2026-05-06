@@ -14,7 +14,7 @@
   },
   "url": {
     "label": "メディアURL",
-    "placeholder": "YouTubeやSoundCloudなどのURLを貼り付け",
+    "placeholder": "URLを貼り付け",
     "fetch": "取得",
     "paste": "クリップボードから貼り付け",
     "clear": "クリア"

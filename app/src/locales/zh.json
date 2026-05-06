@@ -14,7 +14,7 @@
   },
   "url": {
     "label": "媒体链接",
-    "placeholder": "粘贴 YouTube、SoundCloud 等链接",
+    "placeholder": "粘贴你的链接",
     "fetch": "解析",
     "paste": "从剪贴板粘贴",
     "clear": "清空"
