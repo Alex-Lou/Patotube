@@ -14,7 +14,7 @@
   },
   "url": {
     "label": "رابط الوسائط",
-    "placeholder": "ألصِق رابط YouTube أو SoundCloud وغيرها",
+    "placeholder": "ألصِق رابطك",
     "fetch": "تحليل",
     "paste": "لصق من الحافظة",
     "clear": "مسح"

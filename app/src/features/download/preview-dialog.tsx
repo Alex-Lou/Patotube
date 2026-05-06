@@ -77,7 +77,12 @@ export function PreviewDialog({ info, onClose, onConfirm }: PreviewDialogProps) 
               )}
             </div>
 
-            <FormatPicker value={format} onChange={setFormat} />
+            <div className="border-t border-border/50 pt-4 space-y-3">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {t('format.label')}
+              </h4>
+              <FormatPicker value={format} onChange={setFormat} />
+            </div>
 
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="ghost" onClick={onClose}>
