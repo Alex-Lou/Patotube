@@ -40,6 +40,9 @@ Thumbs.db
 # Local tools (rustup, gh installers)
 .tools/
 
+# Built release assets staged for upload (large binaries)
+release-assets/
+
 # Test coverage
 coverage/
 
