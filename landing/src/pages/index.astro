@@ -305,7 +305,11 @@ const metaJson = JSON.stringify(LOCALE_META);
             <svg width="12" height="12" viewBox="0 0 24 24" fill="hsl(0 72% 60%)" aria-hidden="true">
               <path d="M12 21s-7-4.5-9.5-9C1 9 2.5 5 6.5 5c2 0 3.5 1 4.5 2.5C12 6 13.5 5 15.5 5 19.5 5 21 9 19.5 12 17 16.5 12 21 12 21Z"/>
             </svg>
-            <span>· open source on GitHub</span>
+            <span>by</span>
+            <a
+              href={`https://github.com/${GITHUB_OWNER}`}
+              class="font-semibold text-fg-muted hover:text-duck transition-colors"
+            >CybWu</a>
           </span>
         </div>
       </div>
