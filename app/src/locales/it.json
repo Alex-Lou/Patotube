@@ -1,0 +1,87 @@
+{
+  "app": {
+    "name": "Patotube",
+    "tagline": "Incolla un URL, ottieni il file."
+  },
+  "theme": {
+    "toggle": "Cambia tema",
+    "toDark": "Tema scuro",
+    "toLight": "Tema chiaro"
+  },
+  "locale": {
+    "language": "Lingua",
+    "change": "Cambia lingua"
+  },
+  "url": {
+    "label": "URL del media",
+    "placeholder": "Incolla il tuo URL",
+    "fetch": "Analizza",
+    "paste": "Incolla dagli appunti",
+    "clear": "Cancella"
+  },
+  "errors": {
+    "empty": "Inserisci un URL",
+    "invalid": "URL non valido",
+    "unsupported": "Questa piattaforma non è ancora supportata",
+    "comingSoon": "Supporto per {{platform}} in arrivo",
+    "fetchFailed": "Impossibile recuperare le informazioni",
+    "downloadFailed": "Download fallito",
+    "noTauri": "Apri l'app desktop per scaricare"
+  },
+  "format": {
+    "label": "Formato",
+    "video": "Video",
+    "audio": "Solo audio",
+    "videoMp4": "Video MP4",
+    "audioMp3": "Audio MP3",
+    "quality": "Qualità",
+    "best": "Migliore disponibile",
+    "high": "Alta (1080p)",
+    "medium": "Media (720p)",
+    "low": "Bassa (480p)",
+    "audioBitrate": "Bitrate",
+    "kbps": "{{value}} kbps"
+  },
+  "preview": {
+    "title": "Conferma download",
+    "duration": "Durata",
+    "uploader": "Autore",
+    "confirm": "Scarica",
+    "cancel": "Annulla",
+    "loading": "Recupero informazioni...",
+    "noThumbnail": "Nessuna miniatura"
+  },
+  "queue": {
+    "title": "Download",
+    "empty": "Nessun download. Incolla un URL sopra.",
+    "pending": "In attesa",
+    "downloading": "In download",
+    "converting": "Conversione",
+    "done": "Completato",
+    "failed": "Fallito",
+    "openFile": "Apri file",
+    "openFolder": "Mostra nella cartella",
+    "remove": "Rimuovi",
+    "retry": "Riprova",
+    "clear": "Pulisci completati"
+  },
+  "platform": {
+    "youtube": "YouTube",
+    "soundcloud": "SoundCloud",
+    "spotify": "Spotify",
+    "deezer": "Deezer",
+    "generic": "Web",
+    "comingSoon": "Prossimamente"
+  },
+  "settings": {
+    "title": "Impostazioni",
+    "downloadFolder": "Cartella download",
+    "browse": "Sfoglia",
+    "concurrent": "Download paralleli",
+    "theme": "Tema",
+    "about": "Informazioni"
+  },
+  "footer": {
+    "openSource": "Open source"
+  }
+}

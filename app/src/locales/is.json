@@ -14,7 +14,7 @@
   },
   "url": {
     "label": "Slóð á efni",
-    "placeholder": "Límdu inn slóð frá YouTube, SoundCloud o.s.frv.",
+    "placeholder": "Límdu inn slóðina þína",
     "fetch": "Sækja",
     "paste": "Líma af klippiborði",
     "clear": "Hreinsa"

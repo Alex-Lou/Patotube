@@ -14,7 +14,7 @@
   },
   "url": {
     "label": "Media URL",
-    "placeholder": "Paste a YouTube, SoundCloud, etc. URL",
+    "placeholder": "Paste your URL",
     "fetch": "Fetch",
     "paste": "Paste from clipboard",
     "clear": "Clear"

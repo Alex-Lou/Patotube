@@ -14,7 +14,7 @@
   },
   "url": {
     "label": "URL del medio",
-    "placeholder": "Pega una URL de YouTube, SoundCloud, etc.",
+    "placeholder": "Pega tu URL",
     "fetch": "Analizar",
     "paste": "Pegar del portapapeles",
     "clear": "Limpiar"

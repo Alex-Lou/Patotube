@@ -1,0 +1,343 @@
+---
+import '../styles/global.css';
+import { GITHUB_BASE, GITHUB_OWNER, GITHUB_REPO, DOWNLOAD_URLS, APP_VERSION } from '../constants/config';
+import { DICT, LOCALE_META, RTL, SUPPORTED } from '../i18n/translations';
+
+const downloads = [
+  {
+    key: 'windows',
+    href: DOWNLOAD_URLS.windows,
+    icon: '\u{1F5A5}\u{FE0F}',
+    primary: true,
+  },
+  {
+    key: 'android',
+    href: DOWNLOAD_URLS.android,
+    icon: '\u{1F4F1}',
+    primary: true,
+  },
+  { key: 'linux', href: '#', icon: '\u{1F427}', primary: false },
+] as const;
+
+const features = [
+  { titleKey: 'featureYtTitle', bodyKey: 'featureYtBody' },
+  { titleKey: 'featureFormatsTitle', bodyKey: 'featureFormatsBody' },
+  { titleKey: 'featureI18nTitle', bodyKey: 'featureI18nBody' },
+  { titleKey: 'featureNativeTitle', bodyKey: 'featureNativeBody' },
+  { titleKey: 'featureSoonTitle', bodyKey: 'featureSoonBody' },
+  { titleKey: 'featureOssTitle', bodyKey: 'featureOssBody' },
+] as const;
+
+const year = new Date().getFullYear();
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const en = DICT.en;
+
+// Inline-serialize the dictionaries so client JS can swap text without an
+// extra fetch. RTL set serialized as a plain array.
+const dictJson = JSON.stringify(DICT);
+const rtlJson = JSON.stringify([...RTL]);
+const supportedJson = JSON.stringify(SUPPORTED);
+const metaJson = JSON.stringify(LOCALE_META);
+---
+
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <meta name="description" content="Patotube — modern lightweight media downloader. Drop a URL, get an MP3 or MP4. Desktop and Android." />
+    <meta property="og:title" content="Patotube" />
+    <meta property="og:description" content="Drop a URL, get the file. YouTube, SoundCloud and more." />
+    <meta property="og:image" content={`${base}/patotube.png`} />
+    <link rel="icon" type="image/png" href={`${base}/patotube.png`} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <title>Patotube — drop a URL, get the file</title>
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 glass">
+      <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
+        <a href={base + '/'} class="flex items-center gap-2.5 group shrink-0">
+          <img
+            src={`${base}/patotube.png`}
+            alt="Patotube"
+            class="size-8 group-hover:animate-float"
+            width="32"
+            height="32"
+          />
+          <span class="font-bold text-lg tracking-tight">Patotube</span>
+        </a>
+        <div class="flex items-center gap-3 text-sm">
+          <a
+            href="#features"
+            class="text-fg-muted hover:text-fg transition-colors hidden sm:inline"
+            data-i18n="navFeatures">{en.navFeatures}</a
+          >
+          <a
+            href={GITHUB_BASE}
+            class="text-fg-muted hover:text-fg transition-colors">GitHub</a
+          >
+
+          <!-- Language picker -->
+          <div class="relative">
+            <button
+              id="lang-btn"
+              type="button"
+              aria-haspopup="listbox"
+              aria-expanded="false"
+              class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border bg-bg-card hover:bg-bg-soft transition-colors text-sm"
+            >
+              <span id="lang-current-flag" class="text-base leading-none">🇬🇧</span>
+              <span id="lang-current-abbr" class="text-[11px] font-mono font-bold tracking-wider opacity-80">EN</span>
+              <svg width="10" height="10" viewBox="0 0 12 12" fill="none" class="opacity-60">
+                <path d="M3 5l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+            <ul
+              id="lang-menu"
+              role="listbox"
+              class="hidden absolute right-0 mt-2 w-44 bg-bg-card border border-border rounded-lg shadow-xl py-1 z-50"
+            >
+              {SUPPORTED.map((code) => (
+                <li>
+                  <button
+                    type="button"
+                    data-lang={code}
+                    class="lang-option w-full text-left flex items-center gap-2.5 px-3 py-2 text-sm hover:bg-bg-soft transition-colors"
+                  >
+                    <span class="text-base leading-none">{LOCALE_META[code].flag}</span>
+                    <span class="text-[10px] font-mono font-bold tracking-wider w-7 opacity-70">
+                      {LOCALE_META[code].abbr}
+                    </span>
+                    <span class="flex-1 truncate">{LOCALE_META[code].native}</span>
+                    <span class="lang-check opacity-0">✓</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <a
+            href="#download"
+            class="px-3 py-1.5 rounded-lg bg-duck text-bg font-semibold hover:brightness-110 transition-all"
+            data-i18n="navDownload">{en.navDownload}</a
+          >
+        </div>
+      </nav>
+    </header>
+
+    <!-- Hero -->
+    <section class="relative">
+      <div class="max-w-6xl mx-auto px-6 pt-20 pb-12 sm:pt-32 sm:pb-20 text-center">
+        <img
+          src={`${base}/patotube.png`}
+          alt=""
+          class="size-32 sm:size-40 mx-auto mb-8 animate-float drop-shadow-[0_8px_32px_hsl(45_96%_56%/0.4)]"
+          width="160"
+          height="160"
+        />
+        <h1
+          class="text-5xl sm:text-7xl font-extrabold tracking-tight animate-fade-up"
+        >
+          <span data-i18n="heroLine1">{en.heroLine1}</span> <br class="sm:hidden" /><span class="text-gradient-duck"
+            data-i18n="heroLine2">{en.heroLine2}</span>
+        </h1>
+        <p
+          class="mt-6 max-w-xl mx-auto text-lg sm:text-xl text-fg-muted animate-fade-up"
+          style="animation-delay:80ms"
+          data-i18n="heroDesc"
+        >{en.heroDesc}</p>
+        <div
+          class="mt-10 flex flex-wrap justify-center gap-3 animate-fade-up"
+          style="animation-delay:160ms"
+        >
+          <a
+            href="#download"
+            class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-duck text-bg font-bold shadow-lg shadow-duck/20 hover:shadow-duck/40 hover:scale-[1.02] transition-all"
+            data-i18n="heroCtaPrimary">{en.heroCtaPrimary}</a
+          >
+          <a
+            href={GITHUB_BASE}
+            class="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-border bg-bg-card hover:bg-bg-soft transition-colors"
+            data-i18n="heroCtaSecondary">{en.heroCtaSecondary}</a
+          >
+        </div>
+      </div>
+    </section>
+
+    <!-- Downloads -->
+    <section id="download" class="py-16 sm:py-24">
+      <div class="max-w-5xl mx-auto px-6">
+        <h2
+          class="text-3xl sm:text-4xl font-bold text-center tracking-tight"
+          data-i18n="downloadsTitle">{en.downloadsTitle}</h2>
+        <p class="mt-3 text-center text-fg-muted" data-i18n="downloadsSubtitle">{en.downloadsSubtitle}</p>
+        <div
+          class="mt-12 grid grid-cols-3 max-w-2xl mx-auto gap-3 sm:gap-4"
+        >
+          {
+            downloads.map((d) => (
+              <a
+                href={d.href}
+                class:list={[
+                  'group relative rounded-2xl p-5 sm:p-6 border transition-all',
+                  d.primary
+                    ? 'bg-bg-card border-border hover:border-duck/60 hover:bg-bg-soft hover:-translate-y-0.5 hover:shadow-xl hover:shadow-duck/10'
+                    : 'bg-bg-card/50 border-border/50 cursor-not-allowed opacity-60',
+                ]}
+                aria-disabled={!d.primary}
+              >
+                <div class="text-3xl sm:text-4xl mb-3">{d.icon}</div>
+                <div class="font-bold" data-i18n={`${d.key}Label`}>
+                  {(en as any)[`${d.key}Label`]}
+                </div>
+                <div class="text-xs text-fg-muted mt-0.5" data-i18n={`${d.key}Sub`}>
+                  {(en as any)[`${d.key}Sub`]}
+                </div>
+                {d.primary && (
+                  <div
+                    class="mt-4 text-xs text-duck font-semibold opacity-0 group-hover:opacity-100 transition-opacity"
+                    data-i18n="hoverCta"
+                  >{en.hoverCta}</div>
+                )}
+              </a>
+            ))
+          }
+        </div>
+        <p class="mt-8 text-xs text-center text-fg-subtle leading-relaxed max-w-2xl mx-auto" data-i18n="downloadsHint">
+          {en.downloadsHint}
+        </p>
+        <p class="mt-2 text-[10px] text-center text-fg-subtle font-mono opacity-60">
+          v{APP_VERSION}
+        </p>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="py-16 sm:py-24 border-t border-border">
+      <div class="max-w-6xl mx-auto px-6">
+        <h2 class="text-3xl sm:text-4xl font-bold text-center tracking-tight" data-i18n="featuresTitle">
+          {en.featuresTitle}
+        </h2>
+        <div class="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {
+            features.map((f) => (
+              <div class="rounded-xl p-6 bg-bg-card border border-border hover:border-border/80 transition-colors">
+                <h3 class="font-semibold text-lg" data-i18n={f.titleKey}>{(en as any)[f.titleKey]}</h3>
+                <p class="mt-2 text-sm text-fg-muted leading-relaxed" data-i18n={f.bodyKey}>{(en as any)[f.bodyKey]}</p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="mt-auto border-t border-border py-10">
+      <div
+        class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-fg-muted"
+      >
+        <div class="flex items-center gap-2">
+          <img
+            src={`${base}/patotube.png`}
+            alt=""
+            class="size-5"
+            width="20"
+            height="20"
+          />
+          <span>&copy; {year} <span data-i18n="footerCopy">{en.footerCopy}</span></span>
+        </div>
+        <div class="flex items-center gap-5">
+          <a href={GITHUB_BASE} class="hover:text-fg transition-colors">GitHub</a>
+          <a href={`${GITHUB_BASE}/issues`} class="hover:text-fg transition-colors" data-i18n="footerIssues">{en.footerIssues}</a>
+          <a href={`${GITHUB_BASE}/releases`} class="hover:text-fg transition-colors" data-i18n="footerReleases">{en.footerReleases}</a>
+        </div>
+      </div>
+    </footer>
+
+    <script
+      is:inline
+      define:vars={{ DICT: dictJson, RTL: rtlJson, SUPPORTED: supportedJson, META: metaJson }}
+    >
+      const dict = JSON.parse(DICT);
+      const rtl = new Set(JSON.parse(RTL));
+      const supported = JSON.parse(SUPPORTED);
+      const meta = JSON.parse(META);
+      const STORAGE_KEY = 'patotube-locale';
+
+      const detectLocale = () => {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored && dict[stored]) return stored;
+        const navLang = (navigator.language || 'en').slice(0, 2).toLowerCase();
+        return dict[navLang] ? navLang : 'en';
+      };
+
+      const apply = (lang) => {
+        document.documentElement.lang = lang;
+        document.documentElement.dir = rtl.has(lang) ? 'rtl' : 'ltr';
+        const d = dict[lang] || dict.en;
+        document.querySelectorAll('[data-i18n]').forEach((el) => {
+          const k = el.getAttribute('data-i18n');
+          if (k && d[k] !== undefined) el.textContent = d[k];
+        });
+        const flag = document.getElementById('lang-current-flag');
+        const abbr = document.getElementById('lang-current-abbr');
+        if (flag) flag.textContent = meta[lang].flag;
+        if (abbr) abbr.textContent = meta[lang].abbr;
+        document.querySelectorAll('.lang-option').forEach((btn) => {
+          const code = btn.getAttribute('data-lang');
+          const check = btn.querySelector('.lang-check');
+          if (check) check.classList.toggle('opacity-0', code !== lang);
+        });
+      };
+
+      const setLocale = (lang) => {
+        if (!dict[lang]) return;
+        localStorage.setItem(STORAGE_KEY, lang);
+        apply(lang);
+      };
+
+      // Apply detected locale immediately
+      apply(detectLocale());
+
+      // Wire up the picker
+      const btn = document.getElementById('lang-btn');
+      const menu = document.getElementById('lang-menu');
+      if (btn && menu) {
+        const close = () => {
+          menu.classList.add('hidden');
+          btn.setAttribute('aria-expanded', 'false');
+        };
+        const open = () => {
+          menu.classList.remove('hidden');
+          btn.setAttribute('aria-expanded', 'true');
+        };
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          menu.classList.contains('hidden') ? open() : close();
+        });
+        document.addEventListener('click', (e) => {
+          if (!menu.contains(e.target) && e.target !== btn) close();
+        });
+        document.querySelectorAll('.lang-option').forEach((opt) => {
+          opt.addEventListener('click', () => {
+            const code = opt.getAttribute('data-lang');
+            if (code) {
+              setLocale(code);
+              close();
+            }
+          });
+        });
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') close();
+        });
+      }
+    </script>
+  </body>
+</html>
