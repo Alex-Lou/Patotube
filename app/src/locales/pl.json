@@ -1,0 +1,87 @@
+{
+  "app": {
+    "name": "Patotube",
+    "tagline": "Wklej URL, otrzymaj plik."
+  },
+  "theme": {
+    "toggle": "Przełącz motyw",
+    "toDark": "Ciemny motyw",
+    "toLight": "Jasny motyw"
+  },
+  "locale": {
+    "language": "Język",
+    "change": "Zmień język"
+  },
+  "url": {
+    "label": "URL multimediów",
+    "placeholder": "Wklej swój URL",
+    "fetch": "Analizuj",
+    "paste": "Wklej ze schowka",
+    "clear": "Wyczyść"
+  },
+  "errors": {
+    "empty": "Wprowadź URL",
+    "invalid": "Nieprawidłowy URL",
+    "unsupported": "Ta platforma nie jest jeszcze obsługiwana",
+    "comingSoon": "Wsparcie dla {{platform}} wkrótce",
+    "fetchFailed": "Nie udało się pobrać informacji",
+    "downloadFailed": "Pobieranie nie powiodło się",
+    "noTauri": "Otwórz aplikację desktopową, aby pobrać"
+  },
+  "format": {
+    "label": "Format",
+    "video": "Wideo",
+    "audio": "Tylko dźwięk",
+    "videoMp4": "Wideo MP4",
+    "audioMp3": "Audio MP3",
+    "quality": "Jakość",
+    "best": "Najlepsza dostępna",
+    "high": "Wysoka (1080p)",
+    "medium": "Średnia (720p)",
+    "low": "Niska (480p)",
+    "audioBitrate": "Bitrate",
+    "kbps": "{{value}} kbps"
+  },
+  "preview": {
+    "title": "Potwierdź pobieranie",
+    "duration": "Czas trwania",
+    "uploader": "Autor",
+    "confirm": "Pobierz",
+    "cancel": "Anuluj",
+    "loading": "Pobieranie informacji...",
+    "noThumbnail": "Brak miniatury"
+  },
+  "queue": {
+    "title": "Pobierania",
+    "empty": "Brak pobierania. Wklej URL powyżej.",
+    "pending": "Oczekujące",
+    "downloading": "Pobieranie",
+    "converting": "Konwersja",
+    "done": "Ukończone",
+    "failed": "Nieudane",
+    "openFile": "Otwórz plik",
+    "openFolder": "Pokaż w folderze",
+    "remove": "Usuń",
+    "retry": "Ponów",
+    "clear": "Wyczyść ukończone"
+  },
+  "platform": {
+    "youtube": "YouTube",
+    "soundcloud": "SoundCloud",
+    "spotify": "Spotify",
+    "deezer": "Deezer",
+    "generic": "Sieć",
+    "comingSoon": "Wkrótce"
+  },
+  "settings": {
+    "title": "Ustawienia",
+    "downloadFolder": "Folder pobierania",
+    "browse": "Przeglądaj",
+    "concurrent": "Równoległe pobierania",
+    "theme": "Motyw",
+    "about": "O programie"
+  },
+  "footer": {
+    "openSource": "Open source"
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "app": {
+    "name": "Patotube",
+    "tagline": "URL을 붙여넣고 파일을 받으세요."
+  },
+  "theme": {
+    "toggle": "테마 전환",
+    "toDark": "다크 모드",
+    "toLight": "라이트 모드"
+  },
+  "locale": {
+    "language": "언어",
+    "change": "언어 변경"
+  },
+  "url": {
+    "label": "미디어 URL",
+    "placeholder": "URL 붙여넣기",
+    "fetch": "분석",
+    "paste": "클립보드에서 붙여넣기",
+    "clear": "지우기"
+  },
+  "errors": {
+    "empty": "URL을 입력하세요",
+    "invalid": "잘못된 URL",
+    "unsupported": "이 플랫폼은 아직 지원되지 않습니다",
+    "comingSoon": "{{platform}} 지원이 곧 추가됩니다",
+    "fetchFailed": "정보를 가져올 수 없습니다",
+    "downloadFailed": "다운로드 실패",
+    "noTauri": "데스크톱 앱에서 다운로드하세요"
+  },
+  "format": {
+    "label": "형식",
+    "video": "비디오",
+    "audio": "오디오만",
+    "videoMp4": "MP4 비디오",
+    "audioMp3": "MP3 오디오",
+    "quality": "품질",
+    "best": "최고 품질",
+    "high": "고화질 (1080p)",
+    "medium": "중화질 (720p)",
+    "low": "저화질 (480p)",
+    "audioBitrate": "비트레이트",
+    "kbps": "{{value}} kbps"
+  },
+  "preview": {
+    "title": "다운로드 확인",
+    "duration": "재생 시간",
+    "uploader": "업로더",
+    "confirm": "다운로드",
+    "cancel": "취소",
+    "loading": "정보 가져오는 중...",
+    "noThumbnail": "미리보기 없음"
+  },
+  "queue": {
+    "title": "다운로드",
+    "empty": "다운로드가 없습니다. 위에 URL을 붙여넣으세요.",
+    "pending": "대기 중",
+    "downloading": "다운로드 중",
+    "converting": "변환 중",
+    "done": "완료",
+    "failed": "실패",
+    "openFile": "파일 열기",
+    "openFolder": "폴더에서 보기",
+    "remove": "제거",
+    "retry": "재시도",
+    "clear": "완료된 항목 지우기"
+  },
+  "platform": {
+    "youtube": "YouTube",
+    "soundcloud": "SoundCloud",
+    "spotify": "Spotify",
+    "deezer": "Deezer",
+    "generic": "웹",
+    "comingSoon": "출시 예정"
+  },
+  "settings": {
+    "title": "설정",
+    "downloadFolder": "다운로드 폴더",
+    "browse": "찾아보기",
+    "concurrent": "동시 다운로드",
+    "theme": "테마",
+    "about": "정보"
+  },
+  "footer": {
+    "openSource": "오픈 소스"
+  }
+}
