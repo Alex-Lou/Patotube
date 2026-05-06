@@ -1,0 +1,87 @@
+{
+  "app": {
+    "name": "Patotube",
+    "tagline": "URL पेस्ट करें, फ़ाइल पाएं।"
+  },
+  "theme": {
+    "toggle": "थीम बदलें",
+    "toDark": "डार्क थीम",
+    "toLight": "लाइट थीम"
+  },
+  "locale": {
+    "language": "भाषा",
+    "change": "भाषा बदलें"
+  },
+  "url": {
+    "label": "मीडिया URL",
+    "placeholder": "अपना URL पेस्ट करें",
+    "fetch": "विश्लेषण करें",
+    "paste": "क्लिपबोर्ड से पेस्ट करें",
+    "clear": "साफ़ करें"
+  },
+  "errors": {
+    "empty": "कृपया URL दर्ज करें",
+    "invalid": "अमान्य URL",
+    "unsupported": "यह प्लेटफ़ॉर्म अभी समर्थित नहीं है",
+    "comingSoon": "{{platform}} समर्थन जल्द आ रहा है",
+    "fetchFailed": "जानकारी प्राप्त नहीं हुई",
+    "downloadFailed": "डाउनलोड विफल",
+    "noTauri": "डाउनलोड के लिए डेस्कटॉप ऐप खोलें"
+  },
+  "format": {
+    "label": "फ़ॉर्मेट",
+    "video": "वीडियो",
+    "audio": "केवल ऑडियो",
+    "videoMp4": "MP4 वीडियो",
+    "audioMp3": "MP3 ऑडियो",
+    "quality": "गुणवत्ता",
+    "best": "सर्वश्रेष्ठ उपलब्ध",
+    "high": "उच्च (1080p)",
+    "medium": "मध्यम (720p)",
+    "low": "कम (480p)",
+    "audioBitrate": "बिटरेट",
+    "kbps": "{{value}} kbps"
+  },
+  "preview": {
+    "title": "डाउनलोड की पुष्टि करें",
+    "duration": "अवधि",
+    "uploader": "अपलोडर",
+    "confirm": "डाउनलोड करें",
+    "cancel": "रद्द करें",
+    "loading": "जानकारी प्राप्त हो रही है...",
+    "noThumbnail": "कोई थंबनेल नहीं"
+  },
+  "queue": {
+    "title": "डाउनलोड",
+    "empty": "अभी कोई डाउनलोड नहीं। ऊपर URL पेस्ट करें।",
+    "pending": "प्रतीक्षारत",
+    "downloading": "डाउनलोड हो रहा है",
+    "converting": "रूपांतरण",
+    "done": "पूर्ण",
+    "failed": "विफल",
+    "openFile": "फ़ाइल खोलें",
+    "openFolder": "फ़ोल्डर में दिखाएं",
+    "remove": "हटाएं",
+    "retry": "पुनः प्रयास",
+    "clear": "पूर्ण को साफ़ करें"
+  },
+  "platform": {
+    "youtube": "YouTube",
+    "soundcloud": "SoundCloud",
+    "spotify": "Spotify",
+    "deezer": "Deezer",
+    "generic": "वेब",
+    "comingSoon": "जल्द आ रहा है"
+  },
+  "settings": {
+    "title": "सेटिंग्स",
+    "downloadFolder": "डाउनलोड फ़ोल्डर",
+    "browse": "ब्राउज़ करें",
+    "concurrent": "समानांतर डाउनलोड",
+    "theme": "थीम",
+    "about": "के बारे में"
+  },
+  "footer": {
+    "openSource": "ओपन सोर्स"
+  }
+}
