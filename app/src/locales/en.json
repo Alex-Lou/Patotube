@@ -76,10 +76,19 @@
   "settings": {
     "title": "Settings",
     "downloadFolder": "Download folder",
-    "browse": "Browse",
+    "browse": "Change",
+    "osDefault": "OS default",
     "concurrent": "Parallel downloads",
     "theme": "Theme",
     "about": "About"
+  },
+  "toast": {
+    "completed": "Downloaded: {{title}}",
+    "failed": "Failed: {{title}}",
+    "urlPasted": "URL added"
+  },
+  "drop": {
+    "hint": "Drop URL anywhere"
   },
   "footer": {
     "openSource": "Open source"
