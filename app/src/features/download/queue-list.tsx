@@ -11,7 +11,7 @@ export function QueueList() {
   const jobs = useQueueStore((s) => s.jobs);
   const remove = useQueueStore((s) => s.remove);
   const clearCompleted = useQueueStore((s) => s.clearCompleted);
-  const { retry, showInFolder } = useDownloads();
+  const { retry, showInFolder, openFile } = useDownloads();
 
   const hasCompleted = jobs.some((j) => j.status === 'done');
 
@@ -41,6 +41,7 @@ export function QueueList() {
                 onRemove={remove}
                 onRetry={retry}
                 onShowInFolder={showInFolder}
+                onOpenFile={openFile}
               />
             ))}
           </AnimatePresence>
