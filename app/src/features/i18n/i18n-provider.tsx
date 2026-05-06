@@ -7,8 +7,17 @@ import { DEFAULT_LOCALE, SUPPORTED_LOCALES, isRTL } from './i18n-config';
 import en from '@/locales/en.json';
 import fr from '@/locales/fr.json';
 import es from '@/locales/es.json';
+import pt from '@/locales/pt.json';
+import it from '@/locales/it.json';
+import de from '@/locales/de.json';
+import nl from '@/locales/nl.json';
+import pl from '@/locales/pl.json';
+import ru from '@/locales/ru.json';
+import tr from '@/locales/tr.json';
 import ar from '@/locales/ar.json';
+import hi from '@/locales/hi.json';
 import ja from '@/locales/ja.json';
+import ko from '@/locales/ko.json';
 import zh from '@/locales/zh.json';
 import is from '@/locales/is.json';
 
@@ -20,8 +29,17 @@ void i18n
       en: { translation: en },
       fr: { translation: fr },
       es: { translation: es },
+      pt: { translation: pt },
+      it: { translation: it },
+      de: { translation: de },
+      nl: { translation: nl },
+      pl: { translation: pl },
+      ru: { translation: ru },
+      tr: { translation: tr },
       ar: { translation: ar },
+      hi: { translation: hi },
       ja: { translation: ja },
+      ko: { translation: ko },
       zh: { translation: zh },
       is: { translation: is },
     },

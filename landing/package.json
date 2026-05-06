@@ -1,0 +1,19 @@
+{
+  "name": "patotube-landing",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "^4.16.13",
+    "@astrojs/tailwind": "^5.1.2",
+    "@astrojs/check": "^0.9.4",
+    "tailwindcss": "^3.4.15",
+    "typescript": "^5.6.3"
+  }
+}

@@ -95,6 +95,12 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     overflow: hidden;
+    /* Respect Android/iOS system bars and notches when the WebView
+       draws edge-to-edge. Safe to keep on desktop: env() resolves to 0. */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
   }
 
   html[dir='rtl'] body {
@@ -138,6 +144,16 @@
 }
 
 @layer utilities {
+  .safe-top {
+    padding-top: max(env(safe-area-inset-top), 0px);
+  }
+  .safe-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom), 0px);
+  }
+  .min-h-safe {
+    min-height: env(safe-area-inset-top);
+  }
+
   .glass {
     @apply backdrop-blur-xl bg-background/70 border border-border/60;
   }

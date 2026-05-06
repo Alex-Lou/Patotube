@@ -6,12 +6,15 @@ import {
   Folder,
   X,
   RotateCw,
+  Film,
+  Music,
+  Clock,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { cn, formatBytes } from '@/lib/utils';
+import { cn, formatBytes, formatDuration } from '@/lib/utils';
 import type { DownloadJob, JobStatus } from '@/lib/core/types';
 import { PlatformBadge } from './platform-badge';
 
@@ -32,7 +35,13 @@ const STATUS_TONE: Record<JobStatus, string> = {
 
 export function QueueItem({ job, onRemove, onRetry, onShowInFolder }: QueueItemProps) {
   const { t } = useTranslation();
-  const { info, status, progress, speedBps, error, filePath } = job;
+  const { info, format, status, progress, speedBps, error, filePath } = job;
+
+  const formatLabel =
+    format.kind === 'video'
+      ? `MP4 · ${t(`format.${format.quality}`)}`
+      : `MP3 · ${format.bitrate}k`;
+  const FormatIcon = format.kind === 'video' ? Film : Music;
 
   return (
     <motion.div
@@ -44,7 +53,7 @@ export function QueueItem({ job, onRemove, onRetry, onShowInFolder }: QueueItemP
     >
       <Card className="p-3">
         <div className="flex items-start gap-3">
-          <div className="aspect-video w-28 shrink-0 overflow-hidden rounded-md bg-muted">
+          <div className="aspect-video w-28 shrink-0 overflow-hidden rounded-md bg-muted sm:w-32">
             {info.thumbnail && (
               <img
                 src={info.thumbnail}
@@ -61,8 +70,21 @@ export function QueueItem({ job, onRemove, onRetry, onShowInFolder }: QueueItemP
                 <p className="truncate text-sm font-medium" title={info.title}>
                   {info.title}
                 </p>
-                <div className="mt-1 flex items-center gap-2">
+                {/* Metadata row: platform · format · quality · duration */}
+                <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
                   <PlatformBadge platform={info.platform} />
+                  <span className="inline-flex items-center gap-1">
+                    <FormatIcon className="size-3" />
+                    {formatLabel}
+                  </span>
+                  {typeof info.durationSec === 'number' && info.durationSec > 0 && (
+                    <span className="inline-flex items-center gap-1">
+                      <Clock className="size-3" />
+                      {formatDuration(info.durationSec)}
+                    </span>
+                  )}
+                </div>
+                <div className="mt-1">
                   <StatusLabel status={status} />
                 </div>
               </div>
