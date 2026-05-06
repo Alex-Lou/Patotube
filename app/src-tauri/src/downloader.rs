@@ -7,6 +7,13 @@ use crate::jobs::JobRegistry;
 
 const PROGRESS_TPL: &str = "PROGRESS|%(progress.downloaded_bytes)s|%(progress.total_bytes)s|%(progress.speed)s|%(progress.eta)s";
 
+/// Args YouTube needs to dodge anti-bot/age/region walls reliably.
+/// The old Patotube Python build used `player_client=['android']`; we keep
+/// that and let yt-dlp fall back to web/web_safari if android responds with
+/// nothing useful. Adding more clients here is generally safe.
+const YT_EXTRACTOR_ARGS: &str =
+    "youtube:player_client=default,android,web_safari";
+
 #[derive(Debug, Deserialize)]
 struct YtdlpJson {
     title: String,
@@ -56,6 +63,9 @@ pub async fn fetch_info(app: &AppHandle, url: &str) -> Result<MediaInfo, String>
             "--skip-download",
             "--print-json",
             "--no-warnings",
+            "--no-check-certificate",
+            "--extractor-args",
+            YT_EXTRACTOR_ARGS,
             url,
         ])
         .output()
@@ -64,11 +74,7 @@ pub async fn fetch_info(app: &AppHandle, url: &str) -> Result<MediaInfo, String>
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
-        return Err(if stderr.is_empty() {
-            format!("yt-dlp exited with code {:?}", output.status.code())
-        } else {
-            stderr
-        });
+        return Err(friendly_error(&stderr, output.status.code()));
     }
 
     let info: YtdlpJson = serde_json::from_slice(&output.stdout)
@@ -113,8 +119,11 @@ pub async fn start(
         "--no-playlist".into(),
         "--no-warnings".into(),
         "--no-mtime".into(),
+        "--no-check-certificate".into(),
         "--restrict-filenames".into(),
         "--newline".into(),
+        "--extractor-args".into(),
+        YT_EXTRACTOR_ARGS.into(),
         "--progress-template".into(),
         PROGRESS_TPL.into(),
         "--paths".into(),
@@ -162,6 +171,7 @@ pub async fn start(
     tokio::spawn(async move {
         let mut last_file: Option<String> = None;
         let mut last_error: Option<String> = None;
+        let mut stderr_buf = String::new();
 
         while let Some(event) = rx.recv().await {
             match event {
@@ -179,8 +189,14 @@ pub async fn start(
                 }
                 CommandEvent::Stderr(bytes) => {
                     let line = String::from_utf8_lossy(&bytes).to_string();
+                    let trimmed = line.trim();
+                    if trimmed.is_empty() {
+                        continue;
+                    }
+                    stderr_buf.push_str(trimmed);
+                    stderr_buf.push('\n');
                     if line.to_lowercase().contains("error") {
-                        last_error = Some(line.trim().to_string());
+                        last_error = Some(trimmed.to_string());
                     }
                 }
                 CommandEvent::Terminated(t) => {
@@ -188,15 +204,14 @@ pub async fn start(
                     if t.code == Some(0) {
                         emit_status(&app_handle, &job_id, "done", None, last_file.clone());
                     } else {
-                        emit_status(
-                            &app_handle,
-                            &job_id,
-                            "failed",
-                            Some(last_error.clone().unwrap_or_else(|| {
-                                format!("yt-dlp exited with code {:?}", t.code)
-                            })),
-                            None,
-                        );
+                        let err = if !stderr_buf.is_empty() {
+                            friendly_error(stderr_buf.trim(), t.code)
+                        } else {
+                            last_error
+                                .clone()
+                                .unwrap_or_else(|| format!("yt-dlp exited with code {:?}", t.code))
+                        };
+                        emit_status(&app_handle, &job_id, "failed", Some(err), None);
                     }
                     break;
                 }
@@ -235,6 +250,63 @@ fn parse_merging_into(line: &str) -> Option<String> {
     line.trim()
         .strip_prefix("[Merger] Merging formats into ")
         .map(|s| s.trim_matches('"').to_string())
+}
+
+/// Make yt-dlp's noisy stderr something a user can actually act on.
+/// We always include the original stderr at the end so power users keep
+/// the full message, but a one-line summary up front explains what's
+/// going on for the common cases.
+fn friendly_error(stderr: &str, exit_code: Option<i32>) -> String {
+    if stderr.is_empty() {
+        return format!("yt-dlp exited with code {:?}", exit_code);
+    }
+    let lower = stderr.to_lowercase();
+
+    let summary = if lower.contains("sign in to confirm") || lower.contains("not a bot") {
+        "YouTube is asking us to prove we're not a bot. Sign in via cookies (coming in a future build), or try another URL."
+    } else if lower.contains("video unavailable") {
+        "This video is unavailable (private, deleted, or region-locked)."
+    } else if lower.contains("age") && lower.contains("confirm") {
+        "Age-restricted video — yt-dlp needs sign-in cookies to access it."
+    } else if lower.contains("private video") {
+        "This video is private."
+    } else if lower.contains("members-only") || lower.contains("members only") {
+        "Members-only video — sign-in required."
+    } else if lower.contains("http error 403") || lower.contains("forbidden") {
+        "The server refused the request (403). The URL may be region-locked or blocked."
+    } else if lower.contains("http error 404") || lower.contains("not found") {
+        "The page doesn't exist (404). Check the URL."
+    } else if lower.contains("unsupported url") || lower.contains("no video") {
+        "This site or URL is not supported by the bundled yt-dlp."
+    } else if lower.contains("unable to resolve")
+        || lower.contains("name or service not known")
+        || lower.contains("no route to host")
+        || lower.contains("temporary failure")
+    {
+        "Network issue — couldn't reach the server. Check your connection."
+    } else if lower.contains("ssl") || lower.contains("certificate") {
+        "TLS/SSL error reaching the server."
+    } else {
+        ""
+    };
+
+    if summary.is_empty() {
+        // Show only the most relevant tail of stderr (yt-dlp tends to dump
+        // a lot before the actual error line).
+        let tail: String = stderr
+            .lines()
+            .filter(|l| !l.trim().is_empty())
+            .rev()
+            .take(3)
+            .collect::<Vec<_>>()
+            .into_iter()
+            .rev()
+            .collect::<Vec<_>>()
+            .join("\n");
+        tail
+    } else {
+        format!("{summary}\n\n{}", stderr.lines().last().unwrap_or(""))
+    }
 }
 
 fn emit_status(
