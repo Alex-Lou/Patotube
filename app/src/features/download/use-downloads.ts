@@ -14,15 +14,24 @@ async function resolveOutputDir(): Promise<string> {
   return api.defaultDownloadDir();
 }
 
-export function useDownloads() {
+// Module-level guard: the Tauri event listeners must be registered exactly
+// once per process, no matter how many components mount/unmount the hook.
+// Without this we double-fire toasts (e.g. one queue + one main App).
+let listenersInstalled = false;
+let unsubProgress: (() => void) | undefined;
+let unsubStatus: (() => void) | undefined;
+
+/**
+ * Mount-once hook that wires the Tauri progress/status events to the queue
+ * store and surfaces toasts on completion / failure. Use it in exactly ONE
+ * place (the App root). Other components should use `useDownloadActions`.
+ */
+export function useDownloadEvents() {
   const { t } = useTranslation();
-  const add = useQueueStore((s) => s.add);
-  const update = useQueueStore((s) => s.update);
-  const setStatus = useQueueStore((s) => s.setStatus);
 
   useEffect(() => {
-    let unsubProgress: (() => void) | undefined;
-    let unsubStatus: (() => void) | undefined;
+    if (listenersInstalled) return;
+    listenersInstalled = true;
     let cancelled = false;
 
     void (async () => {
@@ -32,7 +41,7 @@ export function useDownloads() {
       unsubProgress = await api.onProgress((e) => {
         const total = e.bytesTotal ?? 0;
         const pct = total > 0 ? clamp((e.bytesDone / total) * 100, 0, 100) : 0;
-        update(e.jobId, {
+        useQueueStore.getState().update(e.jobId, {
           progress: pct,
           ...(e.speedBps !== null ? { speedBps: e.speedBps } : {}),
           ...(e.etaSec !== null ? { etaSec: e.etaSec } : {}),
@@ -40,14 +49,16 @@ export function useDownloads() {
       });
 
       unsubStatus = await api.onStatus((e) => {
-        setStatus(e.jobId, e.status, e.error);
-        if (e.filePath) update(e.jobId, { filePath: e.filePath });
+        const queue = useQueueStore.getState();
+        queue.setStatus(e.jobId, e.status, e.error);
+        if (e.filePath) queue.update(e.jobId, { filePath: e.filePath });
 
         if (e.status === 'done' || e.status === 'failed') {
           const job = useQueueStore.getState().jobs.find((j) => j.id === e.jobId);
           const title = job?.info.title ?? '';
           if (e.status === 'done') {
             toast.success(t('toast.completed', { title }), {
+              id: `dl-done-${e.jobId}`,
               action: job?.filePath
                 ? {
                     label: t('queue.openFolder'),
@@ -59,6 +70,7 @@ export function useDownloads() {
             });
           } else {
             toast.error(t('toast.failed', { title }), {
+              id: `dl-fail-${e.jobId}`,
               description: e.error ?? undefined,
             });
           }
@@ -68,10 +80,22 @@ export function useDownloads() {
 
     return () => {
       cancelled = true;
-      unsubProgress?.();
-      unsubStatus?.();
+      // We DON'T null out unsubProgress/Status here — listenersInstalled
+      // stays true so React StrictMode's double-invoke doesn't re-register.
+      // The listeners live for the app's lifetime, which is fine.
     };
-  }, [update, setStatus, t]);
+  }, [t]);
+}
+
+/**
+ * Action-only hook. Safe to call from any component (queue list, etc.) —
+ * it doesn't register Tauri listeners, just exposes side-effecting
+ * functions that callers trigger from UI.
+ */
+export function useDownloadActions() {
+  const setStatus = useQueueStore((s) => s.setStatus);
+  const update = useQueueStore((s) => s.update);
+  const add = useQueueStore((s) => s.add);
 
   const enqueue = useCallback(
     async (info: MediaInfo, format: FormatChoice) => {
@@ -121,3 +145,8 @@ export function useDownloads() {
 
   return { enqueue, retry, showInFolder, openFile };
 }
+
+// Backwards-compatible alias for callers that still expect the combined API.
+// Internally just calls the actions hook; the events hook must be mounted
+// separately at the root.
+export const useDownloads = useDownloadActions;
