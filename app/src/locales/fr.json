@@ -76,10 +76,19 @@
   "settings": {
     "title": "Paramètres",
     "downloadFolder": "Dossier de téléchargement",
-    "browse": "Parcourir",
+    "browse": "Changer",
+    "osDefault": "Par défaut OS",
     "concurrent": "Téléchargements parallèles",
     "theme": "Thème",
     "about": "À propos"
+  },
+  "toast": {
+    "completed": "Téléchargé : {{title}}",
+    "failed": "Échec : {{title}}",
+    "urlPasted": "URL ajoutée"
+  },
+  "drop": {
+    "hint": "Lâche ton URL ici"
   },
   "footer": {
     "openSource": "Open source"

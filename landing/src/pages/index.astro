@@ -154,18 +154,13 @@ const metaJson = JSON.stringify(LOCALE_META);
           data-i18n="heroDesc"
         >{en.heroDesc}</p>
         <div
-          class="mt-10 flex flex-wrap justify-center gap-3 animate-fade-up"
+          class="mt-10 flex justify-center animate-fade-up"
           style="animation-delay:160ms"
         >
           <a
             href="#download"
-            class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-duck text-bg font-bold shadow-lg shadow-duck/20 hover:shadow-duck/40 hover:scale-[1.02] transition-all"
+            class="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-gradient-duck text-bg font-bold shadow-lg shadow-duck/20 hover:shadow-duck/40 hover:scale-[1.02] transition-all"
             data-i18n="heroCtaPrimary">{en.heroCtaPrimary}</a
-          >
-          <a
-            href={GITHUB_BASE}
-            class="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-border bg-bg-card hover:bg-bg-soft transition-colors"
-            data-i18n="heroCtaSecondary">{en.heroCtaSecondary}</a
           >
         </div>
       </div>
@@ -239,24 +234,83 @@ const metaJson = JSON.stringify(LOCALE_META);
     </section>
 
     <!-- Footer -->
-    <footer class="mt-auto border-t border-border py-10">
-      <div
-        class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-fg-muted"
-      >
-        <div class="flex items-center gap-2">
-          <img
-            src={`${base}/patotube.png`}
-            alt=""
-            class="size-5"
-            width="20"
-            height="20"
-          />
-          <span>&copy; {year} <span data-i18n="footerCopy">{en.footerCopy}</span></span>
+    <footer class="mt-auto border-t border-border bg-bg-card/30">
+      <div class="max-w-6xl mx-auto px-6 py-12">
+        <div class="grid gap-10 sm:grid-cols-3">
+          <!-- Brand block -->
+          <div class="space-y-3 sm:col-span-1">
+            <div class="flex items-center gap-2.5">
+              <img
+                src={`${base}/patotube.png`}
+                alt=""
+                class="size-7"
+                width="28"
+                height="28"
+              />
+              <span class="font-bold text-base tracking-tight">Patotube</span>
+            </div>
+            <p class="text-xs text-fg-subtle leading-relaxed max-w-xs">
+              Free, open source, no account, no ads, no telemetry. Just a duck
+              that fetches your files.
+            </p>
+          </div>
+
+          <!-- Project links -->
+          <div class="space-y-3 text-sm">
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-fg-subtle">
+              Project
+            </h4>
+            <ul class="space-y-2">
+              <li>
+                <a href={GITHUB_BASE} class="text-fg-muted hover:text-fg transition-colors inline-flex items-center gap-1.5">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M12 2A10 10 0 0 0 8.84 21.5c.5.08.66-.23.66-.5v-1.69c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.1.39-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.64.71 1.03 1.61 1.03 2.71 0 3.84-2.34 4.68-4.57 4.93.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2"/>
+                  </svg>
+                  GitHub
+                </a>
+              </li>
+              <li>
+                <a href={`${GITHUB_BASE}/releases`} class="text-fg-muted hover:text-fg transition-colors" data-i18n="footerReleases">{en.footerReleases}</a>
+              </li>
+              <li>
+                <a href={`${GITHUB_BASE}/issues`} class="text-fg-muted hover:text-fg transition-colors" data-i18n="footerIssues">{en.footerIssues}</a>
+              </li>
+              <li>
+                <a href={`${GITHUB_BASE}/blob/main/LICENSE`} class="text-fg-muted hover:text-fg transition-colors">
+                  MIT License
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Tech / honest -->
+          <div class="space-y-3 text-sm">
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-fg-subtle">
+              Built with
+            </h4>
+            <ul class="space-y-2 text-fg-muted">
+              <li>Tauri 2 · Rust · React</li>
+              <li>yt-dlp · ffmpeg</li>
+              <li>Astro · Tailwind</li>
+            </ul>
+          </div>
         </div>
-        <div class="flex items-center gap-5">
-          <a href={GITHUB_BASE} class="hover:text-fg transition-colors">GitHub</a>
-          <a href={`${GITHUB_BASE}/issues`} class="hover:text-fg transition-colors" data-i18n="footerIssues">{en.footerIssues}</a>
-          <a href={`${GITHUB_BASE}/releases`} class="hover:text-fg transition-colors" data-i18n="footerReleases">{en.footerReleases}</a>
+
+        <div class="mt-10 pt-6 border-t border-border/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-fg-subtle">
+          <span>
+            &copy; {year} <span data-i18n="footerCopy">{en.footerCopy}</span> · v{APP_VERSION}
+          </span>
+          <span class="inline-flex items-center gap-1.5">
+            <span>Made with</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="hsl(0 72% 60%)" aria-hidden="true">
+              <path d="M12 21s-7-4.5-9.5-9C1 9 2.5 5 6.5 5c2 0 3.5 1 4.5 2.5C12 6 13.5 5 15.5 5 19.5 5 21 9 19.5 12 17 16.5 12 21 12 21Z"/>
+            </svg>
+            <span>by</span>
+            <a
+              href={`https://github.com/${GITHUB_OWNER}`}
+              class="font-semibold text-fg-muted hover:text-duck transition-colors"
+            >CybWu</a>
+          </span>
         </div>
       </div>
     </footer>
