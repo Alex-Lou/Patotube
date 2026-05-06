@@ -10,7 +10,10 @@ import {
   Folder,
   FolderCog,
   RotateCcw,
+  RefreshCw,
+  Loader2,
 } from 'lucide-react';
+import { useUpdater } from '@/features/updater/use-updater';
 import { getTauri } from '@/lib/tauri/bindings';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -20,12 +23,13 @@ import { AUDIO_BITRATES, VIDEO_QUALITIES } from '@/lib/core/formats';
 import type { AudioBitrate, VideoQuality } from '@/lib/core/types';
 
 const REPO_URL = 'https://github.com/Alex-Lou/Patotube';
-const APP_VERSION = '0.1.0';
+const APP_VERSION = '0.1.1';
 
 export function SettingsMenu(_props: { onAfterAction?: () => void }) {
   const { t } = useTranslation();
   const { theme, setTheme, resolvedTheme } = useTheme();
   const { defaultFormat, setDefaultFormat, downloadFolder, setDownloadFolder } = useSettings();
+  const { checking, available, check } = useUpdater();
 
   const pickFolder = async () => {
     const api = await getTauri();
@@ -142,6 +146,28 @@ export function SettingsMenu(_props: { onAfterAction?: () => void }) {
             )}
           </div>
         </div>
+      </Section>
+
+      {/* Updates */}
+      <Section icon={<RefreshCw className="size-4" />} label={t('update.section', 'Updates')}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full"
+          onClick={() => void check({ silent: false })}
+          disabled={checking}
+        >
+          {checking ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <RefreshCw className="size-4" />
+          )}
+          {checking
+            ? t('update.checking', 'Checking…')
+            : available
+              ? t('update.available', { version: available.version })
+              : t('update.checkButton', 'Check for updates')}
+        </Button>
       </Section>
 
       {/* About */}
