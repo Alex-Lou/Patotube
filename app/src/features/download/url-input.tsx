@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Loader2, ClipboardPaste, X, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { detectPlatform } from '@/lib/core/platform';
@@ -54,7 +55,22 @@ export function UrlInput({ onResolved }: UrlInputProps) {
       onResolved(info);
       setValue('');
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('errors.fetchFailed'));
+      const raw = err instanceof Error ? err.message : String(err);
+      // Surface the first line inline (compact), the rest in a toast so
+      // the user gets the whole story without it crowding the input.
+      const lines = raw.split('\n').filter((l) => l.trim().length > 0);
+      const headline = lines[0] ?? t('errors.fetchFailed');
+      const detail = lines.slice(1).join('\n');
+      setError(headline);
+      toast.error(t('errors.fetchFailed'), {
+        description: raw.length > 0 ? raw : undefined,
+        duration: 8000,
+      });
+      // eslint-disable-next-line no-console
+      console.error('[patotube] fetchMediaInfo failed:', raw);
+      // Keep linter happy — `detail` is available if we later want to
+      // render it in an expandable inline panel.
+      void detail;
     } finally {
       setBusy(false);
     }
