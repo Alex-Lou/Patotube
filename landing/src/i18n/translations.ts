@@ -119,14 +119,14 @@ export const DICT: Record<LandingLocale, Dict> = {
       'English, French, Spanish, Portuguese, Italian, German, Arabic (RTL), Japanese, Chinese and more. Toggle theme any time.',
     featureNativeTitle: 'Light, fast, native',
     featureNativeBody:
-      'Built on Tauri. Tiny binary, real OS window, no Electron bloat, no telemetry.',
+      'Built on Tauri. Tiny binary, a real OS window, no telemetry, no tracking.',
     featureSoonTitle: 'Spotify and Deezer soon',
     featureSoonBody:
-      'Match-via-YouTube workflow under design. Templates already in the UI, behind a coming-soon flag.',
+      'Coming soon: paste a Spotify or Deezer link, the app will fetch the matching track. UI is already there, the engine is being built.',
     featureOssTitle: 'Open source',
     featureOssBody:
-      'MIT licensed. Read the code, file an issue, send a pull request. Same rules for everyone.',
-    footerCopy: 'Patotube contributors · MIT',
+      'MIT licensed. The whole codebase is on GitHub — read it, report bugs, suggest improvements.',
+    footerCopy: 'Patotube · MIT',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: 'Coming soon',
@@ -166,14 +166,14 @@ export const DICT: Record<LandingLocale, Dict> = {
       "Anglais, français, espagnol, portugais, italien, allemand, arabe (RTL), japonais, chinois et plus. Bascule de thème à tout moment.",
     featureNativeTitle: 'Léger, rapide, natif',
     featureNativeBody:
-      "Construit sur Tauri. Petit binaire, vraie fenêtre OS, pas de bloat Electron, pas de télémétrie.",
+      "Construit sur Tauri. Petit binaire, vraie fenêtre native, aucun tracker, aucune télémétrie.",
     featureSoonTitle: 'Spotify et Deezer bientôt',
     featureSoonBody:
-      "Workflow match-via-YouTube en cours de design. Templates déjà dans l'UI, derrière un flag coming-soon.",
+      "Bientôt : colle un lien Spotify ou Deezer, l'app ira chercher le morceau équivalent. L'interface est prête, le moteur est en construction.",
     featureOssTitle: 'Open source',
     featureOssBody:
-      'Sous licence MIT. Lis le code, ouvre une issue, envoie une PR. Mêmes règles pour tout le monde.',
-    footerCopy: 'Contributeurs Patotube · MIT',
+      "Sous licence MIT. Tout le code est sur GitHub — lis-le, signale un bug, propose une amélioration.",
+    footerCopy: 'Patotube · MIT',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: 'Bientôt',
@@ -213,14 +213,14 @@ export const DICT: Record<LandingLocale, Dict> = {
       'Inglés, francés, español, portugués, italiano, alemán, árabe (RTL), japonés, chino y más. Cambia el tema cuando quieras.',
     featureNativeTitle: 'Ligero, rápido, nativo',
     featureNativeBody:
-      'Hecho con Tauri. Binario diminuto, ventana nativa real, sin bloat de Electron, sin telemetría.',
+      'Hecho con Tauri. Binario diminuto, ventana nativa real, sin trackers, sin telemetría.',
     featureSoonTitle: 'Spotify y Deezer pronto',
     featureSoonBody:
-      'Flujo match-vía-YouTube en diseño. Plantillas ya en la UI, detrás de un flag coming-soon.',
+      'Próximamente: pega un enlace de Spotify o Deezer y la app buscará el equivalente. La interfaz está lista, el motor está en construcción.',
     featureOssTitle: 'Código abierto',
     featureOssBody:
-      'Licencia MIT. Lee el código, abre una issue, envía una PR. Las mismas reglas para todos.',
-    footerCopy: 'Contribuidores de Patotube · MIT',
+      'Licencia MIT. Todo el código está en GitHub — léelo, reporta un bug, propone una mejora.',
+    footerCopy: 'Patotube · MIT',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: 'Próximamente',
@@ -260,14 +260,14 @@ export const DICT: Record<LandingLocale, Dict> = {
       'الإنجليزية، الفرنسية، الإسبانية، البرتغالية، الإيطالية، الألمانية، العربية (RTL)، اليابانية، الصينية والمزيد. بدّل السمة في أي وقت.',
     featureNativeTitle: 'خفيف وسريع وأصلي',
     featureNativeBody:
-      'مبني على Tauri. ملف صغير، نافذة نظام حقيقية، بلا تضخم Electron، بلا تتبع.',
+      'مبني على Tauri. ملف صغير، نافذة نظام حقيقية، بلا متتبعات، بلا تتبع.',
     featureSoonTitle: 'Spotify و Deezer قريبًا',
     featureSoonBody:
-      'سير عمل المطابقة عبر YouTube قيد التصميم. القوالب موجودة في الواجهة وراء علامة قريبًا.',
+      'قريبًا: ألصق رابط Spotify أو Deezer وسيبحث التطبيق عن المسار المماثل. الواجهة جاهزة، المحرك قيد البناء.',
     featureOssTitle: 'مفتوح المصدر',
     featureOssBody:
-      'ترخيص MIT. اقرأ الكود، افتح Issue، أرسل PR. نفس القواعد للجميع.',
-    footerCopy: 'مساهمو Patotube · MIT',
+      'ترخيص MIT. الكود بأكمله على GitHub — اقرأه، أبلغ عن خطأ، اقترح تحسينًا.',
+    footerCopy: 'Patotube · MIT',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: 'قريبًا',
@@ -307,14 +307,14 @@ export const DICT: Record<LandingLocale, Dict> = {
       '英語、フランス語、スペイン語、ポルトガル語、イタリア語、ドイツ語、アラビア語（RTL）、日本語、中国語など。テーマはいつでも切り替え可能。',
     featureNativeTitle: '軽量、高速、ネイティブ',
     featureNativeBody:
-      'Tauri 製。極小バイナリ、本物の OS ウィンドウ、Electron 肥大化なし、テレメトリなし。',
+      'Tauri 製。極小バイナリ、本物の OS ウィンドウ、トラッカーなし、テレメトリなし。',
     featureSoonTitle: 'Spotify と Deezer は近日対応',
     featureSoonBody:
-      'YouTube 経由マッチワークフロー設計中。UI内にテンプレート配置済み、coming-soon フラグの裏側で。',
+      '近日対応：Spotify や Deezer のリンクを貼ると、アプリが対応する曲を取得します。UI は完成、エンジンは構築中。',
     featureOssTitle: 'オープンソース',
     featureOssBody:
-      'MIT ライセンス。コードを読み、Issue を立て、PR を送る。みんな同じルール。',
-    footerCopy: 'Patotube コントリビューター · MIT',
+      'MIT ライセンス。コードはすべて GitHub 上 — 読んで、バグ報告、改善提案を。',
+    footerCopy: 'Patotube · MIT',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: '近日対応',
@@ -354,14 +354,14 @@ export const DICT: Record<LandingLocale, Dict> = {
       '英语、法语、西班牙语、葡萄牙语、意大利语、德语、阿拉伯语（RTL）、日语、中文等。主题随时切换。',
     featureNativeTitle: '轻盈、快速、原生',
     featureNativeBody:
-      '基于 Tauri 构建。体积极小，真正的系统窗口，没有 Electron 臃肿，没有遥测。',
+      '基于 Tauri 构建。体积极小，真正的系统窗口，无追踪，无遥测。',
     featureSoonTitle: 'Spotify 和 Deezer 即将到来',
     featureSoonBody:
-      '通过 YouTube 匹配的工作流正在设计。UI 中已有占位模板，coming-soon 标记下。',
+      '即将支持：粘贴 Spotify 或 Deezer 链接，应用会获取对应的曲目。UI 已就绪，引擎正在构建中。',
     featureOssTitle: '开源',
     featureOssBody:
-      'MIT 许可证。读代码、提 Issue、发 PR。规则对所有人一样。',
-    footerCopy: 'Patotube 贡献者 · MIT',
+      'MIT 许可证。所有代码都在 GitHub 上 — 阅读、报告 bug、提出改进。',
+    footerCopy: 'Patotube · MIT',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: '即将支持',
@@ -401,14 +401,14 @@ export const DICT: Record<LandingLocale, Dict> = {
       'Enska, franska, spænska, portúgalska, ítalska, þýska, arabíska (RTL), japanska, kínverska og fleira. Skiptu um þema hvenær sem er.',
     featureNativeTitle: 'Létt, hratt, innfætt',
     featureNativeBody:
-      'Byggt á Tauri. Lítill keyrsluskrá, alvöru kerfisgluggi, engin Electron þyngsli, engin gagnasöfnun.',
+      'Byggt á Tauri. Lítill keyrsluskrá, alvöru kerfisgluggi, engar njósnir, engin gagnasöfnun.',
     featureSoonTitle: 'Spotify og Deezer á leiðinni',
     featureSoonBody:
-      'Match-via-YouTube ferli í hönnun. Sniðmát eru þegar í viðmótinu undir coming-soon merki.',
+      'Á leiðinni: límdu Spotify eða Deezer hlekk, forritið mun finna samsvarandi lag. Viðmótið er tilbúið, vélin er í smíðum.',
     featureOssTitle: 'Opinn hugbúnaður',
     featureOssBody:
-      'MIT leyfi. Lestu kóðann, settu Issue, sendu PR. Sömu reglur fyrir alla.',
-    footerCopy: 'Patotube þátttakendur · MIT',
+      'MIT leyfi. Allur kóðinn er á GitHub — lestu hann, tilkynntu villu, leggðu til endurbætur.',
+    footerCopy: 'Patotube · MIT',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: 'Á leiðinni',
@@ -448,14 +448,14 @@ export const DICT: Record<LandingLocale, Dict> = {
       'Inglês, francês, espanhol, português, italiano, alemão, e outros. Alterne tema a qualquer momento.',
     featureNativeTitle: 'Leve, rápido, nativo',
     featureNativeBody:
-      'Construído com Tauri. Binário pequeno, janela nativa real, sem inchaço Electron, sem telemetria.',
+      'Construído com Tauri. Binário pequeno, janela nativa real, sem rastreamento, sem telemetria.',
     featureSoonTitle: 'Spotify e Deezer em breve',
     featureSoonBody:
-      'Fluxo match-via-YouTube em design. Templates já na UI, atrás de uma flag em breve.',
+      'Em breve: cole um link do Spotify ou Deezer e o app buscará a faixa correspondente. A interface está pronta, o motor está em construção.',
     featureOssTitle: 'Código aberto',
     featureOssBody:
-      'Licença MIT. Leia o código, abra uma issue, envie um PR. Mesmas regras para todos.',
-    footerCopy: 'Contribuidores Patotube · MIT',
+      'Licença MIT. Todo o código está no GitHub — leia, reporte bugs, sugira melhorias.',
+    footerCopy: 'Patotube · MIT',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: 'Em breve',
@@ -495,14 +495,14 @@ export const DICT: Record<LandingLocale, Dict> = {
       'Inglese, francese, spagnolo, italiano, tedesco, e altre. Cambia tema in qualsiasi momento.',
     featureNativeTitle: 'Leggero, veloce, nativo',
     featureNativeBody:
-      'Costruito su Tauri. Binario minuscolo, finestra OS reale, senza bloat Electron, senza telemetria.',
+      'Costruito su Tauri. Binario minuscolo, finestra nativa reale, senza tracker, senza telemetria.',
     featureSoonTitle: 'Spotify e Deezer in arrivo',
     featureSoonBody:
-      'Workflow match-via-YouTube in fase di design. Template già nella UI dietro un flag prossimamente.',
+      "Prossimamente: incolla un link Spotify o Deezer e l'app troverà il brano corrispondente. L'interfaccia è pronta, il motore è in costruzione.",
     featureOssTitle: 'Open source',
     featureOssBody:
-      'Licenza MIT. Leggi il codice, apri una issue, invia una PR. Stesse regole per tutti.',
-    footerCopy: 'Contributori Patotube · MIT',
+      'Licenza MIT. Tutto il codice è su GitHub — leggilo, segnala bug, proponi miglioramenti.',
+    footerCopy: 'Patotube · MIT',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: 'Prossimamente',
@@ -542,14 +542,14 @@ export const DICT: Record<LandingLocale, Dict> = {
       'Englisch, Französisch, Spanisch, Deutsch, Italienisch, und mehr. Theme jederzeit wechseln.',
     featureNativeTitle: 'Leicht, schnell, nativ',
     featureNativeBody:
-      'Auf Tauri basiert. Winzige Binary, echtes OS-Fenster, kein Electron-Ballast, keine Telemetrie.',
+      'Auf Tauri basiert. Winzige Binary, echtes OS-Fenster, kein Tracking, keine Telemetrie.',
     featureSoonTitle: 'Spotify und Deezer demnächst',
     featureSoonBody:
-      'Match-via-YouTube-Workflow in Planung. Templates bereits in der UI hinter einem demnächst-Flag.',
+      'Demnächst: Spotify- oder Deezer-Link einfügen, die App findet den passenden Track. Die Oberfläche ist fertig, der Motor wird gebaut.',
     featureOssTitle: 'Open Source',
     featureOssBody:
-      'MIT-Lizenz. Code lesen, Issue eröffnen, PR senden. Gleiche Regeln für alle.',
-    footerCopy: 'Patotube-Mitwirkende · MIT',
+      'MIT-Lizenz. Der gesamte Code liegt auf GitHub — lies ihn, melde Bugs, schlage Verbesserungen vor.',
+    footerCopy: 'Patotube · MIT',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: 'Demnächst',
@@ -589,14 +589,14 @@ export const DICT: Record<LandingLocale, Dict> = {
       'Engels, Frans, Spaans, Nederlands, Duits, en meer. Wissel thema wanneer je wilt.',
     featureNativeTitle: 'Licht, snel, native',
     featureNativeBody:
-      'Gebouwd op Tauri. Klein binary, echt OS-venster, geen Electron-bloat, geen telemetrie.',
+      'Gebouwd op Tauri. Klein binary, echt OS-venster, geen tracking, geen telemetrie.',
     featureSoonTitle: 'Spotify en Deezer binnenkort',
     featureSoonBody:
-      'Match-via-YouTube workflow in ontwerp. Templates al in de UI achter een binnenkort-vlag.',
+      'Binnenkort: plak een Spotify- of Deezer-link en de app zoekt de bijpassende track. De interface is klaar, de motor wordt gebouwd.',
     featureOssTitle: 'Open source',
     featureOssBody:
-      'MIT-licentie. Lees de code, open een issue, stuur een PR. Zelfde regels voor iedereen.',
-    footerCopy: 'Patotube-bijdragers · MIT',
+      'MIT-licentie. Alle code staat op GitHub — lees het, meld bugs, stel verbeteringen voor.',
+    footerCopy: 'Patotube · MIT',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: 'Binnenkort',
@@ -636,14 +636,14 @@ export const DICT: Record<LandingLocale, Dict> = {
       'Angielski, francuski, hiszpański, polski, niemiecki, i więcej. Przełącz motyw kiedy chcesz.',
     featureNativeTitle: 'Lekki, szybki, natywny',
     featureNativeBody:
-      'Zbudowany na Tauri. Mały plik binarny, prawdziwe okno OS, bez bloatu Electrona, bez telemetrii.',
+      'Zbudowany na Tauri. Mały plik binarny, prawdziwe okno OS, bez śledzenia, bez telemetrii.',
     featureSoonTitle: 'Spotify i Deezer wkrótce',
     featureSoonBody:
-      'Workflow match-via-YouTube w projektowaniu. Szablony już w UI za flagą wkrótce.',
+      'Wkrótce: wklej link Spotify lub Deezer, a aplikacja znajdzie pasujący utwór. Interfejs gotowy, silnik w budowie.',
     featureOssTitle: 'Open source',
     featureOssBody:
-      'Licencja MIT. Czytaj kod, otwórz issue, wyślij PR. Te same zasady dla wszystkich.',
-    footerCopy: 'Współtwórcy Patotube · MIT',
+      'Licencja MIT. Cały kod jest na GitHubie — przeczytaj, zgłoś bug, zaproponuj ulepszenie.',
+    footerCopy: 'Patotube · MIT',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: 'Wkrótce',
@@ -683,14 +683,14 @@ export const DICT: Record<LandingLocale, Dict> = {
       'Английский, французский, испанский, русский, немецкий и другие. Переключайте тему когда угодно.',
     featureNativeTitle: 'Лёгкий, быстрый, нативный',
     featureNativeBody:
-      'Построен на Tauri. Крошечный бинарник, настоящее окно ОС, без раздутия Electron, без телеметрии.',
+      'Построен на Tauri. Крошечный бинарник, настоящее окно ОС, без слежения, без телеметрии.',
     featureSoonTitle: 'Spotify и Deezer скоро',
     featureSoonBody:
-      'Workflow match-via-YouTube в разработке. Шаблоны уже в UI за флагом «скоро».',
+      'Скоро: вставьте ссылку Spotify или Deezer, и приложение найдёт соответствующий трек. Интерфейс готов, движок в разработке.',
     featureOssTitle: 'Открытый исходный код',
     featureOssBody:
-      'Лицензия MIT. Читайте код, открывайте issue, отправляйте PR. Одни правила для всех.',
-    footerCopy: 'Участники Patotube · MIT',
+      'Лицензия MIT. Весь код на GitHub — читайте, сообщайте об ошибках, предлагайте улучшения.',
+    footerCopy: 'Patotube · MIT',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: 'Скоро',
@@ -730,14 +730,14 @@ export const DICT: Record<LandingLocale, Dict> = {
       'İngilizce, Fransızca, İspanyolca, Türkçe, Almanca ve daha fazlası. Temayı istediğin zaman değiştir.',
     featureNativeTitle: 'Hafif, hızlı, yerel',
     featureNativeBody:
-      'Tauri üzerine kurulu. Minik bir ikili dosya, gerçek OS penceresi, Electron şişkinliği yok, telemetri yok.',
+      'Tauri üzerine kurulu. Minik bir ikili dosya, gerçek OS penceresi, takip yok, telemetri yok.',
     featureSoonTitle: 'Spotify ve Deezer yakında',
     featureSoonBody:
-      "Match-via-YouTube iş akışı tasarım aşamasında. Şablonlar zaten UI'da, yakında bayrağı arkasında.",
+      'Yakında: bir Spotify veya Deezer linki yapıştırın, uygulama eşleşen şarkıyı bulacak. Arayüz hazır, motor inşa halinde.',
     featureOssTitle: 'Açık kaynak',
     featureOssBody:
-      'MIT lisansı. Kodu oku, issue aç, PR gönder. Herkese aynı kurallar.',
-    footerCopy: 'Patotube katkıda bulunanlar · MIT',
+      "MIT lisansı. Tüm kod GitHub'da — oku, hata bildir, iyileştirme öner.",
+    footerCopy: 'Patotube · MIT',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: 'Yakında',
@@ -777,14 +777,14 @@ export const DICT: Record<LandingLocale, Dict> = {
       'अंग्रेज़ी, फ़्रेंच, स्पेनिश, हिन्दी, जर्मन, और अधिक। थीम कभी भी बदलें।',
     featureNativeTitle: 'हल्का, तेज़, मूल',
     featureNativeBody:
-      'Tauri पर आधारित। छोटी बाइनरी, असली OS विंडो, कोई Electron ब्लोट नहीं, कोई टेलीमेट्री नहीं।',
+      'Tauri पर आधारित। छोटी बाइनरी, असली OS विंडो, कोई ट्रैकिंग नहीं, कोई टेलीमेट्री नहीं।',
     featureSoonTitle: 'Spotify और Deezer जल्द आ रहे हैं',
     featureSoonBody:
-      'Match-via-YouTube वर्कफ़्लो डिज़ाइन में। UI में टेम्पलेट पहले से हैं, coming-soon फ़्लैग के पीछे।',
+      'जल्द: Spotify या Deezer लिंक पेस्ट करें, ऐप मेल खाने वाला गाना ढूंढेगा। इंटरफ़ेस तैयार, इंजन निर्माणाधीन।',
     featureOssTitle: 'ओपन सोर्स',
     featureOssBody:
-      'MIT लाइसेंस। कोड पढ़ें, इश्यू दर्ज करें, PR भेजें। सभी के लिए समान नियम।',
-    footerCopy: 'Patotube योगदानकर्ता · MIT',
+      'MIT लाइसेंस। पूरा कोड GitHub पर है — पढ़ें, बग रिपोर्ट करें, सुधार सुझाएं।',
+    footerCopy: 'Patotube · MIT',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: 'जल्द आ रहा है',
@@ -824,14 +824,14 @@ export const DICT: Record<LandingLocale, Dict> = {
       '영어, 프랑스어, 스페인어, 한국어, 독일어 등. 언제든지 테마 전환.',
     featureNativeTitle: '가볍고, 빠르고, 네이티브',
     featureNativeBody:
-      'Tauri 기반. 작은 바이너리, 진짜 OS 창, Electron 비대화 없음, 텔레메트리 없음.',
+      'Tauri 기반. 작은 바이너리, 진짜 OS 창, 추적 없음, 텔레메트리 없음.',
     featureSoonTitle: 'Spotify와 Deezer 곧 출시',
     featureSoonBody:
-      'YouTube 매칭 워크플로우 설계 중. UI에 템플릿 이미 있음, coming-soon 플래그 뒤.',
+      '곧 출시: Spotify나 Deezer 링크를 붙여넣으면 앱이 해당 트랙을 찾습니다. 인터페이스는 준비됨, 엔진 구축 중.',
     featureOssTitle: '오픈 소스',
     featureOssBody:
-      'MIT 라이선스. 코드를 읽고, 이슈를 등록하고, PR을 보내세요. 모두에게 같은 규칙.',
-    footerCopy: 'Patotube 기여자 · MIT',
+      'MIT 라이선스. 모든 코드는 GitHub에 있습니다 — 읽고, 버그 신고하고, 개선 제안하세요.',
+    footerCopy: 'Patotube · MIT',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: '출시 예정',
