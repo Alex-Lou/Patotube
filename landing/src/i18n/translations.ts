@@ -1,7 +1,24 @@
 // Translations for the static landing. Kept inline so the page works
 // without any extra fetch. Mirrors a subset of the desktop app's keys.
 
-export const SUPPORTED = ['en', 'fr', 'es', 'ar', 'ja', 'zh', 'is'] as const;
+export const SUPPORTED = [
+  'en',
+  'fr',
+  'es',
+  'pt',
+  'it',
+  'de',
+  'nl',
+  'pl',
+  'ru',
+  'tr',
+  'ar',
+  'hi',
+  'ja',
+  'ko',
+  'zh',
+  'is',
+] as const;
 export type LandingLocale = (typeof SUPPORTED)[number];
 
 export const RTL = new Set<LandingLocale>(['ar']);
@@ -13,8 +30,17 @@ export const LOCALE_META: Record<
   en: { native: 'English', flag: '🇬🇧', abbr: 'EN' },
   fr: { native: 'Français', flag: '🇫🇷', abbr: 'FR' },
   es: { native: 'Español', flag: '🇪🇸', abbr: 'ES' },
+  pt: { native: 'Português', flag: '🇵🇹', abbr: 'PT' },
+  it: { native: 'Italiano', flag: '🇮🇹', abbr: 'IT' },
+  de: { native: 'Deutsch', flag: '🇩🇪', abbr: 'DE' },
+  nl: { native: 'Nederlands', flag: '🇳🇱', abbr: 'NL' },
+  pl: { native: 'Polski', flag: '🇵🇱', abbr: 'PL' },
+  ru: { native: 'Русский', flag: '🇷🇺', abbr: 'RU' },
+  tr: { native: 'Türkçe', flag: '🇹🇷', abbr: 'TR' },
   ar: { native: 'العربية', flag: '🇸🇦', abbr: 'AR' },
+  hi: { native: 'हिन्दी', flag: '🇮🇳', abbr: 'HI' },
   ja: { native: '日本語', flag: '🇯🇵', abbr: 'JA' },
+  ko: { native: '한국어', flag: '🇰🇷', abbr: 'KO' },
   zh: { native: '中文', flag: '🇨🇳', abbr: 'ZH' },
   is: { native: 'Íslenska', flag: '🇮🇸', abbr: 'IS' },
 };
@@ -386,5 +412,428 @@ export const DICT: Record<LandingLocale, Dict> = {
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: 'Á leiðinni',
+  },
+
+  pt: {
+    navFeatures: 'Recursos',
+    navDownload: 'Baixar',
+    heroLine1: 'Cole uma URL,',
+    heroLine2: 'receba o arquivo.',
+    heroDesc:
+      'Baixador de mídia moderno e leve para Windows e Android. YouTube, SoundCloud e muitos outros sites. Vídeo MP4 ou áudio MP3. Escuro por padrão. 16 idiomas.',
+    heroCtaPrimary: 'Baixar grátis',
+    heroCtaSecondary: 'Ver código',
+    downloadsTitle: 'Escolha sua plataforma',
+    downloadsSubtitle: 'Grátis. Sem conta. Sem anúncios. Sem telemetria.',
+    downloadsHint:
+      'Builds Windows ainda não estão assinadas — SmartScreen pode sinalizá-las. Clique "Mais informações → Executar mesmo assim". O APK Android requer ativar instalações de fontes desconhecidas para o arquivo baixado.',
+    windowsLabel: 'Windows',
+    windowsSub: 'Instalador .exe',
+    androidLabel: 'Android',
+    androidSub: 'Sideload .apk',
+    macosLabel: 'macOS',
+    macosSub: 'em breve',
+    linuxLabel: 'Linux',
+    linuxSub: 'em breve',
+    hoverCta: 'Clique para baixar →',
+    featuresTitle: 'O que faz, o que não faz.',
+    featureYtTitle: 'YouTube e SoundCloud, hoje',
+    featureYtBody:
+      'E muitos outros sites suportados pelo yt-dlp. Cole a URL, o app cuida do resto.',
+    featureFormatsTitle: 'Vídeo MP4 ou áudio MP3',
+    featureFormatsBody:
+      'Escolha o tipo, escolha a qualidade, baixe. ffmpeg incluído, sem instalação extra.',
+    featureI18nTitle: 'Escuro por padrão, 16 idiomas',
+    featureI18nBody:
+      'Inglês, francês, espanhol, português, italiano, alemão, e outros. Alterne tema a qualquer momento.',
+    featureNativeTitle: 'Leve, rápido, nativo',
+    featureNativeBody:
+      'Construído com Tauri. Binário pequeno, janela nativa real, sem inchaço Electron, sem telemetria.',
+    featureSoonTitle: 'Spotify e Deezer em breve',
+    featureSoonBody:
+      'Fluxo match-via-YouTube em design. Templates já na UI, atrás de uma flag em breve.',
+    featureOssTitle: 'Código aberto',
+    featureOssBody:
+      'Licença MIT. Leia o código, abra uma issue, envie um PR. Mesmas regras para todos.',
+    footerCopy: 'Contribuidores Patotube · MIT',
+    footerIssues: 'Issues',
+    footerReleases: 'Releases',
+    comingSoon: 'Em breve',
+  },
+
+  it: {
+    navFeatures: 'Funzionalità',
+    navDownload: 'Scarica',
+    heroLine1: 'Incolla un URL,',
+    heroLine2: 'ottieni il file.',
+    heroDesc:
+      'Downloader multimediale moderno e leggero per Windows e Android. YouTube, SoundCloud e molti altri siti. Video MP4 o audio MP3. Scuro per impostazione predefinita. 16 lingue.',
+    heroCtaPrimary: 'Scarica gratis',
+    heroCtaSecondary: 'Vedi sorgente',
+    downloadsTitle: 'Scegli la tua piattaforma',
+    downloadsSubtitle: 'Gratis. Nessun account. Nessuna pubblicità. Nessuna telemetria.',
+    downloadsHint:
+      "Le build Windows non sono ancora firmate — SmartScreen potrebbe segnalarle. Clicca \"Ulteriori informazioni → Esegui comunque\". L'APK Android richiede di abilitare l'installazione da origini sconosciute per il file scaricato.",
+    windowsLabel: 'Windows',
+    windowsSub: 'Installer .exe',
+    androidLabel: 'Android',
+    androidSub: 'Sideload .apk',
+    macosLabel: 'macOS',
+    macosSub: 'prossimamente',
+    linuxLabel: 'Linux',
+    linuxSub: 'prossimamente',
+    hoverCta: 'Clicca per scaricare →',
+    featuresTitle: 'Cosa fa, cosa non fa.',
+    featureYtTitle: 'YouTube e SoundCloud, oggi',
+    featureYtBody:
+      "E molti altri siti supportati da yt-dlp. Incolla l'URL, l'app si occupa del resto.",
+    featureFormatsTitle: 'Video MP4 o audio MP3',
+    featureFormatsBody:
+      'Scegli il tipo, scegli la qualità, scarica. ffmpeg incluso, nessuna installazione extra.',
+    featureI18nTitle: 'Scuro di default, 16 lingue',
+    featureI18nBody:
+      'Inglese, francese, spagnolo, italiano, tedesco, e altre. Cambia tema in qualsiasi momento.',
+    featureNativeTitle: 'Leggero, veloce, nativo',
+    featureNativeBody:
+      'Costruito su Tauri. Binario minuscolo, finestra OS reale, senza bloat Electron, senza telemetria.',
+    featureSoonTitle: 'Spotify e Deezer in arrivo',
+    featureSoonBody:
+      'Workflow match-via-YouTube in fase di design. Template già nella UI dietro un flag prossimamente.',
+    featureOssTitle: 'Open source',
+    featureOssBody:
+      'Licenza MIT. Leggi il codice, apri una issue, invia una PR. Stesse regole per tutti.',
+    footerCopy: 'Contributori Patotube · MIT',
+    footerIssues: 'Issues',
+    footerReleases: 'Releases',
+    comingSoon: 'Prossimamente',
+  },
+
+  de: {
+    navFeatures: 'Funktionen',
+    navDownload: 'Herunterladen',
+    heroLine1: 'URL einfügen,',
+    heroLine2: 'Datei erhalten.',
+    heroDesc:
+      'Moderner, leichtgewichtiger Medien-Downloader für Windows und Android. YouTube, SoundCloud und viele weitere Seiten. MP4-Video oder MP3-Audio. Standardmäßig dunkel. 16 Sprachen.',
+    heroCtaPrimary: 'Kostenlos herunterladen',
+    heroCtaSecondary: 'Quellcode ansehen',
+    downloadsTitle: 'Plattform auswählen',
+    downloadsSubtitle: 'Kostenlos. Kein Konto. Keine Werbung. Keine Telemetrie.',
+    downloadsHint:
+      'Windows-Builds sind derzeit unsigniert — SmartScreen könnte sie melden. Klicken Sie "Weitere Informationen → Trotzdem ausführen". Das Android-APK erfordert die Aktivierung der Installation aus unbekannten Quellen für die heruntergeladene Datei.',
+    windowsLabel: 'Windows',
+    windowsSub: '.exe Installer',
+    androidLabel: 'Android',
+    androidSub: '.apk Sideload',
+    macosLabel: 'macOS',
+    macosSub: 'demnächst',
+    linuxLabel: 'Linux',
+    linuxSub: 'demnächst',
+    hoverCta: 'Zum Herunterladen klicken →',
+    featuresTitle: 'Was es kann, was es nicht kann.',
+    featureYtTitle: 'YouTube und SoundCloud, heute',
+    featureYtBody:
+      'Und viele weitere Seiten, die yt-dlp beherrscht. URL einfügen, die App erledigt den Rest.',
+    featureFormatsTitle: 'MP4-Video oder MP3-Audio',
+    featureFormatsBody:
+      'Typ wählen, Qualität wählen, herunterladen. ffmpeg enthalten, keine zusätzliche Installation.',
+    featureI18nTitle: 'Standardmäßig dunkel, 16 Sprachen',
+    featureI18nBody:
+      'Englisch, Französisch, Spanisch, Deutsch, Italienisch, und mehr. Theme jederzeit wechseln.',
+    featureNativeTitle: 'Leicht, schnell, nativ',
+    featureNativeBody:
+      'Auf Tauri basiert. Winzige Binary, echtes OS-Fenster, kein Electron-Ballast, keine Telemetrie.',
+    featureSoonTitle: 'Spotify und Deezer demnächst',
+    featureSoonBody:
+      'Match-via-YouTube-Workflow in Planung. Templates bereits in der UI hinter einem demnächst-Flag.',
+    featureOssTitle: 'Open Source',
+    featureOssBody:
+      'MIT-Lizenz. Code lesen, Issue eröffnen, PR senden. Gleiche Regeln für alle.',
+    footerCopy: 'Patotube-Mitwirkende · MIT',
+    footerIssues: 'Issues',
+    footerReleases: 'Releases',
+    comingSoon: 'Demnächst',
+  },
+
+  nl: {
+    navFeatures: 'Functies',
+    navDownload: 'Downloaden',
+    heroLine1: 'Plak een URL,',
+    heroLine2: 'krijg het bestand.',
+    heroDesc:
+      'Moderne, lichtgewicht media-downloader voor Windows en Android. YouTube, SoundCloud en vele andere sites. MP4-video of MP3-audio. Donker standaard. 16 talen.',
+    heroCtaPrimary: 'Gratis downloaden',
+    heroCtaSecondary: 'Bekijk broncode',
+    downloadsTitle: 'Kies je platform',
+    downloadsSubtitle: 'Gratis. Geen account. Geen advertenties. Geen telemetrie.',
+    downloadsHint:
+      'Windows-builds zijn nog niet ondertekend — SmartScreen kan ze markeren. Klik "Meer info → Toch uitvoeren". Voor de Android-APK moet je installaties uit onbekende bronnen toestaan voor het gedownloade bestand.',
+    windowsLabel: 'Windows',
+    windowsSub: '.exe installer',
+    androidLabel: 'Android',
+    androidSub: '.apk sideload',
+    macosLabel: 'macOS',
+    macosSub: 'binnenkort',
+    linuxLabel: 'Linux',
+    linuxSub: 'binnenkort',
+    hoverCta: 'Klik om te downloaden →',
+    featuresTitle: 'Wat het doet, wat het niet doet.',
+    featureYtTitle: 'YouTube en SoundCloud, vandaag',
+    featureYtBody:
+      'En vele andere sites die yt-dlp ondersteunt. Plak de URL, de app regelt de rest.',
+    featureFormatsTitle: 'MP4-video of MP3-audio',
+    featureFormatsBody:
+      'Kies het type, kies de kwaliteit, download. ffmpeg meegeleverd, geen extra installatie.',
+    featureI18nTitle: 'Donker standaard, 16 talen',
+    featureI18nBody:
+      'Engels, Frans, Spaans, Nederlands, Duits, en meer. Wissel thema wanneer je wilt.',
+    featureNativeTitle: 'Licht, snel, native',
+    featureNativeBody:
+      'Gebouwd op Tauri. Klein binary, echt OS-venster, geen Electron-bloat, geen telemetrie.',
+    featureSoonTitle: 'Spotify en Deezer binnenkort',
+    featureSoonBody:
+      'Match-via-YouTube workflow in ontwerp. Templates al in de UI achter een binnenkort-vlag.',
+    featureOssTitle: 'Open source',
+    featureOssBody:
+      'MIT-licentie. Lees de code, open een issue, stuur een PR. Zelfde regels voor iedereen.',
+    footerCopy: 'Patotube-bijdragers · MIT',
+    footerIssues: 'Issues',
+    footerReleases: 'Releases',
+    comingSoon: 'Binnenkort',
+  },
+
+  pl: {
+    navFeatures: 'Funkcje',
+    navDownload: 'Pobierz',
+    heroLine1: 'Wklej URL,',
+    heroLine2: 'otrzymaj plik.',
+    heroDesc:
+      'Nowoczesny, lekki downloader mediów dla Windows i Android. YouTube, SoundCloud i wiele innych stron. Wideo MP4 lub audio MP3. Domyślnie ciemny. 16 języków.',
+    heroCtaPrimary: 'Pobierz za darmo',
+    heroCtaSecondary: 'Zobacz kod',
+    downloadsTitle: 'Wybierz swoją platformę',
+    downloadsSubtitle: 'Za darmo. Bez konta. Bez reklam. Bez telemetrii.',
+    downloadsHint:
+      'Buildy Windows nie są jeszcze podpisane — SmartScreen może je oznaczyć. Kliknij "Więcej informacji → Uruchom mimo to". APK Android wymaga włączenia instalacji z nieznanych źródeł dla pobranego pliku.',
+    windowsLabel: 'Windows',
+    windowsSub: 'Instalator .exe',
+    androidLabel: 'Android',
+    androidSub: 'Sideload .apk',
+    macosLabel: 'macOS',
+    macosSub: 'wkrótce',
+    linuxLabel: 'Linux',
+    linuxSub: 'wkrótce',
+    hoverCta: 'Kliknij, aby pobrać →',
+    featuresTitle: 'Co robi, czego nie robi.',
+    featureYtTitle: 'YouTube i SoundCloud już dziś',
+    featureYtBody:
+      'Plus wiele innych stron obsługiwanych przez yt-dlp. Wklej URL, aplikacja zajmie się resztą.',
+    featureFormatsTitle: 'Wideo MP4 lub audio MP3',
+    featureFormatsBody:
+      'Wybierz typ, wybierz jakość, pobierz. ffmpeg w pakiecie, bez dodatkowej instalacji.',
+    featureI18nTitle: 'Domyślnie ciemny, 16 języków',
+    featureI18nBody:
+      'Angielski, francuski, hiszpański, polski, niemiecki, i więcej. Przełącz motyw kiedy chcesz.',
+    featureNativeTitle: 'Lekki, szybki, natywny',
+    featureNativeBody:
+      'Zbudowany na Tauri. Mały plik binarny, prawdziwe okno OS, bez bloatu Electrona, bez telemetrii.',
+    featureSoonTitle: 'Spotify i Deezer wkrótce',
+    featureSoonBody:
+      'Workflow match-via-YouTube w projektowaniu. Szablony już w UI za flagą wkrótce.',
+    featureOssTitle: 'Open source',
+    featureOssBody:
+      'Licencja MIT. Czytaj kod, otwórz issue, wyślij PR. Te same zasady dla wszystkich.',
+    footerCopy: 'Współtwórcy Patotube · MIT',
+    footerIssues: 'Issues',
+    footerReleases: 'Releases',
+    comingSoon: 'Wkrótce',
+  },
+
+  ru: {
+    navFeatures: 'Функции',
+    navDownload: 'Скачать',
+    heroLine1: 'Вставьте ссылку,',
+    heroLine2: 'получите файл.',
+    heroDesc:
+      'Современный лёгкий загрузчик медиа для Windows и Android. YouTube, SoundCloud и множество других сайтов. Видео MP4 или аудио MP3. Тёмная тема по умолчанию. 16 языков.',
+    heroCtaPrimary: 'Скачать бесплатно',
+    heroCtaSecondary: 'Посмотреть код',
+    downloadsTitle: 'Выберите платформу',
+    downloadsSubtitle: 'Бесплатно. Без аккаунта. Без рекламы. Без телеметрии.',
+    downloadsHint:
+      'Сборки Windows пока не подписаны — SmartScreen может их пометить. Нажмите "Подробнее → Выполнить в любом случае". APK для Android требует включения установки из неизвестных источников для загруженного файла.',
+    windowsLabel: 'Windows',
+    windowsSub: 'Установщик .exe',
+    androidLabel: 'Android',
+    androidSub: 'Сайдлоад .apk',
+    macosLabel: 'macOS',
+    macosSub: 'скоро',
+    linuxLabel: 'Linux',
+    linuxSub: 'скоро',
+    hoverCta: 'Нажмите для загрузки →',
+    featuresTitle: 'Что делает, чего не делает.',
+    featureYtTitle: 'YouTube и SoundCloud сегодня',
+    featureYtBody:
+      'И множество других сайтов, поддерживаемых yt-dlp. Вставьте ссылку — приложение разберётся.',
+    featureFormatsTitle: 'Видео MP4 или аудио MP3',
+    featureFormatsBody:
+      'Выберите тип, выберите качество, загружайте. ffmpeg включён, без дополнительной установки.',
+    featureI18nTitle: 'Тёмная тема, 16 языков',
+    featureI18nBody:
+      'Английский, французский, испанский, русский, немецкий и другие. Переключайте тему когда угодно.',
+    featureNativeTitle: 'Лёгкий, быстрый, нативный',
+    featureNativeBody:
+      'Построен на Tauri. Крошечный бинарник, настоящее окно ОС, без раздутия Electron, без телеметрии.',
+    featureSoonTitle: 'Spotify и Deezer скоро',
+    featureSoonBody:
+      'Workflow match-via-YouTube в разработке. Шаблоны уже в UI за флагом «скоро».',
+    featureOssTitle: 'Открытый исходный код',
+    featureOssBody:
+      'Лицензия MIT. Читайте код, открывайте issue, отправляйте PR. Одни правила для всех.',
+    footerCopy: 'Участники Patotube · MIT',
+    footerIssues: 'Issues',
+    footerReleases: 'Releases',
+    comingSoon: 'Скоро',
+  },
+
+  tr: {
+    navFeatures: 'Özellikler',
+    navDownload: 'İndir',
+    heroLine1: 'URL yapıştır,',
+    heroLine2: 'dosyayı al.',
+    heroDesc:
+      'Windows ve Android için modern, hafif medya indiricisi. YouTube, SoundCloud ve birçok diğer site. MP4 video veya MP3 ses. Varsayılan koyu tema. 16 dil.',
+    heroCtaPrimary: 'Ücretsiz indir',
+    heroCtaSecondary: 'Kaynağı görüntüle',
+    downloadsTitle: 'Platformunu seç',
+    downloadsSubtitle: 'Ücretsiz. Hesap yok. Reklam yok. Telemetri yok.',
+    downloadsHint:
+      'Windows derlemeleri şu anda imzasız — SmartScreen bunları işaretleyebilir. "Daha fazla bilgi → Yine de çalıştır" tıkla. Android APK için indirilen dosyaya bilinmeyen kaynaklardan kurulum izni vermen gerekir.',
+    windowsLabel: 'Windows',
+    windowsSub: '.exe yükleyici',
+    androidLabel: 'Android',
+    androidSub: '.apk sideload',
+    macosLabel: 'macOS',
+    macosSub: 'yakında',
+    linuxLabel: 'Linux',
+    linuxSub: 'yakında',
+    hoverCta: 'İndirmek için tıkla →',
+    featuresTitle: 'Neler yapar, neler yapmaz.',
+    featureYtTitle: 'YouTube ve SoundCloud, bugün',
+    featureYtBody:
+      "Ve yt-dlp'nin desteklediği diğer birçok site. URL'yi yapıştır, uygulama gerisini halletsin.",
+    featureFormatsTitle: 'MP4 video veya MP3 ses',
+    featureFormatsBody:
+      'Türü seç, kaliteyi seç, indir. ffmpeg pakete dahil, ekstra kurulum yok.',
+    featureI18nTitle: 'Varsayılan koyu, 16 dil',
+    featureI18nBody:
+      'İngilizce, Fransızca, İspanyolca, Türkçe, Almanca ve daha fazlası. Temayı istediğin zaman değiştir.',
+    featureNativeTitle: 'Hafif, hızlı, yerel',
+    featureNativeBody:
+      'Tauri üzerine kurulu. Minik bir ikili dosya, gerçek OS penceresi, Electron şişkinliği yok, telemetri yok.',
+    featureSoonTitle: 'Spotify ve Deezer yakında',
+    featureSoonBody:
+      "Match-via-YouTube iş akışı tasarım aşamasında. Şablonlar zaten UI'da, yakında bayrağı arkasında.",
+    featureOssTitle: 'Açık kaynak',
+    featureOssBody:
+      'MIT lisansı. Kodu oku, issue aç, PR gönder. Herkese aynı kurallar.',
+    footerCopy: 'Patotube katkıda bulunanlar · MIT',
+    footerIssues: 'Issues',
+    footerReleases: 'Releases',
+    comingSoon: 'Yakında',
+  },
+
+  hi: {
+    navFeatures: 'सुविधाएँ',
+    navDownload: 'डाउनलोड',
+    heroLine1: 'URL पेस्ट करें,',
+    heroLine2: 'फ़ाइल पाएं।',
+    heroDesc:
+      'Windows और Android के लिए आधुनिक, हल्का मीडिया डाउनलोडर। YouTube, SoundCloud और कई अन्य साइटें। MP4 वीडियो या MP3 ऑडियो। डिफ़ॉल्ट रूप से डार्क। 16 भाषाएँ।',
+    heroCtaPrimary: 'मुफ़्त डाउनलोड करें',
+    heroCtaSecondary: 'सोर्स देखें',
+    downloadsTitle: 'अपना प्लेटफ़ॉर्म चुनें',
+    downloadsSubtitle: 'मुफ़्त। कोई खाता नहीं। कोई विज्ञापन नहीं। कोई टेलीमेट्री नहीं।',
+    downloadsHint:
+      'Windows बिल्ड अभी हस्ताक्षरित नहीं हैं — SmartScreen उन्हें फ़्लैग कर सकता है। "अधिक जानकारी → फिर भी चलाएं" क्लिक करें। Android APK के लिए डाउनलोड की गई फ़ाइल हेतु अज्ञात स्रोतों से इंस्टॉल सक्षम करना होगा।',
+    windowsLabel: 'Windows',
+    windowsSub: '.exe इंस्टॉलर',
+    androidLabel: 'Android',
+    androidSub: '.apk साइडलोड',
+    macosLabel: 'macOS',
+    macosSub: 'जल्द आ रहा है',
+    linuxLabel: 'Linux',
+    linuxSub: 'जल्द आ रहा है',
+    hoverCta: 'डाउनलोड के लिए क्लिक करें →',
+    featuresTitle: 'क्या करता है, क्या नहीं।',
+    featureYtTitle: 'YouTube और SoundCloud, आज',
+    featureYtBody:
+      'और yt-dlp द्वारा समर्थित कई अन्य साइटें। URL पेस्ट करें, ऐप बाकी संभालता है।',
+    featureFormatsTitle: 'MP4 वीडियो या MP3 ऑडियो',
+    featureFormatsBody:
+      'प्रकार चुनें, गुणवत्ता चुनें, डाउनलोड करें। ffmpeg बंडल में शामिल, कोई अतिरिक्त इंस्टॉल नहीं।',
+    featureI18nTitle: 'डिफ़ॉल्ट डार्क, 16 भाषाएँ',
+    featureI18nBody:
+      'अंग्रेज़ी, फ़्रेंच, स्पेनिश, हिन्दी, जर्मन, और अधिक। थीम कभी भी बदलें।',
+    featureNativeTitle: 'हल्का, तेज़, मूल',
+    featureNativeBody:
+      'Tauri पर आधारित। छोटी बाइनरी, असली OS विंडो, कोई Electron ब्लोट नहीं, कोई टेलीमेट्री नहीं।',
+    featureSoonTitle: 'Spotify और Deezer जल्द आ रहे हैं',
+    featureSoonBody:
+      'Match-via-YouTube वर्कफ़्लो डिज़ाइन में। UI में टेम्पलेट पहले से हैं, coming-soon फ़्लैग के पीछे।',
+    featureOssTitle: 'ओपन सोर्स',
+    featureOssBody:
+      'MIT लाइसेंस। कोड पढ़ें, इश्यू दर्ज करें, PR भेजें। सभी के लिए समान नियम।',
+    footerCopy: 'Patotube योगदानकर्ता · MIT',
+    footerIssues: 'Issues',
+    footerReleases: 'Releases',
+    comingSoon: 'जल्द आ रहा है',
+  },
+
+  ko: {
+    navFeatures: '기능',
+    navDownload: '다운로드',
+    heroLine1: 'URL을 붙여넣고,',
+    heroLine2: '파일을 받으세요.',
+    heroDesc:
+      'Windows와 Android를 위한 현대적이고 가벼운 미디어 다운로더. YouTube, SoundCloud 및 다양한 사이트. MP4 비디오 또는 MP3 오디오. 기본 다크 모드. 16개 언어.',
+    heroCtaPrimary: '무료 다운로드',
+    heroCtaSecondary: '소스 보기',
+    downloadsTitle: '플랫폼 선택',
+    downloadsSubtitle: '무료. 계정 불필요. 광고 없음. 텔레메트리 없음.',
+    downloadsHint:
+      'Windows 빌드는 아직 서명되지 않음 — SmartScreen이 경고할 수 있습니다. "추가 정보 → 실행"을 클릭하세요. Android APK는 다운로드한 파일에 대해 알 수 없는 출처에서 설치를 허용해야 합니다.',
+    windowsLabel: 'Windows',
+    windowsSub: '.exe 설치 프로그램',
+    androidLabel: 'Android',
+    androidSub: '.apk 사이드로드',
+    macosLabel: 'macOS',
+    macosSub: '출시 예정',
+    linuxLabel: 'Linux',
+    linuxSub: '출시 예정',
+    hoverCta: '클릭하여 다운로드 →',
+    featuresTitle: '무엇을 하고 무엇을 하지 않는가.',
+    featureYtTitle: 'YouTube와 SoundCloud, 오늘부터',
+    featureYtBody:
+      '그리고 yt-dlp가 지원하는 여러 다른 사이트. URL을 붙여넣으면 앱이 알아서 처리합니다.',
+    featureFormatsTitle: 'MP4 비디오 또는 MP3 오디오',
+    featureFormatsBody:
+      '종류를 고르고, 품질을 고르고, 다운로드. ffmpeg 번들 포함, 추가 설치 불필요.',
+    featureI18nTitle: '기본 다크, 16개 언어',
+    featureI18nBody:
+      '영어, 프랑스어, 스페인어, 한국어, 독일어 등. 언제든지 테마 전환.',
+    featureNativeTitle: '가볍고, 빠르고, 네이티브',
+    featureNativeBody:
+      'Tauri 기반. 작은 바이너리, 진짜 OS 창, Electron 비대화 없음, 텔레메트리 없음.',
+    featureSoonTitle: 'Spotify와 Deezer 곧 출시',
+    featureSoonBody:
+      'YouTube 매칭 워크플로우 설계 중. UI에 템플릿 이미 있음, coming-soon 플래그 뒤.',
+    featureOssTitle: '오픈 소스',
+    featureOssBody:
+      'MIT 라이선스. 코드를 읽고, 이슈를 등록하고, PR을 보내세요. 모두에게 같은 규칙.',
+    footerCopy: 'Patotube 기여자 · MIT',
+    footerIssues: 'Issues',
+    footerReleases: 'Releases',
+    comingSoon: '출시 예정',
   },
 };

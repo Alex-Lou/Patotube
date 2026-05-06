@@ -1,0 +1,87 @@
+{
+  "app": {
+    "name": "Patotube",
+    "tagline": "Вставьте ссылку, получите файл."
+  },
+  "theme": {
+    "toggle": "Переключить тему",
+    "toDark": "Тёмная тема",
+    "toLight": "Светлая тема"
+  },
+  "locale": {
+    "language": "Язык",
+    "change": "Изменить язык"
+  },
+  "url": {
+    "label": "URL медиа",
+    "placeholder": "Вставьте ссылку",
+    "fetch": "Проанализировать",
+    "paste": "Вставить из буфера обмена",
+    "clear": "Очистить"
+  },
+  "errors": {
+    "empty": "Введите URL",
+    "invalid": "Недопустимый URL",
+    "unsupported": "Эта платформа пока не поддерживается",
+    "comingSoon": "Поддержка {{platform}} скоро появится",
+    "fetchFailed": "Не удалось получить информацию",
+    "downloadFailed": "Ошибка загрузки",
+    "noTauri": "Откройте десктопное приложение для загрузки"
+  },
+  "format": {
+    "label": "Формат",
+    "video": "Видео",
+    "audio": "Только аудио",
+    "videoMp4": "Видео MP4",
+    "audioMp3": "Аудио MP3",
+    "quality": "Качество",
+    "best": "Лучшее доступное",
+    "high": "Высокое (1080p)",
+    "medium": "Среднее (720p)",
+    "low": "Низкое (480p)",
+    "audioBitrate": "Битрейт",
+    "kbps": "{{value}} кбит/с"
+  },
+  "preview": {
+    "title": "Подтвердить загрузку",
+    "duration": "Длительность",
+    "uploader": "Автор",
+    "confirm": "Скачать",
+    "cancel": "Отмена",
+    "loading": "Получение информации...",
+    "noThumbnail": "Превью недоступно"
+  },
+  "queue": {
+    "title": "Загрузки",
+    "empty": "Загрузок пока нет. Вставьте URL выше.",
+    "pending": "В очереди",
+    "downloading": "Загрузка",
+    "converting": "Конвертация",
+    "done": "Готово",
+    "failed": "Ошибка",
+    "openFile": "Открыть файл",
+    "openFolder": "Показать в папке",
+    "remove": "Удалить",
+    "retry": "Повторить",
+    "clear": "Очистить завершённые"
+  },
+  "platform": {
+    "youtube": "YouTube",
+    "soundcloud": "SoundCloud",
+    "spotify": "Spotify",
+    "deezer": "Deezer",
+    "generic": "Веб",
+    "comingSoon": "Скоро"
+  },
+  "settings": {
+    "title": "Настройки",
+    "downloadFolder": "Папка загрузок",
+    "browse": "Обзор",
+    "concurrent": "Параллельные загрузки",
+    "theme": "Тема",
+    "about": "О программе"
+  },
+  "footer": {
+    "openSource": "Открытый исходный код"
+  }
+}

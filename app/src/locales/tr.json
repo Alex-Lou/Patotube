@@ -1,0 +1,87 @@
+{
+  "app": {
+    "name": "Patotube",
+    "tagline": "URL yapıştır, dosyayı al."
+  },
+  "theme": {
+    "toggle": "Temayı değiştir",
+    "toDark": "Koyu tema",
+    "toLight": "Açık tema"
+  },
+  "locale": {
+    "language": "Dil",
+    "change": "Dili değiştir"
+  },
+  "url": {
+    "label": "Medya URL'si",
+    "placeholder": "URL'ni yapıştır",
+    "fetch": "Çözümle",
+    "paste": "Panodan yapıştır",
+    "clear": "Temizle"
+  },
+  "errors": {
+    "empty": "Lütfen bir URL girin",
+    "invalid": "Geçersiz URL",
+    "unsupported": "Bu platform henüz desteklenmiyor",
+    "comingSoon": "{{platform}} desteği yakında",
+    "fetchFailed": "Bilgiler alınamadı",
+    "downloadFailed": "İndirme başarısız",
+    "noTauri": "İndirmek için masaüstü uygulamasını açın"
+  },
+  "format": {
+    "label": "Format",
+    "video": "Video",
+    "audio": "Sadece ses",
+    "videoMp4": "MP4 video",
+    "audioMp3": "MP3 ses",
+    "quality": "Kalite",
+    "best": "En iyi mevcut",
+    "high": "Yüksek (1080p)",
+    "medium": "Orta (720p)",
+    "low": "Düşük (480p)",
+    "audioBitrate": "Bit hızı",
+    "kbps": "{{value}} kbps"
+  },
+  "preview": {
+    "title": "İndirmeyi onayla",
+    "duration": "Süre",
+    "uploader": "Yükleyen",
+    "confirm": "İndir",
+    "cancel": "İptal",
+    "loading": "Bilgiler alınıyor...",
+    "noThumbnail": "Küçük resim yok"
+  },
+  "queue": {
+    "title": "İndirilenler",
+    "empty": "Henüz indirme yok. Yukarıya bir URL yapıştırın.",
+    "pending": "Bekliyor",
+    "downloading": "İndiriliyor",
+    "converting": "Dönüştürülüyor",
+    "done": "Tamamlandı",
+    "failed": "Başarısız",
+    "openFile": "Dosyayı aç",
+    "openFolder": "Klasörde göster",
+    "remove": "Kaldır",
+    "retry": "Tekrar dene",
+    "clear": "Tamamlananları temizle"
+  },
+  "platform": {
+    "youtube": "YouTube",
+    "soundcloud": "SoundCloud",
+    "spotify": "Spotify",
+    "deezer": "Deezer",
+    "generic": "Web",
+    "comingSoon": "Yakında"
+  },
+  "settings": {
+    "title": "Ayarlar",
+    "downloadFolder": "İndirme klasörü",
+    "browse": "Gözat",
+    "concurrent": "Paralel indirmeler",
+    "theme": "Tema",
+    "about": "Hakkında"
+  },
+  "footer": {
+    "openSource": "Açık kaynak"
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "app": {
+    "name": "Patotube",
+    "tagline": "URL einfügen, Datei erhalten."
+  },
+  "theme": {
+    "toggle": "Design wechseln",
+    "toDark": "Dunkles Design",
+    "toLight": "Helles Design"
+  },
+  "locale": {
+    "language": "Sprache",
+    "change": "Sprache ändern"
+  },
+  "url": {
+    "label": "Medien-URL",
+    "placeholder": "URL einfügen",
+    "fetch": "Analysieren",
+    "paste": "Aus Zwischenablage einfügen",
+    "clear": "Löschen"
+  },
+  "errors": {
+    "empty": "Bitte URL eingeben",
+    "invalid": "URL ist ungültig",
+    "unsupported": "Diese Plattform wird noch nicht unterstützt",
+    "comingSoon": "Unterstützung für {{platform}} kommt bald",
+    "fetchFailed": "Informationen konnten nicht abgerufen werden",
+    "downloadFailed": "Download fehlgeschlagen",
+    "noTauri": "Zum Herunterladen die Desktop-App öffnen"
+  },
+  "format": {
+    "label": "Format",
+    "video": "Video",
+    "audio": "Nur Audio",
+    "videoMp4": "MP4-Video",
+    "audioMp3": "MP3-Audio",
+    "quality": "Qualität",
+    "best": "Beste verfügbar",
+    "high": "Hoch (1080p)",
+    "medium": "Mittel (720p)",
+    "low": "Niedrig (480p)",
+    "audioBitrate": "Bitrate",
+    "kbps": "{{value}} kbps"
+  },
+  "preview": {
+    "title": "Download bestätigen",
+    "duration": "Dauer",
+    "uploader": "Uploader",
+    "confirm": "Herunterladen",
+    "cancel": "Abbrechen",
+    "loading": "Informationen werden abgerufen...",
+    "noThumbnail": "Kein Vorschaubild verfügbar"
+  },
+  "queue": {
+    "title": "Downloads",
+    "empty": "Noch keine Downloads. Oben eine URL einfügen.",
+    "pending": "Ausstehend",
+    "downloading": "Wird heruntergeladen",
+    "converting": "Wird konvertiert",
+    "done": "Fertig",
+    "failed": "Fehlgeschlagen",
+    "openFile": "Datei öffnen",
+    "openFolder": "Im Ordner anzeigen",
+    "remove": "Entfernen",
+    "retry": "Wiederholen",
+    "clear": "Erledigte löschen"
+  },
+  "platform": {
+    "youtube": "YouTube",
+    "soundcloud": "SoundCloud",
+    "spotify": "Spotify",
+    "deezer": "Deezer",
+    "generic": "Web",
+    "comingSoon": "Bald verfügbar"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "downloadFolder": "Download-Ordner",
+    "browse": "Durchsuchen",
+    "concurrent": "Parallele Downloads",
+    "theme": "Design",
+    "about": "Über"
+  },
+  "footer": {
+    "openSource": "Open Source"
+  }
+}
