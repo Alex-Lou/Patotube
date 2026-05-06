@@ -1,7 +1,5 @@
 import { useTranslation } from 'react-i18next';
 import {
-  Check,
-  Languages,
   Moon,
   Palette,
   Sun,
@@ -9,72 +7,34 @@ import {
   Film,
   Music,
   Monitor,
+  Folder,
+  FolderCog,
+  RotateCcw,
 } from 'lucide-react';
+import { getTauri } from '@/lib/tauri/bindings';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { useTheme, type Theme } from '@/features/theme/theme-provider';
-import { LOCALE_META, SUPPORTED_LOCALES, type Locale } from '@/features/i18n/i18n-config';
+import { useTheme } from '@/features/theme/theme-provider';
 import { useSettings } from '@/lib/core/settings';
-import {
-  AUDIO_BITRATES,
-  VIDEO_QUALITIES,
-} from '@/lib/core/formats';
+import { AUDIO_BITRATES, VIDEO_QUALITIES } from '@/lib/core/formats';
 import type { AudioBitrate, VideoQuality } from '@/lib/core/types';
 
 const REPO_URL = 'https://github.com/Alex-Lou/Patotube';
 const APP_VERSION = '0.1.0';
 
-export function SettingsMenu({ onAfterAction }: { onAfterAction?: () => void }) {
-  const { i18n, t } = useTranslation();
+export function SettingsMenu(_props: { onAfterAction?: () => void }) {
+  const { t } = useTranslation();
   const { theme, setTheme, resolvedTheme } = useTheme();
-  const { defaultFormat, setDefaultFormat } = useSettings();
+  const { defaultFormat, setDefaultFormat, downloadFolder, setDownloadFolder } = useSettings();
 
-  const current = (i18n.resolvedLanguage ?? 'en') as Locale;
-
-  const onPickLocale = (code: Locale) => {
-    void i18n.changeLanguage(code);
-    onAfterAction?.();
+  const pickFolder = async () => {
+    const api = await getTauri();
+    const picked = await api.pickFolder();
+    if (picked) setDownloadFolder(picked);
   };
 
   return (
     <div className="flex flex-col gap-7 mt-2 overflow-y-auto pr-1">
-      {/* Language */}
-      <Section icon={<Languages className="size-4" />} label={t('locale.language')}>
-        <ul className="grid gap-1">
-          {SUPPORTED_LOCALES.map((code) => {
-            const meta = LOCALE_META[code];
-            const active = code === current;
-            return (
-              <li key={code}>
-                <button
-                  type="button"
-                  onClick={() => onPickLocale(code)}
-                  className={cn(
-                    'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors text-left',
-                    active
-                      ? 'bg-primary/10 text-primary border border-primary/30'
-                      : 'hover:bg-muted border border-transparent',
-                  )}
-                >
-                  <span className="text-base leading-none shrink-0">{meta.flag}</span>
-                  <span
-                    className={cn(
-                      'text-[10px] font-mono font-bold tracking-wider px-1.5 py-0.5 rounded shrink-0 min-w-[28px] text-center',
-                      active
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted text-muted-foreground',
-                    )}
-                  >
-                    {meta.abbr}
-                  </span>
-                  <span className="flex-1 truncate">{meta.native}</span>
-                  {active && <Check className="size-4 shrink-0 opacity-80" />}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </Section>
-
       {/* Theme */}
       <Section icon={<Palette className="size-4" />} label={t('settings.theme')}>
         <div className="grid grid-cols-3 gap-2">
@@ -98,9 +58,7 @@ export function SettingsMenu({ onAfterAction }: { onAfterAction?: () => void }) 
           />
         </div>
         {theme === 'system' && (
-          <p className="mt-2 text-[11px] text-muted-foreground">
-            Currently {resolvedTheme}
-          </p>
+          <p className="mt-2 text-[11px] text-muted-foreground">Currently {resolvedTheme}</p>
         )}
       </Section>
 
@@ -112,8 +70,7 @@ export function SettingsMenu({ onAfterAction }: { onAfterAction?: () => void }) 
             onClick={() =>
               setDefaultFormat({
                 kind: 'video',
-                quality:
-                  defaultFormat.kind === 'video' ? defaultFormat.quality : 'best',
+                quality: defaultFormat.kind === 'video' ? defaultFormat.quality : 'best',
               })
             }
             icon={<Film className="size-4" />}
@@ -124,8 +81,7 @@ export function SettingsMenu({ onAfterAction }: { onAfterAction?: () => void }) 
             onClick={() =>
               setDefaultFormat({
                 kind: 'audio',
-                bitrate:
-                  defaultFormat.kind === 'audio' ? defaultFormat.bitrate : 192,
+                bitrate: defaultFormat.kind === 'audio' ? defaultFormat.bitrate : 192,
               })
             }
             icon={<Music className="size-4" />}
@@ -139,9 +95,7 @@ export function SettingsMenu({ onAfterAction }: { onAfterAction?: () => void }) 
                 <PillButton
                   key={q}
                   active={defaultFormat.quality === q}
-                  onClick={() =>
-                    setDefaultFormat({ kind: 'video', quality: q as VideoQuality })
-                  }
+                  onClick={() => setDefaultFormat({ kind: 'video', quality: q as VideoQuality })}
                 >
                   {t(`format.${q}`)}
                 </PillButton>
@@ -150,13 +104,43 @@ export function SettingsMenu({ onAfterAction }: { onAfterAction?: () => void }) 
                 <PillButton
                   key={b}
                   active={defaultFormat.bitrate === b}
-                  onClick={() =>
-                    setDefaultFormat({ kind: 'audio', bitrate: b as AudioBitrate })
-                  }
+                  onClick={() => setDefaultFormat({ kind: 'audio', bitrate: b as AudioBitrate })}
                 >
                   {b}k
                 </PillButton>
               ))}
+        </div>
+      </Section>
+
+      {/* Download folder */}
+      <Section icon={<Folder className="size-4" />} label={t('settings.downloadFolder')}>
+        <div className="space-y-2">
+          <div
+            className="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-border/60 bg-muted/40"
+            title={downloadFolder ?? t('settings.osDefault')}
+          >
+            <Folder className="size-4 shrink-0 text-muted-foreground" />
+            <span className="flex-1 truncate text-sm font-mono text-muted-foreground">
+              {downloadFolder ?? t('settings.osDefault')}
+            </span>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={pickFolder} className="flex-1">
+              <FolderCog className="size-4" />
+              {t('settings.browse')}
+            </Button>
+            {downloadFolder && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setDownloadFolder(undefined)}
+                aria-label={t('settings.osDefault')}
+                title={t('settings.osDefault')}
+              >
+                <RotateCcw className="size-4" />
+              </Button>
+            )}
+          </div>
         </div>
       </Section>
 
