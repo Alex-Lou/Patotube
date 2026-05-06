@@ -12,7 +12,6 @@ import type { FormatChoice, MediaInfo } from '@/lib/core/types';
 import { useSettings } from '@/lib/core/settings';
 import { formatDuration } from '@/lib/utils';
 import { FormatPicker } from './format-picker';
-import { PlatformBadge } from './platform-badge';
 
 interface PreviewDialogProps {
   info: MediaInfo | null;
@@ -38,9 +37,8 @@ export function PreviewDialog({ info, onClose, onConfirm }: PreviewDialogProps) 
       <DialogContent className="max-w-xl">
         {info && (
           <>
-            <DialogHeader className="space-y-3">
-              <PlatformBadge platform={info.platform} />
-              <DialogTitle className="text-base leading-snug line-clamp-2">
+            <DialogHeader>
+              <DialogTitle className="text-base leading-snug line-clamp-2 pr-6">
                 {info.title}
               </DialogTitle>
             </DialogHeader>
