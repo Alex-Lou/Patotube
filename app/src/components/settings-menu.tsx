@@ -9,7 +9,12 @@ import {
   Film,
   Music,
   Monitor,
+  Folder,
+  FolderCog,
+  RotateCcw,
 } from 'lucide-react';
+import { getTauri } from '@/lib/tauri/bindings';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useTheme, type Theme } from '@/features/theme/theme-provider';
 import { LOCALE_META, SUPPORTED_LOCALES, type Locale } from '@/features/i18n/i18n-config';
@@ -26,7 +31,13 @@ const APP_VERSION = '0.1.0';
 export function SettingsMenu({ onAfterAction }: { onAfterAction?: () => void }) {
   const { i18n, t } = useTranslation();
   const { theme, setTheme, resolvedTheme } = useTheme();
-  const { defaultFormat, setDefaultFormat } = useSettings();
+  const { defaultFormat, setDefaultFormat, downloadFolder, setDownloadFolder } = useSettings();
+
+  const pickFolder = async () => {
+    const api = await getTauri();
+    const picked = await api.pickFolder();
+    if (picked) setDownloadFolder(picked);
+  };
 
   const current = (i18n.resolvedLanguage ?? 'en') as Locale;
 
@@ -157,6 +168,43 @@ export function SettingsMenu({ onAfterAction }: { onAfterAction?: () => void }) 
                   {b}k
                 </PillButton>
               ))}
+        </div>
+      </Section>
+
+      {/* Download folder */}
+      <Section icon={<Folder className="size-4" />} label={t('settings.downloadFolder')}>
+        <div className="space-y-2">
+          <div
+            className="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-border/60 bg-muted/40"
+            title={downloadFolder ?? t('settings.osDefault')}
+          >
+            <Folder className="size-4 shrink-0 text-muted-foreground" />
+            <span className="flex-1 truncate text-sm font-mono text-muted-foreground">
+              {downloadFolder ?? t('settings.osDefault')}
+            </span>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={pickFolder}
+              className="flex-1"
+            >
+              <FolderCog className="size-4" />
+              {t('settings.browse')}
+            </Button>
+            {downloadFolder && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setDownloadFolder(undefined)}
+                aria-label={t('settings.osDefault')}
+                title={t('settings.osDefault')}
+              >
+                <RotateCcw className="size-4" />
+              </Button>
+            )}
+          </div>
         </div>
       </Section>
 

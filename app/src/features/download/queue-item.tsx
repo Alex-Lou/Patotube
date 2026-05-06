@@ -9,6 +9,7 @@ import {
   Film,
   Music,
   Clock,
+  Play,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
@@ -23,6 +24,7 @@ interface QueueItemProps {
   onRemove: (id: string) => void;
   onRetry: (id: string) => void;
   onShowInFolder: (path: string) => void;
+  onOpenFile: (path: string) => void;
 }
 
 const STATUS_TONE: Record<JobStatus, string> = {
@@ -33,9 +35,15 @@ const STATUS_TONE: Record<JobStatus, string> = {
   failed: 'text-destructive',
 };
 
-export function QueueItem({ job, onRemove, onRetry, onShowInFolder }: QueueItemProps) {
+export function QueueItem({
+  job,
+  onRemove,
+  onRetry,
+  onShowInFolder,
+  onOpenFile,
+}: QueueItemProps) {
   const { t } = useTranslation();
-  const { info, format, status, progress, speedBps, error, filePath } = job;
+  const { info, format, status, progress, speedBps, etaSec, error, filePath } = job;
 
   const formatLabel =
     format.kind === 'video'
@@ -91,16 +99,28 @@ export function QueueItem({ job, onRemove, onRetry, onShowInFolder }: QueueItemP
 
               <div className="flex shrink-0 items-center gap-1">
                 {status === 'done' && filePath && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-8"
-                    onClick={() => onShowInFolder(filePath)}
-                    aria-label={t('queue.openFolder')}
-                    title={t('queue.openFolder')}
-                  >
-                    <Folder className="size-4" />
-                  </Button>
+                  <>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-8"
+                      onClick={() => onOpenFile(filePath)}
+                      aria-label={t('queue.openFile')}
+                      title={t('queue.openFile')}
+                    >
+                      <Play className="size-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-8"
+                      onClick={() => onShowInFolder(filePath)}
+                      aria-label={t('queue.openFolder')}
+                      title={t('queue.openFolder')}
+                    >
+                      <Folder className="size-4" />
+                    </Button>
+                  </>
                 )}
                 {status === 'failed' && (
                   <Button
@@ -128,11 +148,16 @@ export function QueueItem({ job, onRemove, onRetry, onShowInFolder }: QueueItemP
             {(status === 'downloading' || status === 'converting') && (
               <div className="space-y-1">
                 <Progress value={progress} />
-                <div className="flex justify-between text-xs text-muted-foreground">
+                <div className="flex justify-between text-xs text-muted-foreground tabular-nums">
                   <span>{progress.toFixed(0)}%</span>
-                  {typeof speedBps === 'number' && speedBps > 0 && (
-                    <span>{formatBytes(speedBps)}/s</span>
-                  )}
+                  <div className="flex items-center gap-3">
+                    {typeof speedBps === 'number' && speedBps > 0 && (
+                      <span>{formatBytes(speedBps)}/s</span>
+                    )}
+                    {typeof etaSec === 'number' && etaSec > 0 && (
+                      <span>ETA {formatDuration(etaSec)}</span>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
