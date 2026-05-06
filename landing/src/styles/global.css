@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-bg text-fg font-sans antialiased;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, hsl(45 96% 56% / 0.12), transparent),
+      radial-gradient(ellipse 60% 40% at 100% 100%, hsl(28 92% 45% / 0.06), transparent);
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    @apply bg-duck/30 text-fg;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-bg-card/60 backdrop-blur-xl border border-border;
+  }
+  .text-gradient-duck {
+    background: linear-gradient(135deg, hsl(45 96% 56%), hsl(28 92% 45%));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+}

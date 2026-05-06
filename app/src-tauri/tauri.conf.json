@@ -1,0 +1,59 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Patotube",
+  "version": "0.1.0",
+  "identifier": "io.patotube.app",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:1420",
+    "beforeDevCommand": "pnpm dev",
+    "beforeBuildCommand": "pnpm build"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Patotube",
+        "label": "main",
+        "width": 760,
+        "height": 820,
+        "minWidth": 480,
+        "minHeight": 600,
+        "decorations": true,
+        "resizable": true,
+        "center": true,
+        "transparent": false,
+        "fullscreen": false,
+        "shadow": true
+      }
+    ],
+    "security": {
+      "csp": null,
+      "assetProtocol": {
+        "enable": true,
+        "scope": ["**"]
+      }
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "category": "Utility",
+    "shortDescription": "Modern lightweight media downloader",
+    "longDescription": "Drop a URL, get an MP3 or MP4. YouTube, SoundCloud and many more.",
+    "windows": {
+      "wix": { "language": "en-US" },
+      "nsis": {
+        "installerIcon": "icons/icon.ico",
+        "displayLanguageSelector": true,
+        "languages": ["English", "French", "Spanish", "Japanese", "SimpChinese"]
+      }
+    }
+  }
+}

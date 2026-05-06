@@ -1,0 +1,87 @@
+{
+  "app": {
+    "name": "Patotube",
+    "tagline": "Plak een URL, krijg het bestand."
+  },
+  "theme": {
+    "toggle": "Thema wisselen",
+    "toDark": "Donker thema",
+    "toLight": "Licht thema"
+  },
+  "locale": {
+    "language": "Taal",
+    "change": "Taal wijzigen"
+  },
+  "url": {
+    "label": "Media-URL",
+    "placeholder": "Plak je URL",
+    "fetch": "Analyseren",
+    "paste": "Plakken vanaf klembord",
+    "clear": "Wissen"
+  },
+  "errors": {
+    "empty": "Voer een URL in",
+    "invalid": "URL is ongeldig",
+    "unsupported": "Dit platform wordt nog niet ondersteund",
+    "comingSoon": "Ondersteuning voor {{platform}} komt binnenkort",
+    "fetchFailed": "Kon informatie niet ophalen",
+    "downloadFailed": "Download mislukt",
+    "noTauri": "Open de desktop-app om te downloaden"
+  },
+  "format": {
+    "label": "Formaat",
+    "video": "Video",
+    "audio": "Alleen audio",
+    "videoMp4": "MP4-video",
+    "audioMp3": "MP3-audio",
+    "quality": "Kwaliteit",
+    "best": "Beste beschikbaar",
+    "high": "Hoog (1080p)",
+    "medium": "Gemiddeld (720p)",
+    "low": "Laag (480p)",
+    "audioBitrate": "Bitrate",
+    "kbps": "{{value}} kbps"
+  },
+  "preview": {
+    "title": "Download bevestigen",
+    "duration": "Duur",
+    "uploader": "Uploader",
+    "confirm": "Downloaden",
+    "cancel": "Annuleren",
+    "loading": "Informatie ophalen...",
+    "noThumbnail": "Geen voorvertoning"
+  },
+  "queue": {
+    "title": "Downloads",
+    "empty": "Nog geen downloads. Plak hierboven een URL.",
+    "pending": "In wachtrij",
+    "downloading": "Downloaden",
+    "converting": "Converteren",
+    "done": "Klaar",
+    "failed": "Mislukt",
+    "openFile": "Bestand openen",
+    "openFolder": "In map tonen",
+    "remove": "Verwijderen",
+    "retry": "Opnieuw proberen",
+    "clear": "Voltooide wissen"
+  },
+  "platform": {
+    "youtube": "YouTube",
+    "soundcloud": "SoundCloud",
+    "spotify": "Spotify",
+    "deezer": "Deezer",
+    "generic": "Web",
+    "comingSoon": "Binnenkort"
+  },
+  "settings": {
+    "title": "Instellingen",
+    "downloadFolder": "Downloadmap",
+    "browse": "Bladeren",
+    "concurrent": "Parallelle downloads",
+    "theme": "Thema",
+    "about": "Over"
+  },
+  "footer": {
+    "openSource": "Open source"
+  }
+}

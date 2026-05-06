@@ -9,10 +9,9 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import type { FormatChoice, MediaInfo } from '@/lib/core/types';
-import { DEFAULT_FORMAT } from '@/lib/core/formats';
+import { useSettings } from '@/lib/core/settings';
 import { formatDuration } from '@/lib/utils';
 import { FormatPicker } from './format-picker';
-import { PlatformBadge } from './platform-badge';
 
 interface PreviewDialogProps {
   info: MediaInfo | null;
@@ -22,24 +21,24 @@ interface PreviewDialogProps {
 
 export function PreviewDialog({ info, onClose, onConfirm }: PreviewDialogProps) {
   const { t } = useTranslation();
-  const [format, setFormat] = useState<FormatChoice>(DEFAULT_FORMAT);
+  const defaultFormat = useSettings((s) => s.defaultFormat);
+  const [format, setFormat] = useState<FormatChoice>(defaultFormat);
   const [imgError, setImgError] = useState(false);
 
   useEffect(() => {
     if (info) {
-      setFormat(DEFAULT_FORMAT);
+      setFormat(defaultFormat);
       setImgError(false);
     }
-  }, [info]);
+  }, [info, defaultFormat]);
 
   return (
     <Dialog open={!!info} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-xl">
         {info && (
           <>
-            <DialogHeader className="space-y-3">
-              <PlatformBadge platform={info.platform} />
-              <DialogTitle className="text-base leading-snug line-clamp-2">
+            <DialogHeader>
+              <DialogTitle className="text-base leading-snug line-clamp-2 pr-6">
                 {info.title}
               </DialogTitle>
             </DialogHeader>
@@ -76,7 +75,12 @@ export function PreviewDialog({ info, onClose, onConfirm }: PreviewDialogProps) 
               )}
             </div>
 
-            <FormatPicker value={format} onChange={setFormat} />
+            <div className="border-t border-border/50 pt-4 space-y-3">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {t('format.label')}
+              </h4>
+              <FormatPicker value={format} onChange={setFormat} />
+            </div>
 
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="ghost" onClick={onClose}>
