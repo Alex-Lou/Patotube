@@ -2,6 +2,9 @@ mod commands;
 mod downloader;
 mod jobs;
 
+#[cfg(target_os = "android")]
+mod youtube_native;
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let mut builder = tauri::Builder::default()
@@ -9,7 +12,8 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_os::init())
-        .plugin(tauri_plugin_opener::init());
+        .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_clipboard_manager::init());
 
     // Auto-updater (desktop only — Tauri does not support Android/iOS
     // self-updates yet; mobile users grab a fresh APK manually).

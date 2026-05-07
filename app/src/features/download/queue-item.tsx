@@ -12,12 +12,21 @@ import {
   Play,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn, formatBytes, formatDuration } from '@/lib/utils';
 import type { DownloadJob, JobStatus } from '@/lib/core/types';
 import { PlatformBadge } from './platform-badge';
+import {
+  isAndroid as isAndroidPlatform,
+  openFileNative,
+  openDownloadsFolderNative,
+  hasNativeBridge,
+} from '@/lib/android/bridge';
+
+const IS_ANDROID = isAndroidPlatform();
 
 interface QueueItemProps {
   job: DownloadJob;
@@ -104,7 +113,22 @@ export function QueueItem({
                       variant="ghost"
                       size="icon"
                       className="size-8"
-                      onClick={() => onOpenFile(filePath)}
+                      onClick={async () => {
+                        // Android: native FileProvider + ACTION_VIEW.
+                        if (IS_ANDROID && hasNativeBridge()) {
+                          if (openFileNative(filePath)) return;
+                          toast.error('Could not open file');
+                          return;
+                        }
+                        try {
+                          await onOpenFile(filePath);
+                        } catch (err) {
+                          toast.error('Could not open file', {
+                            description:
+                              err instanceof Error ? err.message : String(err),
+                          });
+                        }
+                      }}
                       aria-label={t('queue.openFile')}
                       title={t('queue.openFile')}
                     >
@@ -114,7 +138,22 @@ export function QueueItem({
                       variant="ghost"
                       size="icon"
                       className="size-8"
-                      onClick={() => onShowInFolder(filePath)}
+                      onClick={async () => {
+                        // Android: open the system Downloads folder.
+                        if (IS_ANDROID && hasNativeBridge()) {
+                          if (openDownloadsFolderNative()) return;
+                          toast.error('Could not open Downloads folder');
+                          return;
+                        }
+                        try {
+                          await onShowInFolder(filePath);
+                        } catch (err) {
+                          toast.error('Could not open folder', {
+                            description:
+                              err instanceof Error ? err.message : String(err),
+                          });
+                        }
+                      }}
                       aria-label={t('queue.openFolder')}
                       title={t('queue.openFolder')}
                     >
