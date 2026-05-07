@@ -10,7 +10,7 @@ export function friendlyError(
   if (!raw) return undefined;
   const s = raw.toLowerCase();
   if (
-    /age[-\s]?(restrict|gated|verif|confirm)/i.test(raw) ||
+    /age[-_\s]?(restrict|gated|verif|confirm)/i.test(raw) ||
     /confirm.*your\s+age/i.test(raw)
   ) {
     return t('errors.ageGated');
