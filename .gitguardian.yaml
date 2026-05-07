@@ -1,0 +1,24 @@
+# GitGuardian / ggshield configuration.
+#
+# The four AIzaSy... strings allowlisted below are NOT secrets — they
+# are YouTube's own public client API keys, hardcoded into every
+# official YouTube binary (iOS app, Android app, YouTube Music, TV
+# embedded player) and shipped openly by every YouTube
+# reverse-engineering project on GitHub (yt-dlp, NewPipe, Piped,
+# Invidious, rustypipe, ...). They are server-side scoped to the
+# matching client name+version pair and tied to no developer account
+# we control. Removing them breaks the Android youtubei/v1/player
+# extractor entirely.
+#
+# See app/src-tauri/src/youtube_native.rs for the full rationale.
+version: 2
+secret:
+  ignored-matches:
+    - name: "YouTube IOS client public API key (used by yt-dlp, NewPipe, etc.)"
+      match: "AIzaSyB-63vPrdThhKuerbB2N_l7Kwwcxj6yUAc"
+    - name: "YouTube ANDROID client public API key (used by yt-dlp, NewPipe, etc.)"
+      match: "AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w"
+    - name: "YouTube ANDROID_MUSIC client public API key (used by yt-dlp, NewPipe, etc.)"
+      match: "AIzaSyAOghZGza2MQSZkY_zfZ370N-PUdXEo8AI"
+    - name: "YouTube TVHTML5_SIMPLY_EMBEDDED_PLAYER client public API key"
+      match: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
