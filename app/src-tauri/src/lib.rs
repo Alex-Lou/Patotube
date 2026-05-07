@@ -5,6 +5,9 @@ mod jobs;
 #[cfg(target_os = "android")]
 mod youtube_native;
 
+#[cfg(target_os = "android")]
+mod mp4_demux;
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let mut builder = tauri::Builder::default()

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Music, Film } from 'lucide-react';
+import { Music, Film, Info } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import {
@@ -19,6 +19,7 @@ import type {
   FormatChoice,
   VideoQuality,
 } from '@/lib/core/types';
+import { isAndroid } from '@/lib/android/bridge';
 
 interface FormatPickerProps {
   value: FormatChoice;
@@ -27,6 +28,7 @@ interface FormatPickerProps {
 
 export function FormatPicker({ value, onChange }: FormatPickerProps) {
   const { t } = useTranslation();
+  const onAndroid = isAndroid();
 
   const setKind = (kind: 'video' | 'audio') => {
     onChange(
@@ -75,6 +77,15 @@ export function FormatPicker({ value, onChange }: FormatPickerProps) {
               ))}
             </SelectContent>
           </Select>
+        </div>
+      ) : onAndroid ? (
+        // YouTube hands Android one fixed-bitrate AAC stream and refuses
+        // higher tiers without a PoToken handshake we don't ship — so a
+        // user-facing bitrate picker would just be a lie. Show a hint
+        // instead.
+        <div className="flex items-start gap-2 rounded-lg border border-border/60 bg-muted/40 px-3 py-2.5 text-xs text-muted-foreground">
+          <Info className="size-3.5 mt-0.5 shrink-0" />
+          <span>{t('format.audioMobileNote')}</span>
         </div>
       ) : (
         <div className="space-y-1.5">

@@ -26,7 +26,11 @@
     "comingSoon": "{{platform}} arrive bientôt",
     "fetchFailed": "Impossible de récupérer les infos",
     "downloadFailed": "Échec du téléchargement",
-    "noTauri": "Lance l'app desktop pour télécharger"
+    "noTauri": "Lance l'app desktop pour télécharger",
+    "requiresSignin": "Cette vidéo nécessite une connexion YouTube. Patotube ne peut pas accéder aux contenus protégés par compte.",
+    "ageGated": "Cette vidéo est limitée par âge et nécessite une connexion YouTube pour être téléchargée.",
+    "privateVideo": "Cette vidéo est privée.",
+    "videoUnavailable": "Cette vidéo est indisponible."
   },
   "format": {
     "label": "Format",
@@ -40,7 +44,8 @@
     "medium": "Moyenne (720p)",
     "low": "Basse (480p)",
     "audioBitrate": "Débit",
-    "kbps": "{{value}} kbps"
+    "kbps": "{{value}} kbps",
+    "audioMobileNote": "L'audio est livré en M4A (AAC) au débit fourni par YouTube — non sélectionnable sur mobile."
   },
   "preview": {
     "title": "Confirmer le téléchargement",
