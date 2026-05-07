@@ -5,11 +5,12 @@ mod jobs;
 // they can be unit-tested on the desktop host. See youtube_url.rs.
 mod youtube_url;
 
-// Android-only YouTube extraction kernel. Splits across submodules
-// for client profiles, the youtubei/v1/player REST call, stream
-// picking, downloading, output-path resolution, and event emission.
-// See `app/src-tauri/src/youtube_kernel/mod.rs`.
-#[cfg(target_os = "android")]
+// YouTube extraction kernel. Always compiled (so the pure-Rust
+// signature / n-parameter / stream-picking submodules can be
+// unit-tested on the desktop host); the network layer
+// (`download.rs`, `player_api.rs`) and the orchestration entry
+// points (`fetch_info`, `start`) are themselves cfg-gated to
+// Android inside the module. See `youtube_kernel/mod.rs`.
 mod youtube_kernel;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

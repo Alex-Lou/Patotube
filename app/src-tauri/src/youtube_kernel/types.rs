@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 // Serde shapes for the youtubei/v1/player JSON response. These cover
 // only the fields we actually read; YouTube returns dozens more we
 // happily ignore via Serde's default skip-unknown behaviour.

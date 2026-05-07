@@ -1,3 +1,8 @@
+// Used at runtime only on Android, but compiled everywhere so the
+// pure-Rust submodules (sigcipher etc.) and their tests can build
+// on the desktop host.
+#![allow(dead_code)]
+
 // YouTube client profiles. Each profile mimics a real YouTube
 // binary's identification headers when calling youtubei/v1/player —
 // the API serves different stream sets and applies different CDN
