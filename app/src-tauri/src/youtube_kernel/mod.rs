@@ -1,48 +1,68 @@
-// Patotube YouTube extraction kernel for Android.
+// Patotube YouTube extraction kernel.
 //
-// Public surface:
+// Public surface (Android only):
 //   - `fetch_info(url)` — resolves a URL to MediaInfo (title, duration,
 //     thumbnail, ...) without committing to a download.
 //   - `start(app, registry, input)` — spawns a background task that
 //     downloads to disk, emitting progress + status events along the
 //     way.
 //
-// Both call into the same youtubei/v1/player REST machinery (see
-// `player_api.rs`) parameterised by `clients.rs` profiles. The
-// downloader (`download.rs`) is multi-UA-retry to dodge per-CDN-node
-// 403s. Filesystem candidates live in `output_path.rs`.
+// The HTTP layer (`download.rs`, `player_api.rs`) and the
+// orchestration entry points are gated to Android because they
+// depend on `reqwest` from the Android-only dep table. The pure
+// modules (`clients`, `types`, `stream_pick`, `sigcipher`,
+// `progress`, `output_path`) compile everywhere so unit tests run
+// on the desktop host.
 //
 // See `docs/youtube-kernel.md` for the full architecture, including
 // why we don't use yt-dlp / NewPipe / ffmpeg-kit on Android.
 
 mod clients;
-mod download;
 mod output_path;
-mod player_api;
 mod progress;
+mod sigcipher;
 mod stream_pick;
 mod types;
 
+#[cfg(target_os = "android")]
+mod download;
+#[cfg(target_os = "android")]
+mod player_api;
+
+#[cfg(target_os = "android")]
 use std::path::PathBuf;
 
+#[cfg(target_os = "android")]
 use tauri::AppHandle;
 
+#[cfg(target_os = "android")]
 use crate::commands::{FormatChoice, StartDownloadInput};
+#[cfg(target_os = "android")]
 use crate::downloader::MediaInfo;
+#[cfg(target_os = "android")]
 use crate::jobs::JobRegistry;
+#[cfg(target_os = "android")]
 use crate::youtube_url::{extract_youtube_id, sanitize_filename};
 
+#[cfg(target_os = "android")]
 use self::clients::{audio_clients, default_clients, ClientProfile};
+#[cfg(target_os = "android")]
 use self::download::download_stream;
+#[cfg(target_os = "android")]
 use self::output_path::resolve_output_path;
+#[cfg(target_os = "android")]
 use self::player_api::{
     has_audio_only, has_combined_video, has_metadata, resolve_player_with,
 };
+#[cfg(target_os = "android")]
 use self::progress::emit_status;
+#[cfg(target_os = "android")]
 use self::stream_pick::{pick_audio, pick_video};
+#[cfg(target_os = "android")]
 use self::types::PlayerResponse;
 
 /// Resolves a YouTube URL to user-facing metadata. Does not download.
+#[cfg(target_os = "android")]
 pub async fn fetch_info(url: &str) -> Result<MediaInfo, String> {
     let video_id = extract_youtube_id(url)
         .ok_or_else(|| "Not a recognised YouTube URL.".to_string())?;
@@ -79,6 +99,7 @@ pub async fn fetch_info(url: &str) -> Result<MediaInfo, String> {
 /// emitting an initial `downloading` status; progress + completion
 /// arrive asynchronously via the `download://progress` and
 /// `download://status` events.
+#[cfg(target_os = "android")]
 pub async fn start(
     app: &AppHandle,
     registry: &JobRegistry,
@@ -146,6 +167,7 @@ pub async fn start(
 /// then strips the video track to produce a true audio-only file.
 ///
 /// See `docs/youtube-kernel.md` ("Phase 1") for the full pipeline.
+#[cfg(target_os = "android")]
 async fn run_download(
     app: &AppHandle,
     job_id: &str,
@@ -170,6 +192,7 @@ async fn run_download(
     try_combined(app, job_id, video_id, title, &quality, "mp4").await
 }
 
+#[cfg(target_os = "android")]
 async fn try_audio_only(
     app: &AppHandle,
     job_id: &str,
@@ -188,6 +211,7 @@ async fn try_audio_only(
     Ok(out)
 }
 
+#[cfg(target_os = "android")]
 async fn try_combined(
     app: &AppHandle,
     job_id: &str,
@@ -209,6 +233,7 @@ async fn try_combined(
 }
 
 /// Convenience: resolve_player_with seeded with `default_clients()`.
+#[cfg(target_os = "android")]
 async fn resolve_player(
     video_id: &str,
     accept: impl Fn(&PlayerResponse) -> bool,
