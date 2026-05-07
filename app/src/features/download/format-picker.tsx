@@ -55,7 +55,7 @@ export function FormatPicker({ value, onChange }: FormatPickerProps) {
           id="audio"
           checked={value.kind === 'audio'}
           icon={<Music className="size-4" />}
-          label={t('format.audioMp3')}
+          label={onAndroid ? t('format.audioM4a') : t('format.audioMp3')}
         />
       </RadioGroup>
 
@@ -79,10 +79,10 @@ export function FormatPicker({ value, onChange }: FormatPickerProps) {
           </Select>
         </div>
       ) : onAndroid ? (
-        // YouTube hands Android one fixed-bitrate AAC stream and refuses
-        // higher tiers without a PoToken handshake we don't ship — so a
-        // user-facing bitrate picker would just be a lie. Show a hint
-        // instead.
+        // YouTube hands one fixed-bitrate AAC stream per video; on
+        // mobile we don't transcode (MediaExtractor remux is
+        // bit-perfect, no LAME on the device). Showing a 128/192/256/
+        // 320 picker would be a lie. See docs/youtube-kernel.md.
         <div className="flex items-start gap-2 rounded-lg border border-border/60 bg-muted/40 px-3 py-2.5 text-xs text-muted-foreground">
           <Info className="size-3.5 mt-0.5 shrink-0" />
           <span>{t('format.audioMobileNote')}</span>

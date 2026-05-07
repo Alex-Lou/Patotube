@@ -55,10 +55,17 @@ export function QueueItem({
   const { t } = useTranslation();
   const { info, format, status, progress, speedBps, etaSec, error, filePath } = job;
 
+  // On Android we deliver bit-perfect AAC in an .m4a (MediaExtractor
+  // remux, no transcoding), so labelling the bitrate would be a lie:
+  // YouTube serves a single fixed AAC bitrate per video and we don't
+  // change it. Desktop still shows MP3 + chosen bitrate because
+  // yt-dlp + ffmpeg actually transcode there.
   const formatLabel =
     format.kind === 'video'
       ? `MP4 · ${t(`format.${format.quality}`)}`
-      : `MP3 · ${format.bitrate}k`;
+      : IS_ANDROID
+        ? 'M4A · AAC'
+        : `MP3 · ${format.bitrate}k`;
   const FormatIcon = format.kind === 'video' ? Film : Music;
 
   return (
@@ -118,13 +125,13 @@ export function QueueItem({
                         // Android: native FileProvider + ACTION_VIEW.
                         if (IS_ANDROID && hasNativeBridge()) {
                           if (openFileNative(filePath)) return;
-                          toast.error('Could not open file');
+                          toast.error(t('errors.couldNotOpenFile'));
                           return;
                         }
                         try {
                           await onOpenFile(filePath);
                         } catch (err) {
-                          toast.error('Could not open file', {
+                          toast.error(t('errors.couldNotOpenFile'), {
                             description:
                               err instanceof Error ? err.message : String(err),
                           });
@@ -143,13 +150,13 @@ export function QueueItem({
                         // Android: open the system Downloads folder.
                         if (IS_ANDROID && hasNativeBridge()) {
                           if (openDownloadsFolderNative()) return;
-                          toast.error('Could not open Downloads folder');
+                          toast.error(t('errors.couldNotOpenFolder'));
                           return;
                         }
                         try {
                           await onShowInFolder(filePath);
                         } catch (err) {
-                          toast.error('Could not open folder', {
+                          toast.error(t('errors.couldNotOpenFolder'), {
                             description:
                               err instanceof Error ? err.message : String(err),
                           });

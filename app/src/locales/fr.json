@@ -30,7 +30,9 @@
     "requiresSignin": "Cette vidéo nécessite une connexion YouTube. Patotube ne peut pas accéder aux contenus protégés par compte.",
     "ageGated": "Cette vidéo est limitée par âge et nécessite une connexion YouTube pour être téléchargée.",
     "privateVideo": "Cette vidéo est privée.",
-    "videoUnavailable": "Cette vidéo est indisponible."
+    "videoUnavailable": "Cette vidéo est indisponible.",
+    "couldNotOpenFile": "Impossible d'ouvrir le fichier",
+    "couldNotOpenFolder": "Impossible d'ouvrir le dossier"
   },
   "format": {
     "label": "Format",
@@ -38,6 +40,7 @@
     "audio": "Audio seul",
     "videoMp4": "Vidéo MP4",
     "audioMp3": "Audio MP3",
+    "audioM4a": "Audio M4A",
     "quality": "Qualité",
     "best": "Meilleure dispo",
     "high": "Haute (1080p)",
