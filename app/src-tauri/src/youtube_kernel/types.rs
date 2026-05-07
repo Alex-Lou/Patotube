@@ -55,7 +55,15 @@ pub struct StreamingData {
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct Format {
+    /// The plain CDN URL — present when the client we asked
+    /// (ANDROID_MUSIC, ANDROID, IOS, TVHTML5) returns un-ciphered
+    /// formats. Stream this directly.
     pub url: Option<String>,
+    /// The encoded `s=…&sp=…&url=…` blob — present (instead of
+    /// `url`) when the client (typically WEB) returns ciphered
+    /// formats. Run through `sigcipher::Unlocker` first.
+    #[serde(rename = "signatureCipher")]
+    pub signature_cipher: Option<String>,
     #[serde(rename = "mimeType")]
     pub mime_type: Option<String>,
     #[serde(default)]

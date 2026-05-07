@@ -28,6 +28,8 @@ mod types;
 mod download;
 #[cfg(target_os = "android")]
 mod player_api;
+#[cfg(target_os = "android")]
+mod unlock_pipeline;
 
 #[cfg(target_os = "android")]
 use std::path::PathBuf;
@@ -161,12 +163,18 @@ pub async fn start(
 
 /// Picks the right resolution + download strategy for this job.
 ///
-/// Audio jobs try real audio-only first (much smaller download); on
-/// failure they fall back to the combined MP4 saved as `.m4a`. The
-/// frontend's post-processing step (MediaExtractor remux on Android)
-/// then strips the video track to produce a true audio-only file.
+/// Audio strategy (most → least preferred):
+///   1. Plain audio-only via mobile/TV clients (`try_audio_only`).
+///      No JS, no n-decoder, fastest path. Works for ~most videos.
+///   2. Audio-only via WEB client + signature/n-param unlock
+///      (`try_audio_via_unlock`). Pays the boa-compile cost (~50ms)
+///      but unlocks streams the mobile clients refuse.
+///   3. Combined MP4 saved as .m4a, then frontend MediaExtractor
+///      strips the video track. Largest download but the universal
+///      fallback when YouTube refuses both audio paths above.
 ///
-/// See `docs/youtube-kernel.md` ("Phase 1") for the full pipeline.
+/// See `docs/youtube-kernel.md` ("Phase 1" + "Phase 2") for the full
+/// pipeline.
 #[cfg(target_os = "android")]
 async fn run_download(
     app: &AppHandle,
@@ -179,9 +187,13 @@ async fn run_download(
     if want_audio {
         match try_audio_only(app, job_id, video_id, title).await {
             Ok(p) => return Ok(p),
-            Err(e) => {
-                eprintln!("[patotube] audio-only failed: {e} — falling back to combined mp4");
-            }
+            Err(e) => eprintln!("[patotube] audio-only fast path failed: {e}"),
+        }
+        match unlock_pipeline::try_audio_via_unlock(app, job_id, video_id, title).await {
+            Ok(p) => return Ok(p),
+            Err(e) => eprintln!(
+                "[patotube] audio-only unlock path failed: {e} — falling back to combined mp4"
+            ),
         }
         return try_combined(app, job_id, video_id, title, "best", "m4a").await;
     }
@@ -205,9 +217,16 @@ async fn try_audio_only(
     let streaming = resp
         .streaming_data
         .ok_or_else(|| "No streaming data".to_string())?;
-    let (url, total, ext) = pick_audio(&streaming)?;
-    let out = resolve_output_path(&format!("{title}.{ext}")).await?;
-    download_stream(app, job_id, &url, &out, total, client.user_agent).await?;
+    let picked = pick_audio(&streaming)?;
+    // Mobile/TV clients hand out plain URLs. If we get back a
+    // ciphered-only format that means we asked the wrong client;
+    // bubble up so the caller falls through to the WEB+unlock path.
+    let url = picked
+        .direct_url
+        .ok_or_else(|| "format requires signature unlock — fall through".to_string())?;
+    let out = resolve_output_path(&format!("{title}.{}", picked.extension)).await?;
+    download_stream(app, job_id, &url, &out, picked.content_length, client.user_agent)
+        .await?;
     Ok(out)
 }
 
@@ -226,9 +245,13 @@ async fn try_combined(
     let streaming = resp
         .streaming_data
         .ok_or_else(|| "No streaming data".to_string())?;
-    let (url, total, _real_ext) = pick_video(&streaming, quality)?;
+    let picked = pick_video(&streaming, quality)?;
+    let url = picked
+        .direct_url
+        .ok_or_else(|| "combined-MP4 format requires signature unlock".to_string())?;
     let out = resolve_output_path(&format!("{title}.{save_ext}")).await?;
-    download_stream(app, job_id, &url, &out, total, client.user_agent).await?;
+    download_stream(app, job_id, &url, &out, picked.content_length, client.user_agent)
+        .await?;
     Ok(out)
 }
 

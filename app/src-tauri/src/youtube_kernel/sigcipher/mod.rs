@@ -40,7 +40,10 @@ mod player_js;
 use std::collections::HashMap;
 
 #[cfg(target_os = "android")]
-pub use player_js::{extract_player_js_url, fetch_player_js};
+pub use player_js::{
+    extract_player_js_url, fetch_player_js, fetch_player_js_for_video,
+    fetch_watch_page_html,
+};
 
 use self::nparam::NParamDecoder;
 use self::signature::SignatureDecoder;

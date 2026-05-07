@@ -23,6 +23,49 @@ const PLAYER_JS_CACHE_CAPACITY: usize = 4;
 static PLAYER_JS_CACHE: Lazy<Mutex<Vec<(String, String)>>> =
     Lazy::new(|| Mutex::new(Vec::with_capacity(PLAYER_JS_CACHE_CAPACITY)));
 
+const DESKTOP_UA: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 \
+                          (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+
+/// Fetch a watch page's HTML. Used to locate the player.js URL for
+/// a specific video; YouTube ships different player.js URLs across
+/// short windows (~hours) so the URL has to be discovered rather
+/// than guessed.
+pub async fn fetch_watch_page_html(video_id: &str) -> Result<String, String> {
+    let client = reqwest::Client::builder()
+        .user_agent(DESKTOP_UA)
+        .build()
+        .map_err(|e| format!("could not build http client: {e}"))?;
+
+    let url = format!("https://www.youtube.com/watch?v={video_id}");
+    let response = client
+        .get(&url)
+        .header("Accept-Language", "en-US,en;q=0.9")
+        .send()
+        .await
+        .map_err(|e| format!("network error fetching watch page: {e}"))?;
+    if !response.status().is_success() {
+        return Err(format!(
+            "watch page returned status {}",
+            response.status()
+        ));
+    }
+    response
+        .text()
+        .await
+        .map_err(|e| format!("could not read watch page body: {e}"))
+}
+
+/// Convenience: fetch the watch page for `video_id`, pull the
+/// `jsUrl` field out of the embedded player config, and follow it to
+/// fetch the player.js source. Returns `(player_js_url, source)`.
+pub async fn fetch_player_js_for_video(video_id: &str) -> Result<(String, String), String> {
+    let html = fetch_watch_page_html(video_id).await?;
+    let js_url = extract_player_js_url(&html)
+        .ok_or_else(|| "watch page did not contain a player.js URL".to_string())?;
+    let source = fetch_player_js(&js_url).await?;
+    Ok((js_url, source))
+}
+
 /// Fetch the JS at `url` (typically a player.js URL extracted from
 /// a watch page), returning the raw source. Hits the cache first;
 /// on miss does an HTTPS GET with a desktop-shaped User-Agent so
@@ -34,10 +77,7 @@ pub async fn fetch_player_js(url: &str) -> Result<String, String> {
     }
 
     let client = reqwest::Client::builder()
-        .user_agent(
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 \
-             (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        )
+        .user_agent(DESKTOP_UA)
         .build()
         .map_err(|e| format!("could not build http client: {e}"))?;
 
