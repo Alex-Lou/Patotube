@@ -13,6 +13,7 @@ import {
   openDownloadsFolderNative,
   scanFileNative,
 } from '@/lib/android/bridge';
+import { friendlyError } from '@/lib/core/errors';
 
 async function resolveOutputDir(): Promise<string> {
   const custom = useSettings.getState().downloadFolder;
@@ -95,7 +96,7 @@ export function useDownloadEvents() {
           } else {
             toast.error(t('toast.failed', { title }), {
               id: `dl-fail-${e.jobId}`,
-              description: e.error ?? undefined,
+              description: friendlyError(e.error, t),
             });
           }
         }

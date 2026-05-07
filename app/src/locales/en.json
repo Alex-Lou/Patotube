@@ -26,7 +26,11 @@
     "comingSoon": "{{platform}} support is coming soon",
     "fetchFailed": "Could not fetch info",
     "downloadFailed": "Download failed",
-    "noTauri": "Run this inside the desktop app to download"
+    "noTauri": "Run this inside the desktop app to download",
+    "requiresSignin": "This video requires a YouTube sign-in to download. Patotube can't access account-protected content.",
+    "ageGated": "This video is age-restricted and can't be downloaded without a YouTube sign-in.",
+    "privateVideo": "This video is private.",
+    "videoUnavailable": "This video is unavailable."
   },
   "format": {
     "label": "Format",
@@ -40,7 +44,8 @@
     "medium": "Medium (720p)",
     "low": "Low (480p)",
     "audioBitrate": "Bitrate",
-    "kbps": "{{value}} kbps"
+    "kbps": "{{value}} kbps",
+    "audioMobileNote": "Audio is delivered as M4A (AAC) at YouTube's stream bitrate — bitrate isn't selectable on mobile."
   },
   "preview": {
     "title": "Confirm download",

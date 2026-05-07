@@ -14,6 +14,28 @@
 // AAC ~128 kbps audio-only stream that every music player reads fine. We
 // don't transcode to MP3 since that would need ffmpeg, which we don't
 // ship on Android yet.
+//
+// =============================================================
+// SECURITY NOTE — re: GitGuardian / "Google API key" findings
+// =============================================================
+// The four `AIzaSy...` strings below are NOT secrets. They are
+// YouTube's own public client identifiers, hardcoded into every
+// official YouTube binary (web, iOS, Android, YouTube Music, TV
+// embed). They are server-side scoped to the matching client name
+// + version pair and have no quota tied to any Anthropic or
+// Patotube developer account — they are not credentials we can
+// rotate.
+//
+// Public references shipping the same constants:
+//   - yt-dlp:   https://github.com/yt-dlp/yt-dlp/blob/master/yt_dlp/extractor/youtube/_base.py
+//   - NewPipe:  https://github.com/TeamNewPipe/NewPipeExtractor
+//   - Invidious / Piped / rustypipe — all ship them in the clear.
+//
+// Removing or stubbing them out breaks the Android extractor
+// entirely (every call to youtubei/v1/player would 400). This
+// file is allowlisted in `.gitguardian.yaml`; if a new GitGuardian
+// alert fires for one of these strings, mark it "false positive"
+// in the dashboard.
 
 #![cfg(target_os = "android")]
 
@@ -442,10 +464,9 @@ pub async fn start(
 /// Drives the actual download with audio fallback. For audio requests
 /// we try audio-only first; if every YouTube client + UA combination
 /// 403s on the CDN, we fall back to grabbing the combined MP4 stream
-/// (which already carries an AAC audio track) and saving it as `.m4a`.
-/// The audio plays in any music app even though the file technically
-/// also contains a video stream — this side-steps PoToken-protected
-/// audio-only URLs without needing ffmpeg.
+/// and stripping its video track in pure Rust to produce a real
+/// audio-only `.m4a`. No ffmpeg, no transcoding — we just rewrite the
+/// MP4 boxes to keep only the AAC track.
 async fn run_download(
     app: &AppHandle,
     job_id: &str,
@@ -459,17 +480,56 @@ async fn run_download(
         match try_audio_only(app, job_id, video_id, title).await {
             Ok(p) => return Ok(p),
             Err(e) => {
-                eprintln!("[patotube] audio-only failed: {e} — falling back to combined mp4");
+                eprintln!("[patotube] audio-only failed: {e} — falling back to combined mp4 + remux");
             }
         }
-        // Fallback: combined mp4, saved as .m4a so music players pick it up.
-        return try_combined(app, job_id, video_id, title, "best", "m4a").await;
+        // Fallback: combined mp4, then demux out the video track so
+        // we end up with a true audio-only .m4a.
+        return try_audio_via_remux(app, job_id, video_id, title).await;
     }
     let quality = match format {
         FormatChoice::Video { quality } => quality,
         FormatChoice::Audio { .. } => "best".into(),
     };
     try_combined(app, job_id, video_id, title, &quality, "mp4").await
+}
+
+/// Audio fallback path: download the combined MP4, then strip the video
+/// track on a blocking thread (mp4 box rewrite is CPU + sync IO) so the
+/// final file is a real audio-only .m4a. The temp .mp4 lives next to
+/// the final destination so the rewrite never crosses filesystems.
+async fn try_audio_via_remux(
+    app: &AppHandle,
+    job_id: &str,
+    video_id: &str,
+    title: &str,
+) -> Result<PathBuf, String> {
+    let clients = default_clients();
+    let (resp, client) =
+        resolve_player_with(&clients, video_id, has_combined_video).await?;
+    let streaming = resp
+        .streaming_data
+        .ok_or_else(|| "No streaming data".to_string())?;
+    let (url, total, _real_ext) = pick_video(&streaming, "best")?;
+
+    let final_path = resolve_output_path(&format!("{title}.m4a")).await?;
+    // Sibling temp file in the same dir — rewrite stays on one volume.
+    let tmp_path = final_path.with_extension("download.mp4");
+
+    download_stream(app, job_id, &url, &tmp_path, total, client.user_agent).await?;
+
+    let src = tmp_path.clone();
+    let dst = final_path.clone();
+    let demux_result = tokio::task::spawn_blocking(move || {
+        crate::mp4_demux::extract_audio_to_m4a(&src, &dst)
+    })
+    .await
+    .map_err(|e| format!("demux task panicked: {e}"))?;
+
+    let _ = tokio::fs::remove_file(&tmp_path).await;
+
+    demux_result?;
+    Ok(final_path)
 }
 
 async fn try_audio_only(

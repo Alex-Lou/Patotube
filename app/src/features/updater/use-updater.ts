@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { isTauri } from '@/lib/tauri/bindings';
+import { isAndroid } from '@/lib/android/bridge';
 
 interface UpdaterState {
   checking: boolean;
@@ -27,7 +28,9 @@ export function useUpdater() {
 
   const check = useCallback(
     async ({ silent = false }: { silent?: boolean } = {}) => {
-      if (!isTauri()) {
+      // The updater plugin is not registered on Android (cfg(desktop)
+      // in lib.rs), so we'd just throw "plugin not found". Bail early.
+      if (!isTauri() || isAndroid()) {
         if (!silent) toast.info(t('update.notInDesktop', 'Updates are checked from the desktop app.'));
         return;
       }
@@ -80,11 +83,11 @@ export function useUpdater() {
   );
 
   // One silent auto-check on app start (with a 6h cooldown so we don't ping
-  // GitHub on every relaunch).
+  // GitHub on every relaunch). Skipped on Android — see check() comment.
   useEffect(() => {
     if (ranAutoCheck.current) return;
     ranAutoCheck.current = true;
-    if (!isTauri()) return;
+    if (!isTauri() || isAndroid()) return;
 
     const last = Number(localStorage.getItem(SILENT_CHECK_KEY) ?? '0');
     if (Date.now() - last < CHECK_COOLDOWN_MS) return;
