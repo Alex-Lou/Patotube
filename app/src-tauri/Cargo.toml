@@ -42,6 +42,10 @@ url = "2"
 [target.'cfg(target_os = "android")'.dependencies]
 reqwest = { version = "0.12", default-features = false, features = ["rustls-tls-webpki-roots", "stream", "json"] }
 futures-util = "0.3"
+# Pure-Rust MP4 box parser/writer. Used to strip the video track from
+# the combined MP4 we fall back to when YouTube refuses real audio-only
+# streams, producing a true audio-only .m4a without ffmpeg on Android.
+mp4 = "0.14"
 
 [features]
 default = ["custom-protocol"]

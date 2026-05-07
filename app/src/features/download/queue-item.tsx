@@ -25,6 +25,7 @@ import {
   openDownloadsFolderNative,
   hasNativeBridge,
 } from '@/lib/android/bridge';
+import { friendlyError } from '@/lib/core/errors';
 
 const IS_ANDROID = isAndroidPlatform();
 
@@ -202,7 +203,9 @@ export function QueueItem({
             )}
 
             {status === 'failed' && error && (
-              <p className="line-clamp-2 text-xs text-destructive/90">{error}</p>
+              <p className="line-clamp-2 text-xs text-destructive/90">
+                {friendlyError(error, t) ?? error}
+              </p>
             )}
           </div>
         </div>
