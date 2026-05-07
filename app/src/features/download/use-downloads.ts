@@ -6,6 +6,13 @@ import { useQueueStore } from '@/lib/core/queue';
 import { useSettings } from '@/lib/core/settings';
 import type { FormatChoice, MediaInfo } from '@/lib/core/types';
 import { clamp } from '@/lib/utils';
+import {
+  isAndroid,
+  hasNativeBridge,
+  openFileNative,
+  openDownloadsFolderNative,
+  scanFileNative,
+} from '@/lib/android/bridge';
 
 async function resolveOutputDir(): Promise<string> {
   const custom = useSettings.getState().downloadFolder;
@@ -57,15 +64,32 @@ export function useDownloadEvents() {
           const job = useQueueStore.getState().jobs.find((j) => j.id === e.jobId);
           const title = job?.info.title ?? '';
           if (e.status === 'done') {
+            // Trigger MediaScanner so the file appears in Files / Music
+            // / Gallery apps right away (Android only, no-op elsewhere).
+            if (job?.filePath && isAndroid()) {
+              scanFileNative(job.filePath);
+            }
+            const onAndroid = isAndroid() && hasNativeBridge();
             toast.success(t('toast.completed', { title }), {
               id: `dl-done-${e.jobId}`,
+              description: job?.filePath ?? undefined,
+              duration: 12000,
               action: job?.filePath
-                ? {
-                    label: t('queue.openFolder'),
-                    onClick: () => {
-                      void getTauri().then((api) => api.showInFolder(job.filePath!));
-                    },
-                  }
+                ? onAndroid
+                  ? {
+                      label: t('queue.openFile'),
+                      onClick: () => {
+                        if (!openFileNative(job.filePath!)) {
+                          openDownloadsFolderNative();
+                        }
+                      },
+                    }
+                  : {
+                      label: t('queue.openFile'),
+                      onClick: () => {
+                        void getTauri().then((api) => api.openPath(job.filePath!));
+                      },
+                    }
                 : undefined,
             });
           } else {

@@ -22,7 +22,15 @@ pub struct StartDownloadInput {
 
 #[tauri::command]
 pub async fn fetch_media_info(app: AppHandle, url: String) -> Result<MediaInfo, String> {
-    downloader::fetch_info(&app, &url).await
+    #[cfg(target_os = "android")]
+    {
+        let _ = &app;
+        return crate::youtube_native::fetch_info(&url).await;
+    }
+    #[cfg(not(target_os = "android"))]
+    {
+        downloader::fetch_info(&app, &url).await
+    }
 }
 
 #[tauri::command]
@@ -40,7 +48,14 @@ pub async fn start_download(
         format,
         output_dir,
     };
-    downloader::start(&app, &registry, input).await
+    #[cfg(target_os = "android")]
+    {
+        return crate::youtube_native::start(&app, &registry, input).await;
+    }
+    #[cfg(not(target_os = "android"))]
+    {
+        downloader::start(&app, &registry, input).await
+    }
 }
 
 #[tauri::command]

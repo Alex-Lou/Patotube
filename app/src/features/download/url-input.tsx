@@ -24,11 +24,24 @@ export function UrlInput({ onResolved }: UrlInputProps) {
   const platform = value.trim() ? detectPlatform(value) : null;
 
   const handlePaste = async () => {
+    // Browser API first (works on desktop dev, sometimes on Android Chrome).
     try {
       const text = await navigator.clipboard.readText();
-      if (text) setValue(text);
+      if (text) {
+        setValue(text);
+        return;
+      }
     } catch {
-      /* clipboard denied — silent */
+      /* fall through to Tauri plugin */
+    }
+    // Tauri clipboard plugin — bypasses WebView restrictions on Android.
+    try {
+      const { readText } = await import('@tauri-apps/plugin-clipboard-manager');
+      const text = await readText();
+      if (text) setValue(text);
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.warn('[patotube] clipboard read failed:', err);
     }
   };
 
