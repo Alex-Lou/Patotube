@@ -22,6 +22,9 @@ import { useSettings } from '@/lib/core/settings';
 import { AUDIO_BITRATES, VIDEO_QUALITIES } from '@/lib/core/formats';
 import type { AudioBitrate, VideoQuality } from '@/lib/core/types';
 import { isAndroid } from '@/lib/android/bridge';
+// onAndroid still drives the "hide download folder picker / hide
+// updates section" gates; the bitrate picker is back to being shown
+// on Android because Phase 1 (ffmpeg-kit) makes it meaningful again.
 
 const REPO_URL = 'https://github.com/Alex-Lou/Patotube';
 const APP_VERSION = '0.1.1';
@@ -91,13 +94,15 @@ export function SettingsMenu(_props: { onAfterAction?: () => void }) {
               })
             }
             icon={<Music className="size-4" />}
-            label={t('format.audioMp3')}
+            label={onAndroid ? t('format.audioM4a') : t('format.audioMp3')}
           />
         </div>
 
-        {/* Quality / bitrate sub-picker. On Android we hide the bitrate
-            row because YouTube returns one fixed-bitrate AAC stream and
-            offering 128/192/256/320 would just be a lie. */}
+        {/* Quality / bitrate sub-picker. On Android we hide the
+            audio bitrate row because we don't transcode on device
+            (MediaExtractor remux is bit-perfect, see
+            docs/youtube-kernel.md) — offering 128/192/256/320 would
+            just be a lie. */}
         {defaultFormat.kind === 'video' ? (
           <div className="mt-3 grid grid-cols-4 gap-1.5">
             {VIDEO_QUALITIES.map((q) => (

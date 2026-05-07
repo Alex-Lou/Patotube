@@ -1,12 +1,16 @@
 mod commands;
 mod downloader;
 mod jobs;
+// Pure URL/filename helpers, kept outside the cfg-gated extractor so
+// they can be unit-tested on the desktop host. See youtube_url.rs.
+mod youtube_url;
 
+// Android-only YouTube extraction kernel. Splits across submodules
+// for client profiles, the youtubei/v1/player REST call, stream
+// picking, downloading, output-path resolution, and event emission.
+// See `app/src-tauri/src/youtube_kernel/mod.rs`.
 #[cfg(target_os = "android")]
-mod youtube_native;
-
-#[cfg(target_os = "android")]
-mod mp4_demux;
+mod youtube_kernel;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {

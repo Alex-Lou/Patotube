@@ -25,7 +25,7 @@ pub async fn fetch_media_info(app: AppHandle, url: String) -> Result<MediaInfo, 
     #[cfg(target_os = "android")]
     {
         let _ = &app;
-        return crate::youtube_native::fetch_info(&url).await;
+        return crate::youtube_kernel::fetch_info(&url).await;
     }
     #[cfg(not(target_os = "android"))]
     {
@@ -50,7 +50,7 @@ pub async fn start_download(
     };
     #[cfg(target_os = "android")]
     {
-        return crate::youtube_native::start(&app, &registry, input).await;
+        return crate::youtube_kernel::start(&app, &registry, input).await;
     }
     #[cfg(not(target_os = "android"))]
     {
