@@ -91,6 +91,22 @@ pub const ALL_CLIENTS: &[ClientProfile] = &[
         os_version: "5.0",
         extra_context: None,
     },
+    // Desktop web client. Returns signatureCipher-protected formats
+    // we need to unlock via player.js — see `youtube_kernel/sigcipher`.
+    // Used as a final fallback when the mobile/TV clients refuse a
+    // video; gives access to streams the others won't serve, at the
+    // cost of running the JS decoders.
+    ClientProfile {
+        name: "WEB",
+        version: "2.20240801.00.00",
+        api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+        user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 \
+                     (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+        client_id: "1",
+        os_name: "Windows",
+        os_version: "10.0",
+        extra_context: None,
+    },
 ];
 
 /// Default client probe order — used for metadata and combined-MP4
@@ -113,4 +129,58 @@ pub fn audio_clients() -> Vec<&'static ClientProfile> {
         }
     }
     v
+}
+
+/// Single-element list with just the WEB client. Used by the
+/// signature-unlock fallback path: WEB returns ciphered formats
+/// (`signatureCipher`) that we run through the JS decoders. Other
+/// clients return plain URLs, which is what `audio_clients()` /
+/// `default_clients()` exploit.
+pub fn web_client_only() -> Vec<&'static ClientProfile> {
+    let mut v: Vec<&'static ClientProfile> = Vec::new();
+    if let Some(c) = ALL_CLIENTS.iter().find(|c| c.name == "WEB") {
+        v.push(c);
+    }
+    v
+}
+
+/// Lookup helper for tests / diagnostics.
+pub fn find_client(name: &str) -> Option<&'static ClientProfile> {
+    ALL_CLIENTS.iter().find(|c| c.name == name)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn all_clients_unique_names() {
+        let names: Vec<&str> = ALL_CLIENTS.iter().map(|c| c.name).collect();
+        let mut sorted = names.clone();
+        sorted.sort();
+        sorted.dedup();
+        assert_eq!(names.len(), sorted.len(), "duplicate client name");
+    }
+
+    #[test]
+    fn audio_clients_does_not_include_web() {
+        // The audio fast-path explicitly avoids WEB so we don't pay
+        // for JS decoding when a mobile client can serve plain URLs.
+        let names: Vec<&str> = audio_clients().iter().map(|c| c.name).collect();
+        assert!(!names.contains(&"WEB"), "audio_clients should not include WEB");
+    }
+
+    #[test]
+    fn web_client_only_has_just_web() {
+        let v = web_client_only();
+        assert_eq!(v.len(), 1);
+        assert_eq!(v[0].name, "WEB");
+    }
+
+    #[test]
+    fn find_client_resolves_known_names() {
+        assert!(find_client("WEB").is_some());
+        assert!(find_client("ANDROID_MUSIC").is_some());
+        assert!(find_client("DOES_NOT_EXIST").is_none());
+    }
 }
