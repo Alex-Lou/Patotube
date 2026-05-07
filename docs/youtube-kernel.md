@@ -236,33 +236,52 @@ bitrate YouTube serves.
 
 ## Phase 2 — pure-Rust extraction kernel
 
-Phase 2 replaces `youtube_native.rs` with a proper extraction kernel
-under `app/src-tauri/src/youtube_kernel/`:
+Phase 2 replaces today's "try N clients, hope one returns plain CDN
+URLs" strategy with a real signature/n-parameter unlock pipeline.
+Module layout shipped:
 
 ```
-youtube_kernel/
-├── mod.rs            # public API: fetch_info / start_download
-├── client.rs         # client profiles + youtubei/v1/player call
-├── signature.rs      # signature cipher + n-parameter decoder
-├── js_eval.rs        # JS engine wrapper (boa) for sig/n-param scripts
-├── stream_select.rs  # itag-aware format picker
-└── tests/            # offline unit tests against captured player.js
+youtube_kernel/sigcipher/
+├── mod.rs            # public API: Unlocker.unlock_url(url, signatureCipher)
+├── js_eval.rs        # boa wrapper: compile a JS function, call it with a string
+├── signature.rs      # extract signatureCipher decoder fn from player.js
+├── nparam.rs         # extract n-parameter decoder fn from player.js
+└── player_js.rs      # fetch + 4-entry LRU cache of player.js source (Android-only)
 ```
 
-Why this matters: today's `youtube_native.rs` only works for videos
-where YouTube hands out plain CDN URLs. For everything else (most
-videos in 2026), you need to:
+Status as of 2026-05-07:
 
-1. Fetch the video's `player.js` (the JS file that YouTube serves)
-2. Locate the `signatureCipher` decoder function inside it
-3. Locate the `n` parameter scrambler function inside it
-4. Run them on each format's URL/ciphertext to produce the unlocked URL
-
-Step 3 is the cliff Patotube falls off today: without running JS, we
-can't unlock most audio CDN URLs, which is why `try_audio_only` 403s
-so often and we end up in the combined-MP4 fallback (which Phase 1's
-remux now handles cleanly, but at the cost of downloading
-~10× more bytes than the audio-only stream alone).
+- ✅ boa_engine integrated (pure Rust JS interpreter; pure-Rust means
+   no NDK clang at build time — the reason `rquickjs-sys` was
+   rejected, since it needs bindgen + libclang from the NDK which
+   fails on Windows hosts).
+- ✅ Signature decoder: regex extracts `Sg=function(a){...}`-style
+   entries plus the helper object they reference (e.g.
+   `var Hh={r:function(a){...},...}`); the two are concatenated and
+   compiled into a closure addressable as `__patotubeSig(...)`.
+- ✅ N-parameter decoder: regex finds the function start, then a
+   string-aware brace counter walks forward to find the matching
+   outer `}` (we can't pure-regex this — bodies have nested braces
+   from try/catch + inline closures + strings containing `}`).
+- ✅ Unlocker assembles both decoders, parses the `signatureCipher`
+   query-string, decodes the `s` value, and substitutes the
+   `n=...` query parameter on the final URL.
+- ✅ 24 unit tests against synthetic player.js fixtures with the
+   same shape as YouTube's real one (entry function with split→join,
+   helper object with reverse/swap/splice, n-fn with try/catch +
+   `enhanced_except_` sentinel).
+- ⚠️ NOT YET wired into `pick_audio` / `pick_video`. The kernel
+   continues to use the multi-client REST-only path that works for
+   most videos (and falls back to combined+remux on the rest).
+   Wiring requires:
+   1. Adding a `signatureCipher: Option<String>` field on
+      `youtube_kernel::types::Format`.
+   2. Calling `extract_player_js_url` against a watch-page HTML
+      blob to find the per-video player.js URL.
+   3. Caching the resulting `Unlocker` keyed on player.js URL.
+   4. Running every format's url/cipher through it before download.
+   5. Switching `audio_clients()` to lead with `WEB` (which serves
+      ciphered URLs we can now unlock) instead of `ANDROID_MUSIC`.
 
 ### Why `boa` (pure Rust JS engine) and not `rquickjs`
 
@@ -279,27 +298,49 @@ video, so even `boa`'s slower interpretation is unnoticeable
 which fails on Windows hosts unless the user does manual setup. `boa`
 just builds.
 
-### Phase 2 effort estimate
+### Brace counting vs. regex for n-parameter
 
-5–7 days of focused work. Concrete subtasks:
+The signature decoder body is small and flat — one line of helper
+calls between split and join — so a single regex captures it. The
+n-parameter decoder's body is larger and contains nested braces
+(`try { ... } catch(e) { ... }`, anonymous helpers, strings with
+literal `}`s), so regex alone can't reliably bracket-match the
+outer `}`. `nparam.rs` solves this with a two-phase approach:
 
-1. Add `boa_engine = "0.20"` and `regex` deps (Android target only).
-2. Cache the decoded sig + nsig functions per `player.js` URL (LRU
-   keyed on the JS file's hash). Phase 1 doesn't need this; Phase 2
-   does because re-extracting on every download would be slow.
-3. Port the regex extraction logic from yt-dlp's `_youtube/_base.py`
-   (specifically `_extract_signature_function` +
-   `_extract_n_function_code`).
-4. Wire signature/n-param decode into `pick_audio` / `pick_video` so
-   every CDN URL gets unlocked before being handed to `download_stream`.
-5. Drop the multi-client fallback chain in favour of just `WEB`
-   client (the most permissive once signatures are decoded).
-6. Add offline tests using captured player.js samples in
-   `app/src-tauri/tests/fixtures/`.
+1. Regex finds the start (`function(X){var Y=Z.split(`).
+2. `match_closing_brace` walks the bytes from the opening `{`,
+   tracking string state (single, double, backtick) and escape
+   sequences, incrementing/decrementing depth on `{`/`}`, returning
+   the offset of the depth-zero close.
 
-After Phase 2, `try_audio_only` succeeds on most videos and the
-combined-MP4 fallback becomes rare → faster downloads and less
-bandwidth wasted on the video stream we then strip.
+Tests verify the brace counter handles `}` characters embedded in
+string literals.
+
+### Remaining work for full Phase 2
+
+1. **Type extension.** Add `signatureCipher` field to
+   `youtube_kernel::types::Format`.
+2. **Unlocker integration.** Threading an `&mut Unlocker` through
+   `pick_audio` / `pick_video` is intrusive — clean approach is a
+   per-job lazily-built unlocker stored in an `Arc<Mutex<…>>` cache
+   keyed on player.js URL.
+3. **Watch-page fetch.** `fetch_info` currently calls youtubei
+   directly. To get player.js URL we need an extra fetch of the
+   `https://www.youtube.com/watch?v=…` HTML page and a regex pull
+   of the `jsUrl` field — `extract_player_js_url` already handles
+   that.
+4. **Real fixture tests.** The 24 sigcipher tests use synthetic
+   player.js mimicking the shape; capture a real one (~2 MB) into
+   `app/src-tauri/tests/fixtures/player_js_<hash>.js` and add
+   tests that assert the extractors find the expected functions
+   on a real-world specimen.
+5. **Smoke test on device.** Verify a "no-PoToken" video that
+   currently 403s on `try_audio_only` succeeds through the unlock
+   path.
+
+After all five, the `try_audio_only → try_combined` fallback
+becomes rare → faster downloads and less bandwidth wasted on video
+streams we then strip.
 
 ## Glossary
 

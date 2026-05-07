@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 // Picks one stream out of YouTube's `formats` / `adaptiveFormats`
 // arrays. Returns (url, contentLength, originalExt) tuples that the
 // downloader uses verbatim.

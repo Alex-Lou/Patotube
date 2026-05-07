@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 // Resolves the on-disk write path for a download. Android storage
 // is layered: public Downloads is the most user-friendly but gated
 // behind scoped storage on Android 11+; the app-external dir
