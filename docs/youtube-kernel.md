@@ -316,31 +316,78 @@ outer `}`. `nparam.rs` solves this with a two-phase approach:
 Tests verify the brace counter handles `}` characters embedded in
 string literals.
 
-### Remaining work for full Phase 2
+### Wiring status (shipped 2026-05-07)
 
-1. **Type extension.** Add `signatureCipher` field to
-   `youtube_kernel::types::Format`.
-2. **Unlocker integration.** Threading an `&mut Unlocker` through
-   `pick_audio` / `pick_video` is intrusive — clean approach is a
-   per-job lazily-built unlocker stored in an `Arc<Mutex<…>>` cache
-   keyed on player.js URL.
-3. **Watch-page fetch.** `fetch_info` currently calls youtubei
-   directly. To get player.js URL we need an extra fetch of the
-   `https://www.youtube.com/watch?v=…` HTML page and a regex pull
-   of the `jsUrl` field — `extract_player_js_url` already handles
-   that.
-4. **Real fixture tests.** The 24 sigcipher tests use synthetic
-   player.js mimicking the shape; capture a real one (~2 MB) into
-   `app/src-tauri/tests/fixtures/player_js_<hash>.js` and add
-   tests that assert the extractors find the expected functions
-   on a real-world specimen.
-5. **Smoke test on device.** Verify a "no-PoToken" video that
-   currently 403s on `try_audio_only` succeeds through the unlock
-   path.
+Items 1-3 below are now done in `feat/tauri-shell @ c7ffa20`:
 
-After all five, the `try_audio_only → try_combined` fallback
-becomes rare → faster downloads and less bandwidth wasted on video
-streams we then strip.
+1. ✅ **Type extension.** `Format::signature_cipher: Option<String>`
+   added in `youtube_kernel/types.rs`.
+2. ✅ **Pipeline integration.** `pick_audio` / `pick_video` return
+   `PickedFormat { direct_url, signature_cipher, content_length,
+   extension }`; the new `youtube_kernel::unlock_pipeline`
+   module adds `try_audio_via_unlock` which asks the WEB client,
+   fetches the watch page → jsUrl → player.js, builds an Unlocker
+   on a `spawn_blocking` worker (boa Context is `!Send`), then
+   feeds the unlocked URL to `download_stream`.
+3. ✅ **Watch-page fetch + WEB client.** `fetch_player_js_for_video`
+   is the one-shot helper; `clients::WEB` is the new ClientProfile.
+
+Wired as a fallback layer in `run_download` for audio:
+    try_audio_only (mobile/TV chain, plain URLs)
+    → try_audio_via_unlock (WEB + signature/n-param decode)
+    → try_combined (combined MP4, frontend remuxes)
+
+### Outstanding: regex extractor tuning vs. modern player.js
+
+Our 24 sigcipher unit tests pass against synthetic JS mimicking the
+canonical shape (`X=function(a){a=a.split("");H.r(a);…;return
+a.join("")};`). Captured real player.js (commit `c7ffa20`,
+fixture `tests/fixtures/player_real.js` — gitignored, regenerate
+locally):
+
+* `8fb635c2/player_es6.vflset/en_US/base.js` (~2.4 MB) — Rick
+  Roll watch page on 2026-05-07. Has a `signatureCipher` field on at
+  least one format, so a sig decoder MUST be present in the JS, but
+  our regex doesn't find it. Likely cause: heavily minified shapes
+  YouTube has shifted to over the last 12-18 months that don't
+  match yt-dlp's older heuristics. The `enhanced_except_` n-fn
+  sentinel we anchor on is also absent from this particular
+  player.js — YouTube has reworked the n-decoder shape too.
+
+Practical impact: the unlock fallback fails on most modern videos
+right now (with a clean error message); we fall through to
+`try_combined` + frontend MediaExtractor remux, which is the
+working Phase 1 path. **No regression vs. Phase 1.**
+
+Next step (requires a chunk of focused work):
+
+1. Capture multiple player.js variants (different videos / time
+   windows) into `tests/fixtures/`.
+2. Port yt-dlp's most recent regex from
+   `yt_dlp/extractor/youtube/_video.py::_extract_signature_function`
+   and the n-parameter equivalents.
+3. Build a test that runs all current fixtures through the
+   extractors; iterate the regex until they all pass.
+4. Smoke test on a "no-PoToken" video (newer than what
+   ANDROID_MUSIC will serve plain) on a connected device.
+
+This is the same maintenance burden yt-dlp has — a regex update
+roughly every 1-2 months on average. The kernel is wired so we can
+absorb regex updates with one PR per cycle.
+
+### Smoke testing the unlock path
+
+```bash
+# Run the manual fixture test (needs tests/fixtures/player_real.js):
+cargo test --lib -- --ignored real_player_js --nocapture
+
+# On device:
+adb logcat -c && adb logcat | grep -E "patotube|youtubei"
+# Trigger an audio download in the app on a video that fails
+# the mobile chain. The "audio-only fast path failed" log should
+# appear, then either "audio-only unlock path failed" (regex needs
+# update) or success from the unlock route.
+```
 
 ## Glossary
 
