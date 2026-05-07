@@ -329,4 +329,32 @@ mod tests {
             Err(e) => assert!(e.contains("neither"), "got: {e}"),
         }
     }
+
+    /// Manual validation against a real captured player.js. Skipped
+    /// by default (ignored) because the fixture isn't committed —
+    /// it's a 2-3 MB file YouTube reships every few weeks. To run:
+    ///
+    ///   1. Capture: download a fresh watch page, extract `jsUrl`,
+    ///      fetch the JS to `tests/fixtures/player_real.js`.
+    ///   2. `cargo test --lib -- --ignored real_player_js`
+    ///
+    /// On a fresh clone with no fixture, the test prints a hint and
+    /// passes vacuously rather than failing the build.
+    #[test]
+    #[ignore = "manual: requires tests/fixtures/player_real.js (see test body)"]
+    fn real_player_js_builds_an_unlocker() {
+        let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/fixtures/player_real.js");
+        if !path.exists() {
+            eprintln!("[skip] no fixture at {path:?}");
+            return;
+        }
+        let player_js = std::fs::read_to_string(&path).expect("read fixture");
+        eprintln!("fixture: {} bytes", player_js.len());
+
+        match Unlocker::from_player_js(&player_js) {
+            Ok(_) => eprintln!("OK — both decoders extracted successfully"),
+            Err(e) => panic!("Unlocker::from_player_js failed: {e}"),
+        }
+    }
 }
