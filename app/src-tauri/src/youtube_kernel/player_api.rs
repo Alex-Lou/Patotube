@@ -8,7 +8,18 @@ use serde_json::{json, Value};
 use super::clients::ClientProfile;
 use super::types::PlayerResponse;
 
-const PLAYER_ENDPOINT: &str = "https://youtubei.googleapis.com/youtubei/v1/player";
+/// Endpoint when the client carries its own Innertube API key (older
+/// IOS/ANDROID/MUSIC/TV profiles). YouTube authenticates the request
+/// via the `?key=…` query param.
+const KEYED_PLAYER_ENDPOINT: &str =
+    "https://youtubei.googleapis.com/youtubei/v1/player";
+
+/// Endpoint for clients without an explicit API key (notably
+/// ANDROID_VR — the Quest YouTube VR app). The request is still
+/// authenticated via the `X-YouTube-Client-Name` /
+/// `X-YouTube-Client-Version` headers.
+const UNKEYED_PLAYER_ENDPOINT: &str =
+    "https://www.youtube.com/youtubei/v1/player";
 
 pub fn http_client(user_agent: &str) -> Result<reqwest::Client, String> {
     reqwest::Client::builder()
@@ -52,8 +63,14 @@ pub async fn call_player_api(
         "racyCheckOk": true,
     });
 
+    let endpoint = if client.api_key.is_empty() {
+        UNKEYED_PLAYER_ENDPOINT.to_string()
+    } else {
+        format!("{KEYED_PLAYER_ENDPOINT}?key={}", client.api_key)
+    };
+
     let response = http
-        .post(format!("{PLAYER_ENDPOINT}?key={}", client.api_key))
+        .post(&endpoint)
         .header("X-YouTube-Client-Name", client.client_id)
         .header("X-YouTube-Client-Version", client.version)
         .header("Content-Type", "application/json")

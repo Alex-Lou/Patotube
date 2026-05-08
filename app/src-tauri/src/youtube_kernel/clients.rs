@@ -51,6 +51,27 @@ pub struct ClientProfile {
 /// which returns audio-only m4a URLs the CDN serves without the
 /// PoToken / n-parameter dance regular YouTube audio now requires.
 pub const ALL_CLIENTS: &[ClientProfile] = &[
+    // The big win: Oculus Quest YouTube VR app. As of 2026 this is
+    // the most permissive client — YouTube's CDN serves it plain
+    // CDN URLs without PoToken, signature decoding, OR an Innertube
+    // API key. The clientVersion is pinned at 1.65.10: anything
+    // newer falls back to SABR streams which require their own
+    // unwrap path (yt-dlp ff459e5fc commit, March 2026).
+    //
+    // Caveat: "Made for kids" videos return UNPLAYABLE on this
+    // client (yt-dlp issue #15780), so it's not a 100% replacement
+    // for the others — we keep them as fallbacks.
+    ClientProfile {
+        name: "ANDROID_VR",
+        version: "1.65.10",
+        api_key: "", // empty → call_player_api skips the ?key= param
+        user_agent: "com.google.android.apps.youtube.vr.oculus/1.65.10 \
+                     (Linux; U; Android 12L; eureka-user Build/SQ3A.220605.009.A1) gzip",
+        client_id: "28",
+        os_name: "Android",
+        os_version: "12L",
+        extra_context: Some(r#"{"deviceMake":"Oculus","deviceModel":"Quest 3","androidSdkVersion":32}"#),
+    },
     ClientProfile {
         name: "IOS",
         version: "20.10.4",
@@ -109,22 +130,42 @@ pub const ALL_CLIENTS: &[ClientProfile] = &[
     },
 ];
 
-/// Default client probe order — used for metadata and combined-MP4
-/// resolution. IOS first because its mp4 streams are the cleanest.
+/// Default client probe order. ANDROID_VR leads in 2026 because
+/// it's the only client YouTube still serves plain CDN URLs to
+/// without PoToken / signature decoding. Falls through to the
+/// older clients for "made for kids" content where ANDROID_VR
+/// returns UNPLAYABLE.
 pub fn default_clients() -> Vec<&'static ClientProfile> {
-    ALL_CLIENTS.iter().collect()
+    let preferred = [
+        "ANDROID_VR",
+        "IOS",
+        "ANDROID",
+        "ANDROID_MUSIC",
+        "TVHTML5_SIMPLY_EMBEDDED_PLAYER",
+    ];
+    pick_in_order(&preferred)
 }
 
-/// Audio-first client order: ANDROID_MUSIC leads. The YouTube Music
-/// backend hands out audio URLs the CDN serves without
-/// PoToken/n-param checks, which is the cliff regular YouTube audio
-/// falls off in 2025. ANDROID is the second-best fallback for
-/// content not on YT Music.
+/// Audio-first client order: ANDROID_VR leads (no PoToken, no JS,
+/// no API key — the cleanest extraction we've found in 2026).
+/// ANDROID_MUSIC stays as a strong second because YT Music's
+/// backend serves audio URLs the regular CDN won't. IOS / TVHTML5
+/// are the fallbacks of last resort.
 pub fn audio_clients() -> Vec<&'static ClientProfile> {
-    let preferred = ["ANDROID_MUSIC", "ANDROID", "IOS", "TVHTML5_SIMPLY_EMBEDDED_PLAYER"];
+    let preferred = [
+        "ANDROID_VR",
+        "ANDROID_MUSIC",
+        "IOS",
+        "ANDROID",
+        "TVHTML5_SIMPLY_EMBEDDED_PLAYER",
+    ];
+    pick_in_order(&preferred)
+}
+
+fn pick_in_order(names: &[&str]) -> Vec<&'static ClientProfile> {
     let mut v: Vec<&'static ClientProfile> = Vec::new();
-    for name in preferred {
-        if let Some(c) = ALL_CLIENTS.iter().find(|c| c.name == name) {
+    for name in names {
+        if let Some(c) = ALL_CLIENTS.iter().find(|c| c.name == *name) {
             v.push(c);
         }
     }
@@ -171,6 +212,35 @@ mod tests {
     }
 
     #[test]
+    fn audio_clients_lead_with_android_vr() {
+        // ANDROID_VR is the only client in 2026 that doesn't need
+        // PoToken or JS evaluation, so it must be the first probe.
+        let v = audio_clients();
+        assert!(!v.is_empty());
+        assert_eq!(v[0].name, "ANDROID_VR");
+    }
+
+    #[test]
+    fn default_clients_lead_with_android_vr() {
+        let v = default_clients();
+        assert!(!v.is_empty());
+        assert_eq!(v[0].name, "ANDROID_VR");
+    }
+
+    #[test]
+    fn android_vr_carries_no_api_key() {
+        // The Quest VR client uses the un-keyed Innertube endpoint;
+        // call_player_api keys off `api_key.is_empty()` to pick the
+        // right URL.
+        let vr = find_client("ANDROID_VR").expect("ANDROID_VR present");
+        assert!(vr.api_key.is_empty(), "ANDROID_VR must carry an empty key");
+        // And critically: the version is pinned to 1.65.10 because
+        // anything newer triggers SABR-only responses we can't
+        // currently unwrap.
+        assert_eq!(vr.version, "1.65.10");
+    }
+
+    #[test]
     fn web_client_only_has_just_web() {
         let v = web_client_only();
         assert_eq!(v.len(), 1);
@@ -180,6 +250,7 @@ mod tests {
     #[test]
     fn find_client_resolves_known_names() {
         assert!(find_client("WEB").is_some());
+        assert!(find_client("ANDROID_VR").is_some());
         assert!(find_client("ANDROID_MUSIC").is_some());
         assert!(find_client("DOES_NOT_EXIST").is_none());
     }
