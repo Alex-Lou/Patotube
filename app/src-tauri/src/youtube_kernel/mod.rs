@@ -18,8 +18,6 @@
 // why we don't use yt-dlp / NewPipe / ffmpeg-kit on Android.
 
 mod clients;
-mod output_path;
-mod progress;
 mod sigcipher;
 mod stream_pick;
 mod types;
@@ -51,13 +49,13 @@ use self::clients::{audio_clients, default_clients, ClientProfile};
 #[cfg(target_os = "android")]
 use self::download::download_stream;
 #[cfg(target_os = "android")]
-use self::output_path::resolve_output_path;
+use crate::output_path::resolve_output_path;
 #[cfg(target_os = "android")]
 use self::player_api::{
     has_audio_only, has_combined_video, has_metadata, resolve_player_with,
 };
 #[cfg(target_os = "android")]
-use self::progress::emit_status;
+use crate::events::emit_status;
 #[cfg(target_os = "android")]
 use self::stream_pick::{pick_audio, pick_video};
 #[cfg(target_os = "android")]
