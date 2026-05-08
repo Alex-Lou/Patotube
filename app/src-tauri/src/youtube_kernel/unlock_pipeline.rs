@@ -17,7 +17,7 @@ use tauri::AppHandle;
 
 use super::clients::web_client_only;
 use super::download::download_stream;
-use super::output_path::resolve_output_path;
+use crate::output_path::resolve_output_path;
 use super::player_api::{has_audio_only, resolve_player_with};
 use super::sigcipher::{fetch_player_js_for_video, Unlocker};
 use super::stream_pick::{pick_audio, PickedFormat};

@@ -14,7 +14,7 @@ use tokio::io::AsyncWriteExt;
 
 use super::clients::ALL_CLIENTS;
 use super::player_api::http_client;
-use super::progress::{emit_progress, ProgressPayload};
+use crate::events::{emit_progress, ProgressPayload};
 
 const PROGRESS_THROTTLE_MS: u128 = 200;
 
