@@ -1,6 +1,10 @@
 mod commands;
 mod downloader;
+mod events;
 mod jobs;
+// Shared platform helpers used by every kernel.
+#[cfg(target_os = "android")]
+mod output_path;
 // Pure URL/filename helpers, kept outside the cfg-gated extractor so
 // they can be unit-tested on the desktop host. See youtube_url.rs.
 mod youtube_url;
@@ -12,6 +16,11 @@ mod youtube_url;
 // points (`fetch_info`, `start`) are themselves cfg-gated to
 // Android inside the module. See `youtube_kernel/mod.rs`.
 mod youtube_kernel;
+
+// SoundCloud extraction kernel. Same cfg layout as
+// `youtube_kernel`: always-compiled pure modules + Android-only
+// HTTP layer + orchestration. See `soundcloud_kernel/mod.rs`.
+mod soundcloud_kernel;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {

@@ -25,6 +25,9 @@ pub async fn fetch_media_info(app: AppHandle, url: String) -> Result<MediaInfo, 
     #[cfg(target_os = "android")]
     {
         let _ = &app;
+        if crate::soundcloud_kernel::is_soundcloud_url(&url) {
+            return crate::soundcloud_kernel::fetch_info(&url).await;
+        }
         return crate::youtube_kernel::fetch_info(&url).await;
     }
     #[cfg(not(target_os = "android"))]
@@ -50,6 +53,9 @@ pub async fn start_download(
     };
     #[cfg(target_os = "android")]
     {
+        if crate::soundcloud_kernel::is_soundcloud_url(&input.url) {
+            return crate::soundcloud_kernel::start(&app, &registry, input).await;
+        }
         return crate::youtube_kernel::start(&app, &registry, input).await;
     }
     #[cfg(not(target_os = "android"))]
