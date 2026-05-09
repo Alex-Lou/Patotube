@@ -80,6 +80,9 @@
   "platform": {
     "youtube": "YouTube",
     "soundcloud": "SoundCloud",
+    "bandcamp": "Bandcamp",
+    "audiomack": "Audiomack",
+    "archive": "Internet Archive",
     "spotify": "Spotify",
     "deezer": "Deezer",
     "generic": "Web",

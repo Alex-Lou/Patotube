@@ -29,8 +29,6 @@ mod url;
 
 #[cfg(target_os = "android")]
 mod api;
-#[cfg(target_os = "android")]
-mod download;
 
 #[cfg(target_os = "android")]
 use std::path::PathBuf;
@@ -48,6 +46,8 @@ use crate::events::emit_status;
 use crate::jobs::JobRegistry;
 #[cfg(target_os = "android")]
 use crate::output_path::resolve_output_path;
+#[cfg(target_os = "android")]
+use crate::streamer::stream_to_disk;
 #[cfg(target_os = "android")]
 use crate::youtube_url::sanitize_filename;
 
@@ -137,6 +137,6 @@ async fn run_download(
     let picked = transcoding::pick_progressive(track)?;
     let stream_url = api::fetch_stream_url(&picked.url).await?;
     let out = resolve_output_path(&format!("{title}.{}", picked.extension)).await?;
-    download::stream_to_disk(app, job_id, &stream_url, &out).await?;
+    stream_to_disk(app, job_id, &stream_url, &out).await?;
     Ok(out)
 }

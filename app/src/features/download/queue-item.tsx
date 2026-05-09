@@ -55,19 +55,33 @@ export function QueueItem({
   const { t } = useTranslation();
   const { info, format, status, progress, speedBps, etaSec, error, filePath } = job;
 
-  // Format label honestly reflects what the user actually gets:
-  //   - Video → MP4 + quality tier (same on all platforms)
-  //   - SoundCloud audio → MP3 (server-side encoded by SC)
-  //   - YouTube audio on Android → M4A · AAC (we don't transcode)
-  //   - YouTube audio on desktop → MP3 + chosen bitrate (yt-dlp+ffmpeg)
+  // Format label honestly reflects what the user actually gets.
+  // Per-platform overrides for audio because each kernel ships
+  // its own native format:
+  //   - SoundCloud → MP3 (server-side libmp3lame)
+  //   - Bandcamp → MP3-128 (free-tier preview)
+  //   - Audiomack → MP3 (their API serves it directly)
+  //   - Internet Archive → varies (might be ogg/flac/mp4) — we
+  //     just label it generically; the file extension on disk
+  //     tells the user the truth.
+  //   - YouTube on Android → M4A AAC (no transcoder)
+  //   - YouTube on desktop → MP3 + bitrate (yt-dlp+ffmpeg)
   const formatLabel = (() => {
     if (format.kind === 'video') {
       return `MP4 · ${t(`format.${format.quality}`)}`;
     }
-    if (info.platform === 'soundcloud') {
-      return 'MP3 · SoundCloud';
+    switch (info.platform) {
+      case 'soundcloud':
+        return 'MP3 · SoundCloud';
+      case 'bandcamp':
+        return 'MP3 · 128k';
+      case 'audiomack':
+        return 'MP3 · Audiomack';
+      case 'archive':
+        return 'Audio · Archive';
+      default:
+        return IS_ANDROID ? 'M4A · AAC' : `MP3 · ${format.bitrate}k`;
     }
-    return IS_ANDROID ? 'M4A · AAC' : `MP3 · ${format.bitrate}k`;
   })();
   const FormatIcon = format.kind === 'video' ? Film : Music;
 

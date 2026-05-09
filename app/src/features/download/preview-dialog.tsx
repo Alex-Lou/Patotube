@@ -25,11 +25,13 @@ export function PreviewDialog({ info, onClose, onConfirm }: PreviewDialogProps) 
   const [format, setFormat] = useState<FormatChoice>(defaultFormat);
   const [imgError, setImgError] = useState(false);
 
-  // SoundCloud is audio-only — coerce the format to audio when
-  // the resolved track came from SC, regardless of the user's
-  // saved default. The picker also hides the video radio (see
-  // FormatPicker).
-  const audioOnly = info?.platform === 'soundcloud';
+  // Audio-only platforms — coerce the format to audio when the
+  // resolved track came from SoundCloud, Bandcamp, or Audiomack,
+  // regardless of the user's saved default. The picker hides the
+  // video radio (see FormatPicker). Internet Archive can be
+  // either, so we don't gate it.
+  const AUDIO_ONLY_PLATFORMS = new Set(['soundcloud', 'bandcamp', 'audiomack']);
+  const audioOnly = !!info && AUDIO_ONLY_PLATFORMS.has(info.platform);
 
   useEffect(() => {
     if (info) {

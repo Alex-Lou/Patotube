@@ -1,6 +1,9 @@
 export type PlatformId =
   | 'youtube'
   | 'soundcloud'
+  | 'bandcamp'
+  | 'audiomack'
+  | 'archive'
   | 'spotify'
   | 'deezer'
   | 'generic';
