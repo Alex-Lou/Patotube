@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { detectPlatform } from '@/lib/core/platform';
-import { validateUrl } from '@/lib/core/url';
+import { extractFirstUrl, validateUrl } from '@/lib/core/url';
 import { getTauri } from '@/lib/tauri/bindings';
 import type { MediaInfo } from '@/lib/core/types';
 import { PlatformBadge } from './platform-badge';
@@ -21,7 +21,9 @@ export function UrlInput({ onResolved }: UrlInputProps) {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const platform = value.trim() ? detectPlatform(value) : null;
+  // Detect platform on the URL embedded in the input — the raw
+  // value may be a share-sheet message wrapping the URL.
+  const platform = value.trim() ? detectPlatform(extractFirstUrl(value)) : null;
 
   const handlePaste = async () => {
     // Browser API first (works on desktop dev, sometimes on Android Chrome).
