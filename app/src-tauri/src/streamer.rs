@@ -10,7 +10,7 @@
 // Reuses the central `events::ProgressPayload` so the frontend
 // only needs one listener.
 
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::time::Instant;
 
 use futures_util::StreamExt;
@@ -132,17 +132,4 @@ async fn open_first_writable(
         "could not write to download folder: every candidate refused. Last error: {}",
         last_err.unwrap_or_else(|| "(unknown)".into())
     ))
-}
-
-/// Backwards-compat wrapper for callers that still pass a single
-/// path. Useful for the YouTube path which already chose its dir
-/// upstream. Will go away once that gets the candidate treatment.
-pub async fn stream_to_single_path(
-    app: &AppHandle,
-    job_id: &str,
-    url: &str,
-    out_path: &Path,
-) -> Result<(), String> {
-    let candidates = vec![out_path.to_path_buf()];
-    stream_to_disk(app, job_id, url, &candidates).await.map(|_| ())
 }

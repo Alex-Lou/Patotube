@@ -1,7 +1,12 @@
 // Pure URL helpers for Bandcamp. Lives outside the Android-cfg-
 // gated parts so unit tests run on the desktop host.
+//
+// `is_bandcamp_track_url` is currently only consumed by the unit
+// tests below — we keep it as a public helper for future
+// album/playlist routing — so dead-code is silenced at the file
+// level rather than per-target-cfg.
 
-#![cfg_attr(not(target_os = "android"), allow(dead_code))]
+#![allow(dead_code)]
 
 /// True if the URL points at any `*.bandcamp.com` host.
 ///
