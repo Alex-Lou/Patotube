@@ -17,25 +17,30 @@ pub struct PickedTranscoding {
 }
 
 /// Pick the best progressive transcoding. Order of preference:
-///   1. mp3 audio (preset starting with `mp3_`) — universal
-///   2. any other progressive audio (rare; usually opus/aac)
+///   1. progressive MP3 with `quality: "hq"` (paying-tier upload)
+///   2. progressive MP3 (standard 128 kbps, free tier)
+///   3. any other progressive audio (rare; usually opus/aac)
 ///
 /// Returns Err if the track exposes no progressive transcoding
 /// at all, which means SC has decided HLS-only — currently we
 /// don't have an HLS player on mobile, so the caller should
 /// surface this clearly.
 pub fn pick_progressive(track: &Track) -> Result<PickedTranscoding, String> {
-    let mp3 = track
+    let mp3s: Vec<&Transcoding> = track
         .media
         .transcodings
         .iter()
         .filter(|t| is_progressive(t))
-        .find(|t| {
-            t.preset.as_deref().is_some_and(|p| p.starts_with("mp3_"))
-                || t.format.mime_type.contains("mpeg")
-        });
+        .filter(|t| is_mp3(t))
+        .collect();
 
-    if let Some(t) = mp3 {
+    let chosen_mp3 = mp3s
+        .iter()
+        .copied()
+        .find(|t| t.quality.as_deref().is_some_and(|q| q.eq_ignore_ascii_case("hq")))
+        .or_else(|| mp3s.first().copied());
+
+    if let Some(t) = chosen_mp3 {
         return Ok(PickedTranscoding {
             url: t.url.clone(),
             extension: "mp3",
@@ -56,6 +61,11 @@ pub fn pick_progressive(track: &Track) -> Result<PickedTranscoding, String> {
         url: any.url.clone(),
         extension: extension_from_mime(&any.format.mime_type),
     })
+}
+
+fn is_mp3(t: &Transcoding) -> bool {
+    t.preset.as_deref().is_some_and(|p| p.starts_with("mp3_"))
+        || t.format.mime_type.contains("mpeg")
 }
 
 fn is_progressive(t: &Transcoding) -> bool {
@@ -89,6 +99,13 @@ mod tests {
                 mime_type: mime.to_string(),
             },
             quality: None,
+        }
+    }
+
+    fn t_hq(preset: Option<&str>, protocol: &str, mime: &str, url: &str) -> Transcoding {
+        Transcoding {
+            quality: Some("hq".to_string()),
+            ..t(preset, protocol, mime, url)
         }
     }
 
@@ -148,6 +165,20 @@ mod tests {
             "x",
         )]);
         assert!(pick_progressive(&track).is_ok());
+    }
+
+    #[test]
+    fn prefers_hq_mp3_when_user_has_go_plus() {
+        // SC tags paying-tier uploads with quality:"hq". When both
+        // standard and hq MP3 are available, we must pick the hq
+        // one even though both come back as `audio/mpeg` /
+        // `progressive`.
+        let track = track_with(vec![
+            t(Some("mp3_1_0"), "progressive", "audio/mpeg", "standard.mp3"),
+            t_hq(Some("mp3_0_0"), "progressive", "audio/mpeg", "hq.mp3"),
+        ]);
+        let picked = pick_progressive(&track).unwrap();
+        assert_eq!(picked.url, "hq.mp3");
     }
 
     #[test]

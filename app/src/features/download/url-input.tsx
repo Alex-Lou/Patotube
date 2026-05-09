@@ -30,7 +30,7 @@ export function UrlInput({ onResolved }: UrlInputProps) {
     try {
       const text = await navigator.clipboard.readText();
       if (text) {
-        setValue(text);
+        setValue(extractFirstUrl(text));
         return;
       }
     } catch {
@@ -40,10 +40,25 @@ export function UrlInput({ onResolved }: UrlInputProps) {
     try {
       const { readText } = await import('@tauri-apps/plugin-clipboard-manager');
       const text = await readText();
-      if (text) setValue(text);
+      if (text) setValue(extractFirstUrl(text));
     } catch (err) {
       // eslint-disable-next-line no-console
       console.warn('[patotube] clipboard read failed:', err);
+    }
+  };
+
+  /** Native paste (Ctrl+V, long-press → Coller, etc.). We intercept
+   *  to extract a URL from share-sheet text on the way in — that
+   *  way the field shows ONLY the URL, not the surrounding prose,
+   *  which is what the user expects to see after pasting. */
+  const handleNativePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const text = e.clipboardData.getData('text');
+    if (!text) return;
+    const cleaned = extractFirstUrl(text);
+    if (cleaned !== text.trim()) {
+      e.preventDefault();
+      setValue(cleaned);
+      if (error) setError(null);
     }
   };
 
@@ -101,6 +116,7 @@ export function UrlInput({ onResolved }: UrlInputProps) {
             setValue(e.target.value);
             if (error) setError(null);
           }}
+          onPaste={handleNativePaste}
           placeholder={t('url.placeholder')}
           aria-label={t('url.label')}
           className="h-14 pl-4 pr-32 text-base"

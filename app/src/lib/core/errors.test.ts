@@ -65,6 +65,32 @@ describe('friendlyError', () => {
     );
   });
 
+  describe('SoundCloud-specific', () => {
+    it('maps HLS-only errors', () => {
+      expect(
+        friendlyError('track has no progressive transcoding (HLS only) — not yet supported on mobile', t),
+      ).toBe('<errors.scHlsOnly>');
+    });
+
+    it('maps playlist errors', () => {
+      expect(
+        friendlyError('SoundCloud URL is a playlist, not a single track — only track downloads are supported', t),
+      ).toBe('<errors.scPlaylist>');
+    });
+
+    it('maps broken short link errors', () => {
+      expect(
+        friendlyError('SoundCloud short URL did not redirect to a canonical track URL', t),
+      ).toBe('<errors.scShortLinkBroken>');
+    });
+
+    it('maps SC 404s', () => {
+      expect(
+        friendlyError('SoundCloud returned status 404 Not Found', t),
+      ).toBe('<errors.scNotFound>');
+    });
+  });
+
   it('age-gate trumps sign-in when both phrases appear', () => {
     // Real YouTube error reads "Sign in to confirm your age". We want
     // the age-gated mapping (more specific) rather than the generic

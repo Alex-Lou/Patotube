@@ -100,9 +100,16 @@ async function handleDoneEvent(jobId: string, t: TFunc): Promise<void> {
   const job = useQueueStore.getState().jobs.find((j) => j.id === jobId);
   if (!job) return;
 
+  // The MediaExtractor remux exists to strip the video track from
+  // a YouTube combined-MP4 fallback. Other extractors (SoundCloud
+  // and any future ones) hand out audio-only files directly —
+  // running them through the remux is wasted work at best and
+  // outright broken at worst (MediaMuxer rejects MP3 codec for the
+  // mp4 container). Gate the post-process to YouTube.
   if (
     job.format.kind === 'audio' &&
     job.filePath &&
+    job.info.platform === 'youtube' &&
     isAndroid() &&
     hasAudioRemuxBridge()
   ) {

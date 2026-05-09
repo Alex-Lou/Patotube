@@ -25,12 +25,22 @@ export function PreviewDialog({ info, onClose, onConfirm }: PreviewDialogProps) 
   const [format, setFormat] = useState<FormatChoice>(defaultFormat);
   const [imgError, setImgError] = useState(false);
 
+  // SoundCloud is audio-only — coerce the format to audio when
+  // the resolved track came from SC, regardless of the user's
+  // saved default. The picker also hides the video radio (see
+  // FormatPicker).
+  const audioOnly = info?.platform === 'soundcloud';
+
   useEffect(() => {
     if (info) {
-      setFormat(defaultFormat);
+      const initial: FormatChoice =
+        audioOnly && defaultFormat.kind === 'video'
+          ? { kind: 'audio', bitrate: 192 }
+          : defaultFormat;
+      setFormat(initial);
       setImgError(false);
     }
-  }, [info, defaultFormat]);
+  }, [info, defaultFormat, audioOnly]);
 
   return (
     <Dialog open={!!info} onOpenChange={(o) => !o && onClose()}>
@@ -79,7 +89,7 @@ export function PreviewDialog({ info, onClose, onConfirm }: PreviewDialogProps) 
               <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 {t('format.label')}
               </h4>
-              <FormatPicker value={format} onChange={setFormat} />
+              <FormatPicker value={format} onChange={setFormat} audioOnly={audioOnly} />
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
