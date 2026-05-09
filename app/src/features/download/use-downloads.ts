@@ -33,32 +33,35 @@ async function resolveOutputDir(): Promise<string> {
   return api.defaultDownloadDir();
 }
 
-// Module-level guard: the Tauri event listeners must be registered
-// exactly once per process, no matter how many components mount/
-// unmount the hook. Without this we double-fire toasts.
-let listenersInstalled = false;
-let unsubProgress: (() => void) | undefined;
-let unsubStatus: (() => void) | undefined;
-
 /**
  * Mount-once hook that wires the Tauri progress/status events to the
  * queue store and surfaces toasts on completion / failure. Use it in
  * exactly ONE place (the App root). Other components should use
  * `useDownloadActions`.
+ *
+ * Lifecycle: each mount registers a fresh listener and the cleanup
+ * unsubscribes properly. Sonner toasts are deduplicated by `id`, so
+ * a brief StrictMode double-mount in dev doesn't fire two toasts.
+ *
+ * The previous "register exactly once via a module-level flag"
+ * approach broke in dev mode: Vite HMR could leave the flag set
+ * while invalidating the underlying listener subscription, and the
+ * frontend would silently stop receiving events. Doing it through
+ * the standard useEffect lifecycle is robust everywhere.
  */
 export function useDownloadEvents() {
   const { t } = useTranslation();
 
   useEffect(() => {
-    if (listenersInstalled) return;
-    listenersInstalled = true;
+    let unsubProgress: (() => void) | undefined;
+    let unsubStatus: (() => void) | undefined;
     let cancelled = false;
 
     void (async () => {
       const api = await getTauri();
       if (cancelled) return;
 
-      unsubProgress = await api.onProgress((e) => {
+      const onProgress = await api.onProgress((e) => {
         const total = e.bytesTotal ?? 0;
         const pct = total > 0 ? clamp((e.bytesDone / total) * 100, 0, 100) : 0;
         useQueueStore.getState().update(e.jobId, {
@@ -68,7 +71,9 @@ export function useDownloadEvents() {
         });
       });
 
-      unsubStatus = await api.onStatus((e) => {
+      const onStatus = await api.onStatus((e) => {
+        // eslint-disable-next-line no-console
+        console.debug('[patotube] status event', e);
         const queue = useQueueStore.getState();
         queue.setStatus(e.jobId, e.status, e.error);
         if (e.filePath) queue.update(e.jobId, { filePath: e.filePath });
@@ -79,14 +84,23 @@ export function useDownloadEvents() {
           handleFailedEvent(e.jobId, e.error, t);
         }
       });
+
+      // If the effect was torn down between the await above and
+      // the listener install, unsubscribe immediately and bail.
+      if (cancelled) {
+        onProgress();
+        onStatus();
+        return;
+      }
+
+      unsubProgress = onProgress;
+      unsubStatus = onStatus;
     })();
 
     return () => {
       cancelled = true;
-      // We DON'T null out unsubProgress/Status here —
-      // listenersInstalled stays true so React StrictMode's
-      // double-invoke doesn't re-register. The listeners live for
-      // the app's lifetime, which is fine.
+      unsubProgress?.();
+      unsubStatus?.();
     };
   }, [t]);
 }
