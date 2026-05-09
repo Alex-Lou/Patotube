@@ -2,6 +2,7 @@
 // dedupes on the `id` field so re-emissions of the same status from
 // the Rust side don't multiply the notification.
 
+import { Folder } from 'lucide-react';
 import { toast } from 'sonner';
 import { getTauri } from '@/lib/tauri/bindings';
 import { friendlyError } from '@/lib/core/errors';
@@ -57,13 +58,16 @@ export function showSuccessToast(jobId: string, job: DownloadJob, t: TFunc): voi
           onClick: () => openFile(job.filePath!),
         }
       : undefined,
-    // Sonner exposes a second button via `cancel` — we repurpose
-    // it as the "show in folder" action. It's visually a
-    // secondary button, which matches the priority: most users
-    // want to play the file first, locate it second.
+    // Sonner's `cancel` slot doubles as the secondary action;
+    // we use it for "show in folder". A folder icon (with title
+    // attribute for accessibility) keeps the toast compact —
+    // a long French label like "Afficher dans le dossier" was
+    // overflowing the cancel-button slot.
     cancel: job.filePath
       ? {
-          label: t('queue.openFolder'),
+          label: (
+            <Folder className="size-4" aria-label={t('queue.openFolder')} />
+          ),
           onClick: () => showInFolder(job.filePath!),
         }
       : undefined,
