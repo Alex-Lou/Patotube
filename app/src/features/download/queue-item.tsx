@@ -55,17 +55,20 @@ export function QueueItem({
   const { t } = useTranslation();
   const { info, format, status, progress, speedBps, etaSec, error, filePath } = job;
 
-  // On Android we deliver bit-perfect AAC in an .m4a (MediaExtractor
-  // remux, no transcoding), so labelling the bitrate would be a lie:
-  // YouTube serves a single fixed AAC bitrate per video and we don't
-  // change it. Desktop still shows MP3 + chosen bitrate because
-  // yt-dlp + ffmpeg actually transcode there.
-  const formatLabel =
-    format.kind === 'video'
-      ? `MP4 · ${t(`format.${format.quality}`)}`
-      : IS_ANDROID
-        ? 'M4A · AAC'
-        : `MP3 · ${format.bitrate}k`;
+  // Format label honestly reflects what the user actually gets:
+  //   - Video → MP4 + quality tier (same on all platforms)
+  //   - SoundCloud audio → MP3 (server-side encoded by SC)
+  //   - YouTube audio on Android → M4A · AAC (we don't transcode)
+  //   - YouTube audio on desktop → MP3 + chosen bitrate (yt-dlp+ffmpeg)
+  const formatLabel = (() => {
+    if (format.kind === 'video') {
+      return `MP4 · ${t(`format.${format.quality}`)}`;
+    }
+    if (info.platform === 'soundcloud') {
+      return 'MP3 · SoundCloud';
+    }
+    return IS_ANDROID ? 'M4A · AAC' : `MP3 · ${format.bitrate}k`;
+  })();
   const FormatIcon = format.kind === 'video' ? Film : Music;
 
   return (
