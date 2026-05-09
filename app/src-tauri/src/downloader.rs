@@ -1,9 +1,15 @@
+// Desktop-only: drives the bundled yt-dlp + ffmpeg sidecars for
+// platforms we don't have a native kernel for (today: YouTube on
+// desktop). Android uses native kernels for every supported
+// platform, so this whole file is cfg-gated out there.
+
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter};
 use tauri_plugin_shell::{process::CommandEvent, ShellExt};
 
 use crate::commands::{FormatChoice, StartDownloadInput};
 use crate::jobs::JobRegistry;
+pub use crate::media_info::MediaInfo;
 
 const PROGRESS_TPL: &str = "PROGRESS|%(progress.downloaded_bytes)s|%(progress.total_bytes)s|%(progress.speed)s|%(progress.eta)s";
 
@@ -21,17 +27,6 @@ struct YtdlpJson {
     thumbnail: Option<String>,
     uploader: Option<String>,
     webpage_url: Option<String>,
-}
-
-#[derive(Debug, Serialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct MediaInfo {
-    pub url: String,
-    pub title: String,
-    pub uploader: Option<String>,
-    pub duration_sec: Option<f64>,
-    pub thumbnail: Option<String>,
-    pub platform: String,
 }
 
 #[derive(Debug, Serialize, Clone)]

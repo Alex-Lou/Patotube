@@ -33,7 +33,7 @@ use std::path::PathBuf;
 use tauri::AppHandle;
 
 use crate::commands::StartDownloadInput;
-use crate::downloader::MediaInfo;
+use crate::media_info::MediaInfo;
 use crate::events::emit_status;
 use crate::jobs::JobRegistry;
 use crate::output_path::destination_candidates;

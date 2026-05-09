@@ -1,8 +1,10 @@
 use serde::Deserialize;
 use tauri::{AppHandle, Manager, State};
 
-use crate::downloader::{self, MediaInfo};
+#[cfg(not(target_os = "android"))]
+use crate::downloader;
 use crate::jobs::JobRegistry;
+use crate::media_info::MediaInfo;
 
 #[derive(Debug, Deserialize, Clone)]
 #[serde(tag = "kind", rename_all = "lowercase")]

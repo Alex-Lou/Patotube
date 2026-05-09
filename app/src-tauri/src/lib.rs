@@ -1,4 +1,10 @@
 mod commands;
+// `MediaInfo` lives on its own so every kernel can import it without
+// dragging the yt-dlp orchestration with it. The orchestrator
+// (`downloader`) is desktop-only — Android uses the native kernels
+// for every supported platform.
+mod media_info;
+#[cfg(not(target_os = "android"))]
 mod downloader;
 mod events;
 mod jobs;
