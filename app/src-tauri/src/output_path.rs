@@ -7,9 +7,13 @@
 // data / ..." tree most file managers hide; the app-private
 // internal dir is the unconditional last resort.
 //
-// We probe each candidate by writing then deleting a tiny marker
-// file, falling through to the next on any failure. The first
-// candidate that accepts the write becomes the chosen output dir.
+// We probe each candidate by attempting to create + delete the
+// EXACT filename the caller wants to use. A previous version
+// used a hidden ".patotube-probe" marker, but Android 13+'s
+// scoped storage sometimes accepts dotfile writes in
+// /sdcard/Download while rejecting regular file creates — which
+// made the probe a false positive and left the actual download
+// to die with a confusing EACCES.
 //
 // The package name `io.patotube.app` must stay in sync with
 // `tauri.conf.json` identifier — it's compiled into Android's app
@@ -33,24 +37,35 @@ const CANDIDATE_DIRS: &[&str] = &[
     "/data/data/io.patotube.app/files/Download",
 ];
 
-const PROBE_FILENAME: &str = ".patotube-probe";
-
 pub async fn resolve_output_path(filename: &str) -> Result<PathBuf, String> {
     let mut last_err: Option<String> = None;
     for dir in CANDIDATE_DIRS {
         let p = PathBuf::from(dir);
         if let Err(e) = tokio::fs::create_dir_all(&p).await {
-            last_err = Some(format!("{dir}: {e}"));
+            eprintln!("[patotube] output_path: mkdir failed for {dir}: {e}");
+            last_err = Some(format!("{dir}: mkdir: {e}"));
             continue;
         }
-        let probe = p.join(PROBE_FILENAME);
-        match tokio::fs::write(&probe, b"probe").await {
-            Ok(()) => {
-                let _ = tokio::fs::remove_file(&probe).await;
-                return Ok(p.join(filename));
+        let target = p.join(filename);
+        match tokio::fs::File::create(&target).await {
+            Ok(_) => {
+                // Drop the empty placeholder; the streamer will
+                // re-create it for the actual write. The race
+                // window between this drop and the next create is
+                // microscopic and same-uid, so it's fine.
+                let _ = tokio::fs::remove_file(&target).await;
+                eprintln!(
+                    "[patotube] output_path: chose {} (probe of real filename succeeded)",
+                    target.display()
+                );
+                return Ok(target);
             }
             Err(e) => {
-                last_err = Some(format!("{dir}: {e}"));
+                eprintln!(
+                    "[patotube] output_path: probe create failed at {}: {e}",
+                    target.display()
+                );
+                last_err = Some(format!("{dir}: create: {e}"));
             }
         }
     }

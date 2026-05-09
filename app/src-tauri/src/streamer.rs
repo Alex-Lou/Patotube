@@ -49,9 +49,18 @@ pub async fn stream_to_disk(
     }
 
     let bytes_total = response.content_length();
-    let mut file = File::create(out_path)
-        .await
-        .map_err(|e| format!("could not write to download folder: {e}"))?;
+    eprintln!(
+        "[patotube] streamer: opening {} for write (content-length: {:?})",
+        out_path.display(),
+        bytes_total
+    );
+    let mut file = File::create(out_path).await.map_err(|e| {
+        eprintln!(
+            "[patotube] streamer: File::create failed at {}: {e}",
+            out_path.display()
+        );
+        format!("could not write to download folder: {e}")
+    })?;
 
     let mut stream = response.bytes_stream();
     let mut bytes_done: u64 = 0;
