@@ -48,6 +48,8 @@
     "process:default",
     "process:allow-restart",
 
+    "deep-link:default",
+
     "clipboard-manager:default",
     "clipboard-manager:allow-read-text",
     "clipboard-manager:allow-write-text"

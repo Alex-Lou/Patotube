@@ -35,6 +35,62 @@ export function App() {
     return () => clearTimeout(id);
   }, []);
 
+  // Deep-link handler — `patotube://download?url=…` from the
+  // browser companion (extension / userscript / bookmarklet) or
+  // any URL launcher pre-registered with the OS. Same downstream
+  // flow as a drop or a paste: validate, fetch info, open the
+  // preview dialog. Cold-start uses the JS plugin's `getCurrent()`
+  // because the URL may be delivered before React has mounted;
+  // warm-start uses `onOpenUrl()` for subsequent clicks.
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('__TAURI_INTERNALS__' in window)) {
+      return;
+    }
+
+    const handleDeepLink = (raw: string | null | undefined): void => {
+      if (!raw) return;
+      let parsed: URL;
+      try {
+        parsed = new URL(raw);
+      } catch {
+        return;
+      }
+      if (parsed.protocol !== 'patotube:') return;
+      const target = parsed.searchParams.get('url');
+      if (!target) return;
+      const v = validateUrl(target);
+      if (!v.ok) return;
+      const platform = detectPlatform(v.url);
+      if (!isActive(platform)) return;
+      setShowSplash(false);
+      void (async () => {
+        try {
+          const api = await getTauri();
+          const info = await api.fetchMediaInfo(v.url);
+          setPendingPreview(info);
+        } catch {
+          /* swallowed; the URL input flow is the canonical place to surface fetch errors */
+        }
+      })();
+    };
+
+    let unlisten: (() => void) | undefined;
+    let cancelled = false;
+    void (async () => {
+      const { onOpenUrl, getCurrent } = await import('@tauri-apps/plugin-deep-link');
+      const cold = await getCurrent();
+      if (cancelled) return;
+      cold?.forEach(handleDeepLink);
+      unlisten = await onOpenUrl((urls) => {
+        urls.forEach(handleDeepLink);
+      });
+    })();
+    return () => {
+      cancelled = true;
+      unlisten?.();
+    };
+  }, []);
+
   // Global drag & drop: dropping a URL anywhere triggers the fetch flow.
   useEffect(() => {
     let dragDepth = 0;
