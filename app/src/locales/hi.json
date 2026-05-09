@@ -26,7 +26,17 @@
     "comingSoon": "{{platform}} समर्थन जल्द आ रहा है",
     "fetchFailed": "जानकारी प्राप्त नहीं हुई",
     "downloadFailed": "डाउनलोड विफल",
-    "noTauri": "डाउनलोड के लिए डेस्कटॉप ऐप खोलें"
+    "noTauri": "डाउनलोड के लिए डेस्कटॉप ऐप खोलें",
+    "requiresSignin": "इस वीडियो को डाउनलोड करने के लिए YouTube साइन-इन की आवश्यकता है। Patotube खाता-संरक्षित सामग्री तक नहीं पहुंच सकता।",
+    "ageGated": "यह वीडियो आयु-प्रतिबंधित है और YouTube साइन-इन के बिना डाउनलोड नहीं किया जा सकता।",
+    "privateVideo": "यह वीडियो निजी है।",
+    "videoUnavailable": "यह वीडियो उपलब्ध नहीं है।",
+    "couldNotOpenFile": "फ़ाइल नहीं खुल सकी",
+    "couldNotOpenFolder": "फ़ोल्डर नहीं खुल सका",
+    "scHlsOnly": "यह SoundCloud ट्रैक केवल HLS (विभाजित स्ट्रीम) में उपलब्ध है। Patotube मोबाइल पर अभी HLS डाउनलोड नहीं कर सकता।",
+    "scPlaylist": "यह एक SoundCloud प्लेलिस्ट है, कोई एकल ट्रैक नहीं। डाउनलोड करने के लिए उसका कोई एक ट्रैक खोलें।",
+    "scShortLinkBroken": "इस SoundCloud शॉर्ट लिंक का विस्तार नहीं किया जा सका। पूरा URL पाने के लिए इसे वेबसाइट पर खोलें।",
+    "scNotFound": "यह SoundCloud ट्रैक नहीं मिला। शायद इसे हटा दिया गया है या निजी कर दिया गया है।"
   },
   "format": {
     "label": "फ़ॉर्मेट",
@@ -34,13 +44,15 @@
     "audio": "केवल ऑडियो",
     "videoMp4": "MP4 वीडियो",
     "audioMp3": "MP3 ऑडियो",
+    "audioM4a": "M4A ऑडियो",
     "quality": "गुणवत्ता",
     "best": "सर्वश्रेष्ठ उपलब्ध",
     "high": "उच्च (1080p)",
     "medium": "मध्यम (720p)",
     "low": "कम (480p)",
     "audioBitrate": "बिटरेट",
-    "kbps": "{{value}} kbps"
+    "kbps": "{{value}} kbps",
+    "audioMobileNote": "ऑडियो YouTube के स्ट्रीम बिटरेट पर M4A (AAC) के रूप में प्रदान किया जाता है — मोबाइल पर बिटरेट चयन योग्य नहीं है।"
   },
   "preview": {
     "title": "डाउनलोड की पुष्टि करें",
@@ -61,13 +73,19 @@
     "failed": "विफल",
     "openFile": "फ़ाइल खोलें",
     "openFolder": "फ़ोल्डर में दिखाएं",
+    "copyUrl": "स्रोत URL कॉपी करें",
+    "urlCopied": "URL कॉपी हो गया",
     "remove": "हटाएं",
     "retry": "पुनः प्रयास",
+    "eta": "ETA",
     "clear": "पूर्ण को साफ़ करें"
   },
   "platform": {
     "youtube": "YouTube",
     "soundcloud": "SoundCloud",
+    "bandcamp": "Bandcamp",
+    "audiomack": "Audiomack",
+    "archive": "Internet Archive",
     "spotify": "Spotify",
     "deezer": "Deezer",
     "generic": "वेब",
@@ -77,11 +95,35 @@
     "title": "सेटिंग्स",
     "downloadFolder": "डाउनलोड फ़ोल्डर",
     "browse": "ब्राउज़ करें",
+    "osDefault": "OS डिफ़ॉल्ट",
     "concurrent": "समानांतर डाउनलोड",
     "theme": "थीम",
     "about": "के बारे में"
   },
+  "toast": {
+    "completed": "डाउनलोड हो गया: {{title}}",
+    "failed": "विफल: {{title}}",
+    "urlPasted": "URL जोड़ा गया"
+  },
+  "drop": {
+    "hint": "URL कहीं भी छोड़ें"
+  },
+  "update": {
+    "section": "अपडेट",
+    "checkButton": "अपडेट जांचें",
+    "checking": "जांच रहे हैं…",
+    "upToDate": "आप अप टू डेट हैं।",
+    "available": "अपडेट उपलब्ध: v{{version}}",
+    "installNow": "अभी इंस्टॉल करें",
+    "downloading": "अपडेट डाउनलोड हो रहा है…",
+    "checkFailed": "अपडेट की जांच विफल",
+    "failed": "अपडेट विफल",
+    "notInDesktop": "अपडेट डेस्कटॉप ऐप से जांचे जाते हैं।"
+  },
   "footer": {
     "openSource": "ओपन सोर्स"
+  },
+  "a11y": {
+    "close": "बंद करें"
   }
 }

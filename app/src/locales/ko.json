@@ -26,7 +26,17 @@
     "comingSoon": "{{platform}} 지원이 곧 추가됩니다",
     "fetchFailed": "정보를 가져올 수 없습니다",
     "downloadFailed": "다운로드 실패",
-    "noTauri": "데스크톱 앱에서 다운로드하세요"
+    "noTauri": "데스크톱 앱에서 다운로드하세요",
+    "requiresSignin": "이 동영상은 다운로드하려면 YouTube 로그인이 필요합니다. Patotube는 계정 보호 콘텐츠에 접근할 수 없습니다.",
+    "ageGated": "이 동영상은 연령 제한이 있어 YouTube 로그인 없이 다운로드할 수 없습니다.",
+    "privateVideo": "이 동영상은 비공개입니다.",
+    "videoUnavailable": "이 동영상은 사용할 수 없습니다.",
+    "couldNotOpenFile": "파일을 열 수 없습니다",
+    "couldNotOpenFolder": "폴더를 열 수 없습니다",
+    "scHlsOnly": "이 SoundCloud 트랙은 HLS(분할 스트림)으로만 제공됩니다. Patotube는 모바일에서 아직 HLS를 다운로드할 수 없습니다.",
+    "scPlaylist": "이것은 SoundCloud 재생목록이며 단일 트랙이 아닙니다. 다운로드하려면 그중 한 트랙을 여세요.",
+    "scShortLinkBroken": "이 SoundCloud 단축 링크를 확장할 수 없습니다. 전체 URL을 얻으려면 웹사이트에서 여세요.",
+    "scNotFound": "이 SoundCloud 트랙을 찾을 수 없습니다. 삭제되거나 비공개로 변경되었을 수 있습니다."
   },
   "format": {
     "label": "형식",
@@ -34,13 +44,15 @@
     "audio": "오디오만",
     "videoMp4": "MP4 비디오",
     "audioMp3": "MP3 오디오",
+    "audioM4a": "M4A 오디오",
     "quality": "품질",
     "best": "최고 품질",
     "high": "고화질 (1080p)",
     "medium": "중화질 (720p)",
     "low": "저화질 (480p)",
     "audioBitrate": "비트레이트",
-    "kbps": "{{value}} kbps"
+    "kbps": "{{value}} kbps",
+    "audioMobileNote": "오디오는 YouTube의 스트림 비트레이트로 M4A (AAC)로 제공됩니다 — 모바일에서는 비트레이트를 선택할 수 없습니다."
   },
   "preview": {
     "title": "다운로드 확인",
@@ -61,13 +73,19 @@
     "failed": "실패",
     "openFile": "파일 열기",
     "openFolder": "폴더에서 보기",
+    "copyUrl": "원본 URL 복사",
+    "urlCopied": "URL이 복사되었습니다",
     "remove": "제거",
     "retry": "재시도",
+    "eta": "남음",
     "clear": "완료된 항목 지우기"
   },
   "platform": {
     "youtube": "YouTube",
     "soundcloud": "SoundCloud",
+    "bandcamp": "Bandcamp",
+    "audiomack": "Audiomack",
+    "archive": "Internet Archive",
     "spotify": "Spotify",
     "deezer": "Deezer",
     "generic": "웹",
@@ -77,11 +95,35 @@
     "title": "설정",
     "downloadFolder": "다운로드 폴더",
     "browse": "찾아보기",
+    "osDefault": "OS 기본",
     "concurrent": "동시 다운로드",
     "theme": "테마",
     "about": "정보"
   },
+  "toast": {
+    "completed": "다운로드 완료: {{title}}",
+    "failed": "실패: {{title}}",
+    "urlPasted": "URL이 추가되었습니다"
+  },
+  "drop": {
+    "hint": "어디든 URL 드롭"
+  },
+  "update": {
+    "section": "업데이트",
+    "checkButton": "업데이트 확인",
+    "checking": "확인 중…",
+    "upToDate": "최신 상태입니다.",
+    "available": "업데이트 사용 가능: v{{version}}",
+    "installNow": "지금 설치",
+    "downloading": "업데이트 다운로드 중…",
+    "checkFailed": "업데이트 확인 실패",
+    "failed": "업데이트 실패",
+    "notInDesktop": "업데이트는 데스크톱 앱에서 확인합니다."
+  },
   "footer": {
     "openSource": "오픈 소스"
+  },
+  "a11y": {
+    "close": "닫기"
   }
 }

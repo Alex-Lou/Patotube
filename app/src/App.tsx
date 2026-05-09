@@ -4,6 +4,7 @@ import { Toaster } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Download } from 'lucide-react';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { Splash } from '@/components/splash';
 import { Header } from '@/components/header';
 import { UrlInput } from '@/features/download/url-input';
 import { PreviewDialog } from '@/features/download/preview-dialog';
@@ -15,13 +16,24 @@ import { validateUrl } from '@/lib/core/url';
 import { getTauri } from '@/lib/tauri/bindings';
 import type { MediaInfo } from '@/lib/core/types';
 
+// Time the splash screen stays visible after first paint. Long
+// enough for one duck bounce + a fade-out tail, short enough that
+// the user never feels they're waiting on us.
+const SPLASH_DURATION_MS = 900;
+
 export function App() {
   const { t } = useTranslation();
   const { resolvedTheme } = useTheme();
   const [pendingPreview, setPendingPreview] = useState<MediaInfo | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
   useDownloadEvents();
   const { enqueue } = useDownloadActions();
+
+  useEffect(() => {
+    const id = setTimeout(() => setShowSplash(false), SPLASH_DURATION_MS);
+    return () => clearTimeout(id);
+  }, []);
 
   // Global drag & drop: dropping a URL anywhere triggers the fetch flow.
   useEffect(() => {
@@ -113,32 +125,44 @@ export function App() {
 
         <Toaster
           theme={resolvedTheme}
-          position="bottom-right"
+          // bottom-center is the only position whose mobile rule is
+          // symmetric (left + right + transform:none). bottom-right
+          // anchors with `right: var(...)` AND `left: var(...)` AND
+          // `width: 100%`, which over-constrains the wrapper in LTR
+          // and pushes it past the right edge of a 360 px viewport.
+          position="bottom-center"
           richColors
           closeButton
-          // sonner exposes its toast width via the `--width` CSS
-          // variable (NOT a regular `width` prop on the wrapper —
-          // setting style.width does nothing). 420 px gives the
-          // title + filename + folder icon room on desktop, and on
-          // mobile (Android WebView, ~360 px viewport) we clamp to
-          // the viewport minus a 16 px gutter so the toast sits
-          // fully inside the screen and the description stops
-          // bleeding past the right edge / bottom nav bar.
           style={
             {
               '--width': 'min(420px, calc(100vw - 16px))',
             } as React.CSSProperties
           }
-          // Pin the toast to the right edge, but only by 8 px so
-          // the rounded corner stays visible instead of being
-          // half-eaten by the system nav. Same idea on the bottom.
           offset={{ right: 8, bottom: 12, left: 8, top: 12 }}
-          mobileOffset={{ right: 8, bottom: 12, left: 8, top: 12 }}
+          // Push the bottom offset above the Android system nav bar.
+          // index.html has viewport-fit=cover so env() resolves > 0
+          // when the WebView draws edge-to-edge.
+          mobileOffset={{
+            right: 8,
+            left: 8,
+            bottom: 'calc(12px + env(safe-area-inset-bottom))',
+            top: 'calc(12px + env(safe-area-inset-top))',
+          }}
           toastOptions={{
             classNames: {
               toast: 'border border-border/60 shadow-lg',
-              title: 'truncate',
-              description: 'truncate text-xs opacity-70',
+              // [data-content] is a flex item; without min-w-0 it
+              // refuses to shrink below the intrinsic width of long
+              // unbreakable strings, which is what was pushing the
+              // title past the right edge on mobile.
+              content: 'min-w-0',
+              // No `truncate`: let long titles wrap onto multiple
+              // lines so the toast grows in height instead of in
+              // width. sonner already sets overflow-wrap:anywhere
+              // on the toast so even a wordless 80-char string
+              // breaks correctly.
+              title: 'break-words',
+              description: 'break-words text-xs opacity-70',
               // Strip sonner's default action-button chrome so our
               // icon-only Folder button reads as a discreet
               // affordance instead of a white pill grafted onto
@@ -174,6 +198,8 @@ export function App() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        <AnimatePresence>{showSplash && <Splash />}</AnimatePresence>
       </div>
     </TooltipProvider>
   );
