@@ -43,6 +43,11 @@ Thumbs.db
 # Built release assets staged for upload (large binaries)
 release-assets/
 
+# Tauri updater signing keys — NEVER commit the private key.
+# (The public key lives in tauri.conf.json instead.)
+.keys/
+**/.keys/
+
 # Test coverage
 coverage/
 

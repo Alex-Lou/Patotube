@@ -26,7 +26,17 @@
     "comingSoon": "{{platform}} support is coming soon",
     "fetchFailed": "Could not fetch info",
     "downloadFailed": "Download failed",
-    "noTauri": "Run this inside the desktop app to download"
+    "noTauri": "Run this inside the desktop app to download",
+    "requiresSignin": "This video requires a YouTube sign-in to download. Patotube can't access account-protected content.",
+    "ageGated": "This video is age-restricted and can't be downloaded without a YouTube sign-in.",
+    "privateVideo": "This video is private.",
+    "videoUnavailable": "This video is unavailable.",
+    "couldNotOpenFile": "Could not open file",
+    "couldNotOpenFolder": "Could not open folder",
+    "scHlsOnly": "This SoundCloud track is only available as HLS (segmented stream). Patotube can't download HLS yet on mobile.",
+    "scPlaylist": "This is a SoundCloud playlist, not a single track. Open one of its tracks to download it.",
+    "scShortLinkBroken": "This SoundCloud short link could not be expanded. Try opening it on the website to get the full URL.",
+    "scNotFound": "This SoundCloud track was not found. It may have been deleted or made private."
   },
   "format": {
     "label": "Format",
@@ -34,13 +44,15 @@
     "audio": "Audio only",
     "videoMp4": "MP4 video",
     "audioMp3": "MP3 audio",
+    "audioM4a": "M4A audio",
     "quality": "Quality",
     "best": "Best available",
     "high": "High (1080p)",
     "medium": "Medium (720p)",
     "low": "Low (480p)",
     "audioBitrate": "Bitrate",
-    "kbps": "{{value}} kbps"
+    "kbps": "{{value}} kbps",
+    "audioMobileNote": "Audio is delivered as M4A (AAC) at YouTube's stream bitrate — bitrate isn't selectable on mobile."
   },
   "preview": {
     "title": "Confirm download",
@@ -68,6 +80,9 @@
   "platform": {
     "youtube": "YouTube",
     "soundcloud": "SoundCloud",
+    "bandcamp": "Bandcamp",
+    "audiomack": "Audiomack",
+    "archive": "Internet Archive",
     "spotify": "Spotify",
     "deezer": "Deezer",
     "generic": "Web",
@@ -89,6 +104,18 @@
   },
   "drop": {
     "hint": "Drop URL anywhere"
+  },
+  "update": {
+    "section": "Updates",
+    "checkButton": "Check for updates",
+    "checking": "Checking…",
+    "upToDate": "You are up to date.",
+    "available": "Update available: v{{version}}",
+    "installNow": "Install now",
+    "downloading": "Downloading update…",
+    "checkFailed": "Update check failed",
+    "failed": "Update failed",
+    "notInDesktop": "Updates are checked from the desktop app."
   },
   "footer": {
     "openSource": "Open source"

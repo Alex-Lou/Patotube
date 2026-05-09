@@ -1,11 +1,30 @@
+// Public download hooks for the React side.
+//
+//   `useDownloadEvents`   — mounts the Tauri progress/status listeners
+//                            exactly once per process. Use in ONE place
+//                            at the App root.
+//   `useDownloadActions`  — exposes `enqueue`, `retry`, `showInFolder`,
+//                            `openFile`. Safe to call from any component.
+//
+// Heavy logic lives in sibling modules:
+//   * `toasts.ts`        — sonner show/hide for done/fail
+//   * `post-process.ts`  — Android audio remux orchestration
+//   * `path-utils.ts`    — extension swap helpers (used by post-process)
+
 import { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'sonner';
 import { getTauri } from '@/lib/tauri/bindings';
 import { useQueueStore } from '@/lib/core/queue';
 import { useSettings } from '@/lib/core/settings';
 import type { FormatChoice, MediaInfo } from '@/lib/core/types';
 import { clamp } from '@/lib/utils';
+import {
+  isAndroid,
+  hasAudioRemuxBridge,
+  scanFileNative,
+} from '@/lib/android/bridge';
+import { runAudioPostProcess } from './post-process';
+import { showFailToast, showSuccessToast, type TFunc } from './toasts';
 
 async function resolveOutputDir(): Promise<string> {
   const custom = useSettings.getState().downloadFolder;
@@ -14,15 +33,25 @@ async function resolveOutputDir(): Promise<string> {
   return api.defaultDownloadDir();
 }
 
-export function useDownloads() {
+// Module-level guard: the Tauri event listeners must be registered
+// exactly once per process, no matter how many components mount/
+// unmount the hook. Without this we double-fire toasts.
+let listenersInstalled = false;
+let unsubProgress: (() => void) | undefined;
+let unsubStatus: (() => void) | undefined;
+
+/**
+ * Mount-once hook that wires the Tauri progress/status events to the
+ * queue store and surfaces toasts on completion / failure. Use it in
+ * exactly ONE place (the App root). Other components should use
+ * `useDownloadActions`.
+ */
+export function useDownloadEvents() {
   const { t } = useTranslation();
-  const add = useQueueStore((s) => s.add);
-  const update = useQueueStore((s) => s.update);
-  const setStatus = useQueueStore((s) => s.setStatus);
 
   useEffect(() => {
-    let unsubProgress: (() => void) | undefined;
-    let unsubStatus: (() => void) | undefined;
+    if (listenersInstalled) return;
+    listenersInstalled = true;
     let cancelled = false;
 
     void (async () => {
@@ -32,7 +61,7 @@ export function useDownloads() {
       unsubProgress = await api.onProgress((e) => {
         const total = e.bytesTotal ?? 0;
         const pct = total > 0 ? clamp((e.bytesDone / total) * 100, 0, 100) : 0;
-        update(e.jobId, {
+        useQueueStore.getState().update(e.jobId, {
           progress: pct,
           ...(e.speedBps !== null ? { speedBps: e.speedBps } : {}),
           ...(e.etaSec !== null ? { etaSec: e.etaSec } : {}),
@@ -40,38 +69,81 @@ export function useDownloads() {
       });
 
       unsubStatus = await api.onStatus((e) => {
-        setStatus(e.jobId, e.status, e.error);
-        if (e.filePath) update(e.jobId, { filePath: e.filePath });
+        const queue = useQueueStore.getState();
+        queue.setStatus(e.jobId, e.status, e.error);
+        if (e.filePath) queue.update(e.jobId, { filePath: e.filePath });
 
-        if (e.status === 'done' || e.status === 'failed') {
-          const job = useQueueStore.getState().jobs.find((j) => j.id === e.jobId);
-          const title = job?.info.title ?? '';
-          if (e.status === 'done') {
-            toast.success(t('toast.completed', { title }), {
-              action: job?.filePath
-                ? {
-                    label: t('queue.openFolder'),
-                    onClick: () => {
-                      void getTauri().then((api) => api.showInFolder(job.filePath!));
-                    },
-                  }
-                : undefined,
-            });
-          } else {
-            toast.error(t('toast.failed', { title }), {
-              description: e.error ?? undefined,
-            });
-          }
+        if (e.status === 'done') {
+          void handleDoneEvent(e.jobId, t);
+        } else if (e.status === 'failed') {
+          handleFailedEvent(e.jobId, e.error, t);
         }
       });
     })();
 
     return () => {
       cancelled = true;
-      unsubProgress?.();
-      unsubStatus?.();
+      // We DON'T null out unsubProgress/Status here —
+      // listenersInstalled stays true so React StrictMode's
+      // double-invoke doesn't re-register. The listeners live for
+      // the app's lifetime, which is fine.
     };
-  }, [update, setStatus, t]);
+  }, [t]);
+}
+
+/**
+ * Fan-out point for `done` status. On Android with audio format we
+ * still have one more step (remux → real audio-only m4a) before the
+ * job is truly finished. Everywhere else, `done` from Rust is final.
+ */
+async function handleDoneEvent(jobId: string, t: TFunc): Promise<void> {
+  const job = useQueueStore.getState().jobs.find((j) => j.id === jobId);
+  if (!job) return;
+
+  // The MediaExtractor remux exists to strip the video track from
+  // a YouTube combined-MP4 fallback. Other extractors (SoundCloud
+  // and any future ones) hand out audio-only files directly —
+  // running them through the remux is wasted work at best and
+  // outright broken at worst (MediaMuxer rejects MP3 codec for the
+  // mp4 container). Gate the post-process to YouTube.
+  if (
+    job.format.kind === 'audio' &&
+    job.filePath &&
+    job.info.platform === 'youtube' &&
+    isAndroid() &&
+    hasAudioRemuxBridge()
+  ) {
+    await runAudioPostProcess(jobId, job, t);
+    return;
+  }
+
+  // Default path: download is truly done. Trigger MediaScanner on
+  // Android so the file appears in Files / Music / Gallery apps
+  // right away, then show the success toast.
+  if (job.filePath && isAndroid()) {
+    scanFileNative(job.filePath);
+  }
+  showSuccessToast(jobId, job, t);
+}
+
+function handleFailedEvent(
+  jobId: string,
+  rawError: string | null | undefined,
+  t: TFunc,
+): void {
+  const job = useQueueStore.getState().jobs.find((j) => j.id === jobId);
+  showFailToast(jobId, job?.info.title ?? '', rawError, t);
+}
+
+/**
+ * Action-only hook. Safe to call from any component (queue list,
+ * etc.) — it doesn't register Tauri listeners, just exposes
+ * side-effecting functions that callers trigger from UI.
+ */
+export function useDownloadActions() {
+  const setStatus = useQueueStore((s) => s.setStatus);
+  const update = useQueueStore((s) => s.update);
+  const add = useQueueStore((s) => s.add);
 
   const enqueue = useCallback(
     async (info: MediaInfo, format: FormatChoice) => {
@@ -121,3 +193,8 @@ export function useDownloads() {
 
   return { enqueue, retry, showInFolder, openFile };
 }
+
+// Backwards-compatible alias for callers that still expect the
+// combined API. Internally just calls the actions hook; the events
+// hook must be mounted separately at the root.
+export const useDownloads = useDownloadActions;

@@ -22,7 +22,27 @@ pub struct StartDownloadInput {
 
 #[tauri::command]
 pub async fn fetch_media_info(app: AppHandle, url: String) -> Result<MediaInfo, String> {
-    downloader::fetch_info(&app, &url).await
+    #[cfg(target_os = "android")]
+    {
+        let _ = &app;
+        if crate::soundcloud_kernel::is_soundcloud_url(&url) {
+            return crate::soundcloud_kernel::fetch_info(&url).await;
+        }
+        if crate::bandcamp_kernel::is_bandcamp_url(&url) {
+            return crate::bandcamp_kernel::fetch_info(&url).await;
+        }
+        if crate::audiomack_kernel::is_audiomack_url(&url) {
+            return crate::audiomack_kernel::fetch_info(&url).await;
+        }
+        if crate::archive_kernel::is_archive_url(&url) {
+            return crate::archive_kernel::fetch_info(&url).await;
+        }
+        return crate::youtube_kernel::fetch_info(&url).await;
+    }
+    #[cfg(not(target_os = "android"))]
+    {
+        downloader::fetch_info(&app, &url).await
+    }
 }
 
 #[tauri::command]
@@ -40,7 +60,26 @@ pub async fn start_download(
         format,
         output_dir,
     };
-    downloader::start(&app, &registry, input).await
+    #[cfg(target_os = "android")]
+    {
+        if crate::soundcloud_kernel::is_soundcloud_url(&input.url) {
+            return crate::soundcloud_kernel::start(&app, &registry, input).await;
+        }
+        if crate::bandcamp_kernel::is_bandcamp_url(&input.url) {
+            return crate::bandcamp_kernel::start(&app, &registry, input).await;
+        }
+        if crate::audiomack_kernel::is_audiomack_url(&input.url) {
+            return crate::audiomack_kernel::start(&app, &registry, input).await;
+        }
+        if crate::archive_kernel::is_archive_url(&input.url) {
+            return crate::archive_kernel::start(&app, &registry, input).await;
+        }
+        return crate::youtube_kernel::start(&app, &registry, input).await;
+    }
+    #[cfg(not(target_os = "android"))]
+    {
+        downloader::start(&app, &registry, input).await
+    }
 }
 
 #[tauri::command]

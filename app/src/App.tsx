@@ -8,7 +8,7 @@ import { Header } from '@/components/header';
 import { UrlInput } from '@/features/download/url-input';
 import { PreviewDialog } from '@/features/download/preview-dialog';
 import { QueueList } from '@/features/download/queue-list';
-import { useDownloads } from '@/features/download/use-downloads';
+import { useDownloadActions, useDownloadEvents } from '@/features/download/use-downloads';
 import { useTheme } from '@/features/theme/theme-provider';
 import { detectPlatform, isActive } from '@/lib/core/platform';
 import { validateUrl } from '@/lib/core/url';
@@ -20,7 +20,8 @@ export function App() {
   const { resolvedTheme } = useTheme();
   const [pendingPreview, setPendingPreview] = useState<MediaInfo | null>(null);
   const [dragOver, setDragOver] = useState(false);
-  const { enqueue } = useDownloads();
+  useDownloadEvents();
+  const { enqueue } = useDownloadActions();
 
   // Global drag & drop: dropping a URL anywhere triggers the fetch flow.
   useEffect(() => {

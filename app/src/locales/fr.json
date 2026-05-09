@@ -26,7 +26,17 @@
     "comingSoon": "{{platform}} arrive bientôt",
     "fetchFailed": "Impossible de récupérer les infos",
     "downloadFailed": "Échec du téléchargement",
-    "noTauri": "Lance l'app desktop pour télécharger"
+    "noTauri": "Lance l'app desktop pour télécharger",
+    "requiresSignin": "Cette vidéo nécessite une connexion YouTube. Patotube ne peut pas accéder aux contenus protégés par compte.",
+    "ageGated": "Cette vidéo est limitée par âge et nécessite une connexion YouTube pour être téléchargée.",
+    "privateVideo": "Cette vidéo est privée.",
+    "videoUnavailable": "Cette vidéo est indisponible.",
+    "couldNotOpenFile": "Impossible d'ouvrir le fichier",
+    "couldNotOpenFolder": "Impossible d'ouvrir le dossier",
+    "scHlsOnly": "Cette track SoundCloud n'est disponible qu'en HLS (stream segmenté). Patotube ne sait pas encore télécharger ce format sur mobile.",
+    "scPlaylist": "Ce lien SoundCloud est une playlist, pas une track. Ouvre une track individuelle pour la télécharger.",
+    "scShortLinkBroken": "Ce lien court SoundCloud n'a pas pu être étendu. Ouvre-le sur le site pour récupérer l'URL complète.",
+    "scNotFound": "Cette track SoundCloud est introuvable. Elle a peut-être été supprimée ou rendue privée."
   },
   "format": {
     "label": "Format",
@@ -34,13 +44,15 @@
     "audio": "Audio seul",
     "videoMp4": "Vidéo MP4",
     "audioMp3": "Audio MP3",
+    "audioM4a": "Audio M4A",
     "quality": "Qualité",
     "best": "Meilleure dispo",
     "high": "Haute (1080p)",
     "medium": "Moyenne (720p)",
     "low": "Basse (480p)",
     "audioBitrate": "Débit",
-    "kbps": "{{value}} kbps"
+    "kbps": "{{value}} kbps",
+    "audioMobileNote": "L'audio est livré en M4A (AAC) au débit fourni par YouTube — non sélectionnable sur mobile."
   },
   "preview": {
     "title": "Confirmer le téléchargement",
@@ -68,6 +80,9 @@
   "platform": {
     "youtube": "YouTube",
     "soundcloud": "SoundCloud",
+    "bandcamp": "Bandcamp",
+    "audiomack": "Audiomack",
+    "archive": "Internet Archive",
     "spotify": "Spotify",
     "deezer": "Deezer",
     "generic": "Web",
@@ -89,6 +104,18 @@
   },
   "drop": {
     "hint": "Lâche ton URL ici"
+  },
+  "update": {
+    "section": "Mises à jour",
+    "checkButton": "Vérifier les mises à jour",
+    "checking": "Vérification…",
+    "upToDate": "Tu es à jour.",
+    "available": "Mise à jour dispo : v{{version}}",
+    "installNow": "Installer",
+    "downloading": "Téléchargement de la mise à jour…",
+    "checkFailed": "Échec de la vérification",
+    "failed": "Échec de la mise à jour",
+    "notInDesktop": "Les mises à jour se vérifient depuis l'app desktop."
   },
   "footer": {
     "openSource": "Open source"

@@ -12,12 +12,22 @@ import {
   Play,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn, formatBytes, formatDuration } from '@/lib/utils';
 import type { DownloadJob, JobStatus } from '@/lib/core/types';
 import { PlatformBadge } from './platform-badge';
+import {
+  isAndroid as isAndroidPlatform,
+  openFileNative,
+  openDownloadsFolderNative,
+  hasNativeBridge,
+} from '@/lib/android/bridge';
+import { friendlyError } from '@/lib/core/errors';
+
+const IS_ANDROID = isAndroidPlatform();
 
 interface QueueItemProps {
   job: DownloadJob;
@@ -45,10 +55,34 @@ export function QueueItem({
   const { t } = useTranslation();
   const { info, format, status, progress, speedBps, etaSec, error, filePath } = job;
 
-  const formatLabel =
-    format.kind === 'video'
-      ? `MP4 · ${t(`format.${format.quality}`)}`
-      : `MP3 · ${format.bitrate}k`;
+  // Format label honestly reflects what the user actually gets.
+  // Per-platform overrides for audio because each kernel ships
+  // its own native format:
+  //   - SoundCloud → MP3 (server-side libmp3lame)
+  //   - Bandcamp → MP3-128 (free-tier preview)
+  //   - Audiomack → MP3 (their API serves it directly)
+  //   - Internet Archive → varies (might be ogg/flac/mp4) — we
+  //     just label it generically; the file extension on disk
+  //     tells the user the truth.
+  //   - YouTube on Android → M4A AAC (no transcoder)
+  //   - YouTube on desktop → MP3 + bitrate (yt-dlp+ffmpeg)
+  const formatLabel = (() => {
+    if (format.kind === 'video') {
+      return `MP4 · ${t(`format.${format.quality}`)}`;
+    }
+    switch (info.platform) {
+      case 'soundcloud':
+        return 'MP3 · SoundCloud';
+      case 'bandcamp':
+        return 'MP3 · 128k';
+      case 'audiomack':
+        return 'MP3 · Audiomack';
+      case 'archive':
+        return 'Audio · Archive';
+      default:
+        return IS_ANDROID ? 'M4A · AAC' : `MP3 · ${format.bitrate}k`;
+    }
+  })();
   const FormatIcon = format.kind === 'video' ? Film : Music;
 
   return (
@@ -104,7 +138,22 @@ export function QueueItem({
                       variant="ghost"
                       size="icon"
                       className="size-8"
-                      onClick={() => onOpenFile(filePath)}
+                      onClick={async () => {
+                        // Android: native FileProvider + ACTION_VIEW.
+                        if (IS_ANDROID && hasNativeBridge()) {
+                          if (openFileNative(filePath)) return;
+                          toast.error(t('errors.couldNotOpenFile'));
+                          return;
+                        }
+                        try {
+                          await onOpenFile(filePath);
+                        } catch (err) {
+                          toast.error(t('errors.couldNotOpenFile'), {
+                            description:
+                              err instanceof Error ? err.message : String(err),
+                          });
+                        }
+                      }}
                       aria-label={t('queue.openFile')}
                       title={t('queue.openFile')}
                     >
@@ -114,7 +163,22 @@ export function QueueItem({
                       variant="ghost"
                       size="icon"
                       className="size-8"
-                      onClick={() => onShowInFolder(filePath)}
+                      onClick={async () => {
+                        // Android: open the system Downloads folder.
+                        if (IS_ANDROID && hasNativeBridge()) {
+                          if (openDownloadsFolderNative()) return;
+                          toast.error(t('errors.couldNotOpenFolder'));
+                          return;
+                        }
+                        try {
+                          await onShowInFolder(filePath);
+                        } catch (err) {
+                          toast.error(t('errors.couldNotOpenFolder'), {
+                            description:
+                              err instanceof Error ? err.message : String(err),
+                          });
+                        }
+                      }}
                       aria-label={t('queue.openFolder')}
                       title={t('queue.openFolder')}
                     >
@@ -163,7 +227,9 @@ export function QueueItem({
             )}
 
             {status === 'failed' && error && (
-              <p className="line-clamp-2 text-xs text-destructive/90">{error}</p>
+              <p className="line-clamp-2 text-xs text-destructive/90">
+                {friendlyError(error, t) ?? error}
+              </p>
             )}
           </div>
         </div>

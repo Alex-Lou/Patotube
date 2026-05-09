@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Loader2, ClipboardPaste, X, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { detectPlatform } from '@/lib/core/platform';
-import { validateUrl } from '@/lib/core/url';
+import { extractFirstUrl, validateUrl } from '@/lib/core/url';
 import { getTauri } from '@/lib/tauri/bindings';
 import type { MediaInfo } from '@/lib/core/types';
 import { PlatformBadge } from './platform-badge';
@@ -20,14 +21,44 @@ export function UrlInput({ onResolved }: UrlInputProps) {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const platform = value.trim() ? detectPlatform(value) : null;
+  // Detect platform on the URL embedded in the input — the raw
+  // value may be a share-sheet message wrapping the URL.
+  const platform = value.trim() ? detectPlatform(extractFirstUrl(value)) : null;
 
   const handlePaste = async () => {
+    // Browser API first (works on desktop dev, sometimes on Android Chrome).
     try {
       const text = await navigator.clipboard.readText();
-      if (text) setValue(text);
+      if (text) {
+        setValue(extractFirstUrl(text));
+        return;
+      }
     } catch {
-      /* clipboard denied — silent */
+      /* fall through to Tauri plugin */
+    }
+    // Tauri clipboard plugin — bypasses WebView restrictions on Android.
+    try {
+      const { readText } = await import('@tauri-apps/plugin-clipboard-manager');
+      const text = await readText();
+      if (text) setValue(extractFirstUrl(text));
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.warn('[patotube] clipboard read failed:', err);
+    }
+  };
+
+  /** Native paste (Ctrl+V, long-press → Coller, etc.). We intercept
+   *  to extract a URL from share-sheet text on the way in — that
+   *  way the field shows ONLY the URL, not the surrounding prose,
+   *  which is what the user expects to see after pasting. */
+  const handleNativePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const text = e.clipboardData.getData('text');
+    if (!text) return;
+    const cleaned = extractFirstUrl(text);
+    if (cleaned !== text.trim()) {
+      e.preventDefault();
+      setValue(cleaned);
+      if (error) setError(null);
     }
   };
 
@@ -54,7 +85,22 @@ export function UrlInput({ onResolved }: UrlInputProps) {
       onResolved(info);
       setValue('');
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('errors.fetchFailed'));
+      const raw = err instanceof Error ? err.message : String(err);
+      // Surface the first line inline (compact), the rest in a toast so
+      // the user gets the whole story without it crowding the input.
+      const lines = raw.split('\n').filter((l) => l.trim().length > 0);
+      const headline = lines[0] ?? t('errors.fetchFailed');
+      const detail = lines.slice(1).join('\n');
+      setError(headline);
+      toast.error(t('errors.fetchFailed'), {
+        description: raw.length > 0 ? raw : undefined,
+        duration: 8000,
+      });
+      // eslint-disable-next-line no-console
+      console.error('[patotube] fetchMediaInfo failed:', raw);
+      // Keep linter happy — `detail` is available if we later want to
+      // render it in an expandable inline panel.
+      void detail;
     } finally {
       setBusy(false);
     }
@@ -70,6 +116,7 @@ export function UrlInput({ onResolved }: UrlInputProps) {
             setValue(e.target.value);
             if (error) setError(null);
           }}
+          onPaste={handleNativePaste}
           placeholder={t('url.placeholder')}
           aria-label={t('url.label')}
           className="h-14 pl-4 pr-32 text-base"

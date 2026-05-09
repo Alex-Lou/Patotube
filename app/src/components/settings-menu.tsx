@@ -10,7 +10,10 @@ import {
   Folder,
   FolderCog,
   RotateCcw,
+  RefreshCw,
+  Loader2,
 } from 'lucide-react';
+import { useUpdater } from '@/features/updater/use-updater';
 import { getTauri } from '@/lib/tauri/bindings';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -18,14 +21,20 @@ import { useTheme } from '@/features/theme/theme-provider';
 import { useSettings } from '@/lib/core/settings';
 import { AUDIO_BITRATES, VIDEO_QUALITIES } from '@/lib/core/formats';
 import type { AudioBitrate, VideoQuality } from '@/lib/core/types';
+import { isAndroid } from '@/lib/android/bridge';
+// onAndroid still drives the "hide download folder picker / hide
+// updates section" gates; the bitrate picker is back to being shown
+// on Android because Phase 1 (ffmpeg-kit) makes it meaningful again.
 
 const REPO_URL = 'https://github.com/Alex-Lou/Patotube';
-const APP_VERSION = '0.1.0';
+const APP_VERSION = '0.2.0';
 
 export function SettingsMenu(_props: { onAfterAction?: () => void }) {
   const { t } = useTranslation();
   const { theme, setTheme, resolvedTheme } = useTheme();
   const { defaultFormat, setDefaultFormat, downloadFolder, setDownloadFolder } = useSettings();
+  const { checking, available, check } = useUpdater();
+  const onAndroid = isAndroid();
 
   const pickFolder = async () => {
     const api = await getTauri();
@@ -85,64 +94,107 @@ export function SettingsMenu(_props: { onAfterAction?: () => void }) {
               })
             }
             icon={<Music className="size-4" />}
-            label={t('format.audioMp3')}
+            label={onAndroid ? t('format.audioM4a') : t('format.audioMp3')}
           />
         </div>
 
-        <div className="mt-3 grid grid-cols-4 gap-1.5">
-          {defaultFormat.kind === 'video'
-            ? VIDEO_QUALITIES.map((q) => (
-                <PillButton
-                  key={q}
-                  active={defaultFormat.quality === q}
-                  onClick={() => setDefaultFormat({ kind: 'video', quality: q as VideoQuality })}
-                >
-                  {t(`format.${q}`)}
-                </PillButton>
-              ))
-            : AUDIO_BITRATES.map((b) => (
-                <PillButton
-                  key={b}
-                  active={defaultFormat.bitrate === b}
-                  onClick={() => setDefaultFormat({ kind: 'audio', bitrate: b as AudioBitrate })}
-                >
-                  {b}k
-                </PillButton>
-              ))}
-        </div>
+        {/* Quality / bitrate sub-picker. On Android we hide the
+            audio bitrate row because we don't transcode on device
+            (MediaExtractor remux is bit-perfect, see
+            docs/youtube-kernel.md) — offering 128/192/256/320 would
+            just be a lie. */}
+        {defaultFormat.kind === 'video' ? (
+          <div className="mt-3 grid grid-cols-4 gap-1.5">
+            {VIDEO_QUALITIES.map((q) => (
+              <PillButton
+                key={q}
+                active={defaultFormat.quality === q}
+                onClick={() => setDefaultFormat({ kind: 'video', quality: q as VideoQuality })}
+              >
+                {t(`format.${q}`)}
+              </PillButton>
+            ))}
+          </div>
+        ) : onAndroid ? (
+          <p className="mt-3 text-[11px] text-muted-foreground">
+            {t('format.audioMobileNote')}
+          </p>
+        ) : (
+          <div className="mt-3 grid grid-cols-4 gap-1.5">
+            {AUDIO_BITRATES.map((b) => (
+              <PillButton
+                key={b}
+                active={defaultFormat.bitrate === b}
+                onClick={() => setDefaultFormat({ kind: 'audio', bitrate: b as AudioBitrate })}
+              >
+                {b}k
+              </PillButton>
+            ))}
+          </div>
+        )}
       </Section>
 
-      {/* Download folder */}
-      <Section icon={<Folder className="size-4" />} label={t('settings.downloadFolder')}>
-        <div className="space-y-2">
-          <div
-            className="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-border/60 bg-muted/40"
-            title={downloadFolder ?? t('settings.osDefault')}
-          >
-            <Folder className="size-4 shrink-0 text-muted-foreground" />
-            <span className="flex-1 truncate text-sm font-mono text-muted-foreground">
-              {downloadFolder ?? t('settings.osDefault')}
-            </span>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={pickFolder} className="flex-1">
-              <FolderCog className="size-4" />
-              {t('settings.browse')}
-            </Button>
-            {downloadFolder && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setDownloadFolder(undefined)}
-                aria-label={t('settings.osDefault')}
-                title={t('settings.osDefault')}
-              >
-                <RotateCcw className="size-4" />
+      {/* Download folder — hidden on Android because the native
+          extractor writes to /sdcard/Download regardless of any custom
+          path, so showing a picker here would just lie. */}
+      {!onAndroid && (
+        <Section icon={<Folder className="size-4" />} label={t('settings.downloadFolder')}>
+          <div className="space-y-2">
+            <div
+              className="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-border/60 bg-muted/40"
+              title={downloadFolder ?? t('settings.osDefault')}
+            >
+              <Folder className="size-4 shrink-0 text-muted-foreground" />
+              <span className="flex-1 truncate text-sm font-mono text-muted-foreground">
+                {downloadFolder ?? t('settings.osDefault')}
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={pickFolder} className="flex-1">
+                <FolderCog className="size-4" />
+                {t('settings.browse')}
               </Button>
-            )}
+              {downloadFolder && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setDownloadFolder(undefined)}
+                  aria-label={t('settings.osDefault')}
+                  title={t('settings.osDefault')}
+                >
+                  <RotateCcw className="size-4" />
+                </Button>
+              )}
+            </div>
           </div>
-        </div>
-      </Section>
+        </Section>
+      )}
+
+      {/* Updates — Tauri's updater plugin is not loaded on Android
+          (cfg(desktop) gate in lib.rs), so the button would always
+          fail. APK updates are manual on mobile. */}
+      {!onAndroid && (
+        <Section icon={<RefreshCw className="size-4" />} label={t('update.section', 'Updates')}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full"
+            onClick={() => void check({ silent: false })}
+            disabled={checking}
+          >
+            {checking ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <RefreshCw className="size-4" />
+            )}
+            {checking
+              ? t('update.checking', 'Checking…')
+              : available
+                ? t('update.available', { version: available.version })
+                : t('update.checkButton', 'Check for updates')}
+          </Button>
+        </Section>
+      )}
 
       {/* About */}
       <Section icon={<Github className="size-4" />} label={t('settings.about')}>

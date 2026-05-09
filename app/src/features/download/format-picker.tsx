@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Music, Film } from 'lucide-react';
+import { Music, Film, Info } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import {
@@ -19,14 +19,20 @@ import type {
   FormatChoice,
   VideoQuality,
 } from '@/lib/core/types';
+import { isAndroid } from '@/lib/android/bridge';
 
 interface FormatPickerProps {
   value: FormatChoice;
   onChange: (next: FormatChoice) => void;
+  /** When true, hide the video radio entirely. Used for
+   *  audio-only platforms like SoundCloud where there's no
+   *  video stream to choose. */
+  audioOnly?: boolean;
 }
 
-export function FormatPicker({ value, onChange }: FormatPickerProps) {
+export function FormatPicker({ value, onChange, audioOnly = false }: FormatPickerProps) {
   const { t } = useTranslation();
+  const onAndroid = isAndroid();
 
   const setKind = (kind: 'video' | 'audio') => {
     onChange(
@@ -38,24 +44,26 @@ export function FormatPicker({ value, onChange }: FormatPickerProps) {
 
   return (
     <div className="space-y-4">
-      <RadioGroup
-        value={value.kind}
-        onValueChange={(v) => setKind(v as 'video' | 'audio')}
-        className="grid grid-cols-2 gap-3"
-      >
-        <KindOption
-          id="video"
-          checked={value.kind === 'video'}
-          icon={<Film className="size-4" />}
-          label={t('format.videoMp4')}
-        />
-        <KindOption
-          id="audio"
-          checked={value.kind === 'audio'}
-          icon={<Music className="size-4" />}
-          label={t('format.audioMp3')}
-        />
-      </RadioGroup>
+      {!audioOnly && (
+        <RadioGroup
+          value={value.kind}
+          onValueChange={(v) => setKind(v as 'video' | 'audio')}
+          className="grid grid-cols-2 gap-3"
+        >
+          <KindOption
+            id="video"
+            checked={value.kind === 'video'}
+            icon={<Film className="size-4" />}
+            label={t('format.videoMp4')}
+          />
+          <KindOption
+            id="audio"
+            checked={value.kind === 'audio'}
+            icon={<Music className="size-4" />}
+            label={onAndroid ? t('format.audioM4a') : t('format.audioMp3')}
+          />
+        </RadioGroup>
+      )}
 
       {value.kind === 'video' ? (
         <div className="space-y-1.5">
@@ -75,6 +83,20 @@ export function FormatPicker({ value, onChange }: FormatPickerProps) {
               ))}
             </SelectContent>
           </Select>
+        </div>
+      ) : audioOnly && onAndroid ? (
+        // SoundCloud-on-Android: file is whatever SC encoded
+        // server-side (.mp3 most of the time). No bitrate choice
+        // matters — we don't transcode on device.
+        null
+      ) : onAndroid ? (
+        // YouTube hands one fixed-bitrate AAC stream per video; on
+        // mobile we don't transcode (MediaExtractor remux is
+        // bit-perfect, no LAME on the device). Showing a 128/192/256/
+        // 320 picker would be a lie. See docs/youtube-kernel.md.
+        <div className="flex items-start gap-2 rounded-lg border border-border/60 bg-muted/40 px-3 py-2.5 text-xs text-muted-foreground">
+          <Info className="size-3.5 mt-0.5 shrink-0" />
+          <span>{t('format.audioMobileNote')}</span>
         </div>
       ) : (
         <div className="space-y-1.5">

@@ -1,6 +1,6 @@
 [package]
 name = "patotube"
-version = "0.1.0"
+version = "0.2.0"
 description = "Modern lightweight media downloader"
 authors = ["Patotube contributors"]
 edition = "2021"
@@ -20,6 +20,9 @@ tauri-plugin-dialog = "2"
 tauri-plugin-fs = "2"
 tauri-plugin-os = "2"
 tauri-plugin-opener = "2"
+tauri-plugin-updater = "2"
+tauri-plugin-process = "2"
+tauri-plugin-clipboard-manager = "2"
 
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
@@ -28,6 +31,25 @@ anyhow = "1"
 thiserror = "2"
 once_cell = "1"
 dashmap = "6"
+url = "2"
+# YouTube signature / n-parameter decoding (Phase 2 of the kernel).
+# Pure Rust means no NDK clang issues; we promote them to top-level
+# deps so the sigcipher unit tests run on the desktop host as well as
+# Android. boa is slower than QuickJS but the scripts are tiny
+# (<5 KB) and run once per video, so it's unnoticeable. See
+# docs/youtube-kernel.md ("Phase 2").
+boa_engine = "0.21"
+regex = "1"
+
+# --- Mobile-only: native YouTube extractor HTTP layer ---
+# yt-dlp has no Android port. Instead of pulling rustypipe + rquickjs
+# (heavy cross-compile setup for QuickJS), we hit YouTube's internal
+# `youtubei/v1/player` API directly with the ANDROID client signature,
+# which returns un-encrypted CDN URLs and side-steps JS deobfuscation
+# entirely. Same trick yt-dlp's `--player-client=android` uses.
+[target.'cfg(target_os = "android")'.dependencies]
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls-webpki-roots", "stream", "json"] }
+futures-util = "0.3"
 
 [features]
 default = ["custom-protocol"]
