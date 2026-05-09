@@ -5,6 +5,8 @@ mod jobs;
 // Shared platform helpers used by every kernel.
 #[cfg(target_os = "android")]
 mod output_path;
+#[cfg(target_os = "android")]
+mod streamer;
 // Pure URL/filename helpers, kept outside the cfg-gated extractor so
 // they can be unit-tested on the desktop host. See youtube_url.rs.
 mod youtube_url;
@@ -21,6 +23,16 @@ mod youtube_kernel;
 // `youtube_kernel`: always-compiled pure modules + Android-only
 // HTTP layer + orchestration. See `soundcloud_kernel/mod.rs`.
 mod soundcloud_kernel;
+
+// Bandcamp extraction kernel — page scrape → trackinfo[0].mp3-128.
+mod bandcamp_kernel;
+
+// Audiomack extraction kernel — public API → stream URL.
+mod audiomack_kernel;
+
+// Internet Archive extraction kernel — supports both audio AND
+// video items via the public /metadata/<id> JSON endpoint.
+mod archive_kernel;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {

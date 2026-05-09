@@ -28,6 +28,15 @@ pub async fn fetch_media_info(app: AppHandle, url: String) -> Result<MediaInfo, 
         if crate::soundcloud_kernel::is_soundcloud_url(&url) {
             return crate::soundcloud_kernel::fetch_info(&url).await;
         }
+        if crate::bandcamp_kernel::is_bandcamp_url(&url) {
+            return crate::bandcamp_kernel::fetch_info(&url).await;
+        }
+        if crate::audiomack_kernel::is_audiomack_url(&url) {
+            return crate::audiomack_kernel::fetch_info(&url).await;
+        }
+        if crate::archive_kernel::is_archive_url(&url) {
+            return crate::archive_kernel::fetch_info(&url).await;
+        }
         return crate::youtube_kernel::fetch_info(&url).await;
     }
     #[cfg(not(target_os = "android"))]
@@ -55,6 +64,15 @@ pub async fn start_download(
     {
         if crate::soundcloud_kernel::is_soundcloud_url(&input.url) {
             return crate::soundcloud_kernel::start(&app, &registry, input).await;
+        }
+        if crate::bandcamp_kernel::is_bandcamp_url(&input.url) {
+            return crate::bandcamp_kernel::start(&app, &registry, input).await;
+        }
+        if crate::audiomack_kernel::is_audiomack_url(&input.url) {
+            return crate::audiomack_kernel::start(&app, &registry, input).await;
+        }
+        if crate::archive_kernel::is_archive_url(&input.url) {
+            return crate::archive_kernel::start(&app, &registry, input).await;
         }
         return crate::youtube_kernel::start(&app, &registry, input).await;
     }

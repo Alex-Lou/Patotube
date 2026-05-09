@@ -1,10 +1,14 @@
-// Streaming HTTPS GET against a SoundCloud CDN URL. Simpler than
-// the YouTube downloader (no multi-UA dance, no Range header
-// games) — SC's CDN serves plain HTTPS that just works with a
-// vanilla reqwest GET.
+// Generic streaming HTTPS GET helper, shared by every kernel that
+// hits a "plain" CDN (one URL, no Range games, no auth header
+// dance): SoundCloud, Bandcamp, Audiomack, Internet Archive.
 //
-// Reuses the same progress/status event payloads as the YouTube
-// kernel so the frontend doesn't need a SC-specific listener.
+// YouTube has its own, beefier downloader under
+// `youtube_kernel/download.rs` because its CDN demands per-request
+// gymnastics (multi-UA retry, Range, Origin/Referer). For every
+// other kernel, this 50-line helper is enough.
+//
+// Reuses the central `events::ProgressPayload` so the frontend
+// only needs one listener.
 
 #![cfg(target_os = "android")]
 
