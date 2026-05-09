@@ -1,24 +1,53 @@
 # GitGuardian / ggshield configuration.
 #
-# The four AIzaSy... strings allowlisted below are NOT secrets — they
-# are YouTube's own public client API keys, hardcoded into every
-# official YouTube binary (iOS app, Android app, YouTube Music, TV
-# embedded player) and shipped openly by every YouTube
-# reverse-engineering project on GitHub (yt-dlp, NewPipe, Piped,
-# Invidious, rustypipe, ...). They are server-side scoped to the
-# matching client name+version pair and tied to no developer account
-# we control. Removing them breaks the Android youtubei/v1/player
-# extractor entirely.
+# Every entry below is a known false positive that GitGuardian's
+# pattern matchers tag as a "secret". Each one has a paragraph
+# explaining why it's NOT one. Path reference of the file the value
+# lives in is given so reviewers can audit independently.
 #
-# See app/src-tauri/src/youtube_native.rs for the full rationale.
+# References:
+#   - youtube_kernel/clients.rs           — YouTube public API keys
+#   - tauri.conf.json                     — minisign auto-updater pubkey
+#   - soundcloud_kernel/client_id.rs      — synthetic test fixtures
+#
 version: 2
 secret:
   ignored-matches:
+    # --- YouTube public client API keys ---
+    # Hardcoded into every official YouTube binary (iOS app, Android
+    # app, YouTube Music, TV embedded player) and shipped openly by
+    # every YouTube reverse-engineering project on GitHub (yt-dlp,
+    # NewPipe, Piped, Invidious, rustypipe, ...). Server-side scoped
+    # to the matching client name + version pair and tied to no
+    # developer account we control. Removing them breaks the Android
+    # youtubei/v1/player extractor entirely.
     - name: "YouTube IOS client public API key (used by yt-dlp, NewPipe, etc.)"
       match: "AIzaSyB-63vPrdThhKuerbB2N_l7Kwwcxj6yUAc"
     - name: "YouTube ANDROID client public API key (used by yt-dlp, NewPipe, etc.)"
       match: "AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w"
     - name: "YouTube ANDROID_MUSIC client public API key (used by yt-dlp, NewPipe, etc.)"
       match: "AIzaSyAOghZGza2MQSZkY_zfZ370N-PUdXEo8AI"
-    - name: "YouTube TVHTML5_SIMPLY_EMBEDDED_PLAYER client public API key"
+    - name: "YouTube TVHTML5_SIMPLY_EMBEDDED_PLAYER + WEB client public API key"
       match: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+
+    # --- minisign auto-updater public verification key ---
+    # PUBLIC by design — this is the verification half of the
+    # asymmetric keypair Tauri's auto-updater uses to check release
+    # signatures. The matching PRIVATE key (`app/.keys/patotube.key`)
+    # is gitignored and never enters source control. Publishing the
+    # pubkey is REQUIRED for clients to verify updates; it carries
+    # no authority by itself.
+    - name: "Tauri auto-updater minisign PUBLIC verification key (tauri.conf.json)"
+      match: "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDVCNTAzRTFENkI2MDVCM0QKUldROVcyQnJIVDVRVzZ6Ly92dlBJeVpBdUJVMWRvc1lNYjFJTG56T0w5dmNpWS9vUmNPbkFkTkEK"
+
+    # --- synthetic SoundCloud client_id strings in unit-test fixtures ---
+    # 32-char alphanumeric literals invented for the
+    # `find_client_id` extractor's test cases. They look like
+    # SoundCloud client IDs because that's the regex shape the
+    # function targets — but they're hand-typed test data, not real
+    # API credentials. Real SC client_ids are extracted at runtime
+    # from soundcloud.com/'s JS bundles (see client_id.rs).
+    - name: "Synthetic SC client_id test fixture (client_id.rs::find_client_id_picks_32_alphanumeric_literal)"
+      match: "AbCdEfGhIjKlMnOpQrStUvWxYz012345"
+    - name: "Synthetic SC client_id test fixture (client_id.rs::find_client_id_handles_whitespace_around_colon)"
+      match: "0123456789abcdef0123456789abcdef"
