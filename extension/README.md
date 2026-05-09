@@ -1,9 +1,13 @@
 # Patotube — browser companion
 
-A thin browser extension (Manifest V3) that adds a "Send to Patotube"
-button on YouTube / SoundCloud / Bandcamp / Audiomack / Internet
-Archive media pages. The button fires the `patotube://` URL scheme,
-which the desktop app picks up and turns into a download preview.
+A thin browser extension (Manifest V3) that lives in the toolbar:
+click the duck icon, the popup picks up the active tab's URL (or
+takes a manual paste), and fires the `patotube://` URL scheme.
+The desktop app catches the scheme and opens its download preview.
+
+No content scripts, no DOM injection, no broad host access. The
+only permission is `activeTab` — granted by Chrome on click,
+revoked the moment the popup closes.
 
 The extension itself does **no downloading** — it's a glorified URL
 forwarder. All the platform-extraction logic lives in the desktop
@@ -105,16 +109,15 @@ the five `@match` patterns explicitly listed in `manifest.json`.
 
 ```
 extension/
-├── manifest.json       # MV3, content_scripts + popup action
-├── content.js          # injects the floating "Send to Patotube" button
+├── manifest.json       # MV3, popup action only
 ├── popup.html          # popup chrome
 ├── popup.js            # reads activeTab URL + manual paste
 └── icons/              # 32 / 48 / 128 px duck
 ```
 
-The platform-detection regex in `content.js` and `popup.js` is
-deliberately a verbatim twin of `landing/public/patotube.user.js`
-so behaviour is identical across the userscript and the extension.
+The platform-detection regex in `popup.js` matches the one in the
+userscript twin (`landing/public/patotube.user.js`), so the
+"this URL is supported" check is consistent across both deliveries.
 
 ## Privacy
 
