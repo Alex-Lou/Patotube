@@ -11,6 +11,28 @@ export const PLATFORMS: Record<PlatformId, PlatformInfo> = {
     status: 'active',
     hostnames: ['soundcloud.com', 'www.soundcloud.com', 'm.soundcloud.com', 'on.soundcloud.com'],
   },
+  bandcamp: {
+    id: 'bandcamp',
+    status: 'active',
+    // Bandcamp uses subdomains per artist (artist.bandcamp.com).
+    // We can't enumerate them; the host check below treats any
+    // *.bandcamp.com host as a match.
+    hostnames: ['bandcamp.com'],
+  },
+  audiomack: {
+    id: 'audiomack',
+    // Marked comingSoon while Audiomack's public API is broken
+    // upstream — yt-dlp itself returns 404 on every track since
+    // late 2025 (see yt-dlp/yt-dlp#14815). Will flip back to
+    // 'active' once the upstream extractor is fixed.
+    status: 'comingSoon',
+    hostnames: ['audiomack.com', 'www.audiomack.com'],
+  },
+  archive: {
+    id: 'archive',
+    status: 'active',
+    hostnames: ['archive.org', 'www.archive.org'],
+  },
   spotify: {
     id: 'spotify',
     status: 'comingSoon',
@@ -42,6 +64,10 @@ export function detectPlatform(rawUrl: string): PlatformInfo {
     const host = u.hostname.toLowerCase();
     const id = HOST_INDEX.get(host);
     if (id) return PLATFORMS[id];
+    // Bandcamp gives every artist their own subdomain
+    // (artist.bandcamp.com); HOST_INDEX can't enumerate those, so
+    // we recognise any `*.bandcamp.com` host explicitly here.
+    if (host.endsWith('.bandcamp.com')) return PLATFORMS.bandcamp;
     return PLATFORMS.generic;
   } catch {
     return PLATFORMS.generic;
