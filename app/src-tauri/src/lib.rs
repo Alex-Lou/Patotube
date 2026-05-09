@@ -50,14 +50,33 @@ pub fn run() {
 
     // Auto-updater (desktop only — Tauri does not support Android/iOS
     // self-updates yet; mobile users grab a fresh APK manually).
+    // Deep-link sits in the same gate: Android delivers external
+    // URLs via intents handled in Java, not through this Rust plugin.
     #[cfg(desktop)]
     {
         builder = builder
             .plugin(tauri_plugin_updater::Builder::new().build())
-            .plugin(tauri_plugin_process::init());
+            .plugin(tauri_plugin_process::init())
+            .plugin(tauri_plugin_deep_link::init());
     }
 
     builder
+        .setup(|_app| {
+            // Linux AppImage / .deb / .rpm don't go through a system
+            // installer that registers the `patotube://` URL scheme,
+            // so we ask the deep-link plugin to do it at runtime.
+            // Windows production installers (NSIS / MSI) register
+            // the scheme themselves at install time; in `tauri dev`
+            // we also need the runtime hop, hence the debug gate.
+            // The frontend listens for deep-link events via the
+            // plugin's JS API directly — no Rust-side relay needed.
+            #[cfg(any(target_os = "linux", all(debug_assertions, windows)))]
+            {
+                use tauri_plugin_deep_link::DeepLinkExt;
+                let _ = _app.deep_link().register_all();
+            }
+            Ok(())
+        })
         .manage(jobs::JobRegistry::default())
         .invoke_handler(tauri::generate_handler![
             commands::fetch_media_info,
