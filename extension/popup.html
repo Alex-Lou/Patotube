@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Patotube</title>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        width: 320px;
+        background: #0a0a0a;
+        color: #fafafa;
+        font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+        font-size: 13px;
+      }
+      .wrap {
+        padding: 16px 16px 14px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .head img {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+      }
+      .head .title {
+        font-weight: 600;
+        line-height: 1.2;
+      }
+      .head .sub {
+        color: #9ca3af;
+        font-size: 11px;
+        margin-top: 2px;
+      }
+      .row {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .row label {
+        color: #d4d4d8;
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      input[type='text'],
+      textarea {
+        width: 100%;
+        box-sizing: border-box;
+        background: #18181b;
+        border: 1px solid #27272a;
+        color: #fafafa;
+        font: inherit;
+        padding: 8px 10px;
+        border-radius: 6px;
+        outline: none;
+      }
+      textarea {
+        resize: vertical;
+        min-height: 60px;
+        font-family: ui-monospace, 'JetBrains Mono', monospace;
+        font-size: 12px;
+      }
+      input[type='text']:focus,
+      textarea:focus {
+        border-color: #fbbf24;
+      }
+      .detected {
+        font-family: ui-monospace, 'JetBrains Mono', monospace;
+        font-size: 11px;
+        color: #d4d4d8;
+        background: #18181b;
+        border: 1px solid #27272a;
+        padding: 7px 9px;
+        border-radius: 6px;
+        word-break: break-all;
+      }
+      .detected.empty {
+        color: #71717a;
+        font-style: italic;
+      }
+      button.send {
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        color: #0a0a0a;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        transition: transform 0.1s ease, box-shadow 0.15s ease;
+      }
+      button.send:hover {
+        box-shadow: 0 4px 12px rgba(251, 191, 36, 0.35);
+      }
+      button.send:active {
+        transform: translateY(1px);
+      }
+      button.send:disabled {
+        background: #3f3f46;
+        color: #71717a;
+        cursor: not-allowed;
+      }
+      .footer {
+        font-size: 11px;
+        color: #71717a;
+        text-align: center;
+        padding-top: 4px;
+      }
+      .footer a {
+        color: #d4d4d8;
+        text-decoration: none;
+      }
+      .footer a:hover {
+        color: #fbbf24;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="head">
+        <img src="icons/icon-128.png" alt="" />
+        <div>
+          <div class="title">Patotube</div>
+          <div class="sub">Send a URL to the desktop app</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <label>Detected on this page</label>
+        <div id="detected" class="detected empty">No supported media URL on this page</div>
+      </div>
+
+      <div class="row">
+        <label for="manual">Or paste a URL</label>
+        <textarea id="manual" placeholder="https://www.youtube.com/watch?v=…"></textarea>
+      </div>
+
+      <button id="send" class="send" disabled>Send to Patotube</button>
+
+      <div class="footer">
+        <a id="install-link" href="https://alex-lou.github.io/Patotube/" target="_blank" rel="noreferrer">
+          Need the desktop app first?
+        </a>
+      </div>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>

@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "Patotube — Send to desktop",
+  "short_name": "Patotube",
+  "description": "Send the current YouTube / SoundCloud / Bandcamp / Audiomack / Internet Archive page to the Patotube desktop app.",
+  "version": "0.4.0",
+  "author": "Patotube",
+  "homepage_url": "https://alex-lou.github.io/Patotube/",
+  "icons": {
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "action": {
+    "default_title": "Patotube",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "permissions": ["activeTab"],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.youtube.com/watch*",
+        "https://m.youtube.com/watch*",
+        "https://music.youtube.com/watch*",
+        "https://soundcloud.com/*/*",
+        "https://*.bandcamp.com/track/*",
+        "https://*.bandcamp.com/album/*",
+        "https://audiomack.com/*/song/*",
+        "https://audiomack.com/*/album/*",
+        "https://archive.org/details/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "patotube@alex-lou.github.io",
+      "strict_min_version": "109.0"
+    }
+  }
+}
