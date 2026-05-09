@@ -21,23 +21,6 @@
     }
   },
   "permissions": ["activeTab"],
-  "content_scripts": [
-    {
-      "matches": [
-        "https://www.youtube.com/watch*",
-        "https://m.youtube.com/watch*",
-        "https://music.youtube.com/watch*",
-        "https://soundcloud.com/*/*",
-        "https://*.bandcamp.com/track/*",
-        "https://*.bandcamp.com/album/*",
-        "https://audiomack.com/*/song/*",
-        "https://audiomack.com/*/album/*",
-        "https://archive.org/details/*"
-      ],
-      "js": ["content.js"],
-      "run_at": "document_idle"
-    }
-  ],
   "browser_specific_settings": {
     "gecko": {
       "id": "patotube@alex-lou.github.io",
