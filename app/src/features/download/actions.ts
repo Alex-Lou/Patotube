@@ -25,9 +25,13 @@ export async function enqueueJob(
   format: FormatChoice,
 ): Promise<void> {
   const job = useQueueStore.getState().add(info, format);
-  const api = await getTauri();
-  const outputDir = await resolveOutputDir();
+  // The whole flow needs to be try-wrapped: `resolveOutputDir`
+  // can itself reject (Linux without ~/.config/user-dirs.dirs
+  // makes `app.path().download_dir()` return Err) and we'd leave
+  // the job stuck on `pending` forever otherwise.
   try {
+    const api = await getTauri();
+    const outputDir = await resolveOutputDir();
     await api.startDownload({
       jobId: job.id,
       url: info.url,
@@ -46,9 +50,9 @@ export async function retryJob(jobId: string): Promise<void> {
   if (!job) return;
   queue.setStatus(jobId, 'pending');
   queue.update(jobId, { progress: 0, error: undefined });
-  const api = await getTauri();
-  const outputDir = await resolveOutputDir();
   try {
+    const api = await getTauri();
+    const outputDir = await resolveOutputDir();
     await api.startDownload({
       jobId,
       url: job.info.url,
