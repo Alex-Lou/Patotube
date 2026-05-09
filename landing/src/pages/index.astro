@@ -271,15 +271,28 @@ const metaJson = JSON.stringify(LOCALE_META);
                 >
                   {(en as any)[`${c.key}Cta`]}
                 </a>
-                <a
-                  href={c.hintHref}
-                  target="_blank"
-                  rel="noreferrer"
-                  class="mt-3 text-xs text-fg-subtle hover:text-fg-muted text-center transition-colors"
-                  data-i18n={`${c.key}Hint`}
-                >
-                  {(en as any)[`${c.key}Hint`]}
-                </a>
+                <details class="mt-4 text-xs text-fg-muted">
+                  <summary
+                    class="cursor-pointer text-fg-subtle hover:text-fg-muted text-center transition-colors marker:hidden list-none"
+                    data-i18n="howToInstall"
+                  >
+                    {en.howToInstall}
+                  </summary>
+                  <ol class="mt-3 space-y-1.5 pl-5 list-decimal text-fg-muted leading-relaxed">
+                    <li data-i18n={`${c.key}Step1`}>{(en as any)[`${c.key}Step1`]}</li>
+                    <li data-i18n={`${c.key}Step2`}>{(en as any)[`${c.key}Step2`]}</li>
+                    <li data-i18n={`${c.key}Step3`}>{(en as any)[`${c.key}Step3`]}</li>
+                  </ol>
+                  <a
+                    href={c.hintHref}
+                    target="_blank"
+                    rel="noreferrer"
+                    class="mt-3 inline-block text-fg-subtle hover:text-fg-muted transition-colors"
+                    data-i18n={`${c.key}Hint`}
+                  >
+                    {(en as any)[`${c.key}Hint`]}
+                  </a>
+                </details>
               </div>
             ))
           }
