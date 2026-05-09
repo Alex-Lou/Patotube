@@ -12,43 +12,28 @@ mod file_pick;
 mod types;
 mod url;
 
-#[cfg(target_os = "android")]
 use std::path::PathBuf;
 
-#[cfg(target_os = "android")]
 use tauri::AppHandle;
 
-#[cfg(target_os = "android")]
 use crate::commands::StartDownloadInput;
-#[cfg(target_os = "android")]
-use crate::downloader::MediaInfo;
-#[cfg(target_os = "android")]
+use crate::media_info::MediaInfo;
 use crate::events::emit_status;
-#[cfg(target_os = "android")]
 use crate::jobs::JobRegistry;
-#[cfg(target_os = "android")]
-use crate::output_path::resolve_output_path;
-#[cfg(target_os = "android")]
+use crate::output_path::destination_candidates;
 use crate::streamer::stream_to_disk;
-#[cfg(target_os = "android")]
 use crate::youtube_url::sanitize_filename;
 
-#[cfg(target_os = "android")]
 use self::types::{ItemMetadata, StringOrList};
 
-#[cfg_attr(not(target_os = "android"), allow(unused_imports))]
 pub use self::url::is_archive_url;
 
-#[cfg(target_os = "android")]
 const METADATA_BASE: &str = "https://archive.org/metadata/";
-#[cfg(target_os = "android")]
 const DOWNLOAD_BASE: &str = "https://archive.org/download/";
-#[cfg(target_os = "android")]
 const DESKTOP_UA: &str =
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 \
      (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
-#[cfg(target_os = "android")]
 async fn fetch_metadata(identifier: &str) -> Result<ItemMetadata, String> {
     let http = reqwest::Client::builder()
         .user_agent(DESKTOP_UA)
@@ -72,7 +57,6 @@ async fn fetch_metadata(identifier: &str) -> Result<ItemMetadata, String> {
         .map_err(|e| format!("could not parse IA metadata JSON: {e}"))
 }
 
-#[cfg(target_os = "android")]
 pub async fn fetch_info(item_url: &str) -> Result<MediaInfo, String> {
     let identifier = url::extract_identifier(item_url)
         .ok_or_else(|| "Not a recognised Internet Archive URL.".to_string())?;
@@ -103,7 +87,6 @@ pub async fn fetch_info(item_url: &str) -> Result<MediaInfo, String> {
     })
 }
 
-#[cfg(target_os = "android")]
 pub async fn start(
     app: &AppHandle,
     registry: &JobRegistry,
@@ -136,15 +119,22 @@ pub async fn start(
         .and_then(StringOrList::into_string)
         .unwrap_or_else(|| identifier.clone());
     let title = sanitize_filename(&title_raw);
-
-    let _ = &input.output_dir; // kept for desktop parity
+    let output_dir = input.output_dir.clone();
 
     let app_handle = app.clone();
     let registry_clone = registry.clone();
     let identifier_clone = identifier.clone();
 
     tokio::spawn(async move {
-        let result = run_download(&app_handle, &job_id, &identifier_clone, item, &title).await;
+        let result = run_download(
+            &app_handle,
+            &job_id,
+            &identifier_clone,
+            item,
+            &title,
+            &output_dir,
+        )
+        .await;
         match result {
             Ok(path) => emit_status(
                 &app_handle,
@@ -161,17 +151,17 @@ pub async fn start(
     Ok(())
 }
 
-#[cfg(target_os = "android")]
 async fn run_download(
     app: &AppHandle,
     job_id: &str,
     identifier: &str,
     item: ItemMetadata,
     title: &str,
+    output_dir: &str,
 ) -> Result<PathBuf, String> {
     let picked = file_pick::pick_best(&item)?;
     let stream_url = format!("{DOWNLOAD_BASE}{identifier}/{}", picked.name);
-    let out = resolve_output_path(&format!("{title}.{}", picked.extension)).await?;
-    stream_to_disk(app, job_id, &stream_url, &out).await?;
-    Ok(out)
+    let candidates =
+        destination_candidates(output_dir, &format!("{title}.{}", picked.extension)).await?;
+    stream_to_disk(app, job_id, &stream_url, &candidates).await
 }

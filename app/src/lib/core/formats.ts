@@ -9,7 +9,10 @@ export const VIDEO_QUALITIES: readonly VideoQuality[] = ['best', 'high', 'medium
 export const AUDIO_BITRATES: readonly AudioBitrate[] = [128, 192, 256, 320];
 
 export const DEFAULT_VIDEO_QUALITY: VideoQuality = 'best';
-export const DEFAULT_AUDIO_BITRATE: AudioBitrate = 192;
+// Default to the highest tier so users get the best quality
+// out of the box; they can still pick a lower bitrate per
+// download in the format picker.
+export const DEFAULT_AUDIO_BITRATE: AudioBitrate = 320;
 
 export const DEFAULT_FORMAT: FormatChoice = {
   kind: 'video',

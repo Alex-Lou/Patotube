@@ -1,11 +1,15 @@
 mod commands;
+// `MediaInfo` lives on its own so every kernel can import it without
+// dragging the yt-dlp orchestration with it. The orchestrator
+// (`downloader`) is desktop-only — Android uses the native kernels
+// for every supported platform.
+mod media_info;
+#[cfg(not(target_os = "android"))]
 mod downloader;
 mod events;
 mod jobs;
 // Shared platform helpers used by every kernel.
-#[cfg(target_os = "android")]
 mod output_path;
-#[cfg(target_os = "android")]
 mod streamer;
 // Pure URL/filename helpers, kept outside the cfg-gated extractor so
 // they can be unit-tested on the desktop host. See youtube_url.rs.

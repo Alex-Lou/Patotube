@@ -1,8 +1,10 @@
 use serde::Deserialize;
 use tauri::{AppHandle, Manager, State};
 
-use crate::downloader::{self, MediaInfo};
+#[cfg(not(target_os = "android"))]
+use crate::downloader;
 use crate::jobs::JobRegistry;
+use crate::media_info::MediaInfo;
 
 #[derive(Debug, Deserialize, Clone)]
 #[serde(tag = "kind", rename_all = "lowercase")]
@@ -22,20 +24,25 @@ pub struct StartDownloadInput {
 
 #[tauri::command]
 pub async fn fetch_media_info(app: AppHandle, url: String) -> Result<MediaInfo, String> {
+    // SoundCloud / Bandcamp / Internet Archive are handled by their
+    // own native Rust kernels on every platform — much faster than
+    // spawning yt-dlp (no subprocess startup, no page parsing
+    // overhead). YouTube falls through to yt-dlp on desktop and to
+    // the Android-only youtube_kernel on mobile.
+    if crate::soundcloud_kernel::is_soundcloud_url(&url) {
+        return crate::soundcloud_kernel::fetch_info(&url).await;
+    }
+    if crate::bandcamp_kernel::is_bandcamp_url(&url) {
+        return crate::bandcamp_kernel::fetch_info(&url).await;
+    }
+    if crate::archive_kernel::is_archive_url(&url) {
+        return crate::archive_kernel::fetch_info(&url).await;
+    }
     #[cfg(target_os = "android")]
     {
         let _ = &app;
-        if crate::soundcloud_kernel::is_soundcloud_url(&url) {
-            return crate::soundcloud_kernel::fetch_info(&url).await;
-        }
-        if crate::bandcamp_kernel::is_bandcamp_url(&url) {
-            return crate::bandcamp_kernel::fetch_info(&url).await;
-        }
         if crate::audiomack_kernel::is_audiomack_url(&url) {
             return crate::audiomack_kernel::fetch_info(&url).await;
-        }
-        if crate::archive_kernel::is_archive_url(&url) {
-            return crate::archive_kernel::fetch_info(&url).await;
         }
         return crate::youtube_kernel::fetch_info(&url).await;
     }
@@ -60,19 +67,23 @@ pub async fn start_download(
         format,
         output_dir,
     };
+    eprintln!(
+        "[patotube] commands::start_download received job={} url={}",
+        input.job_id, input.url
+    );
+    if crate::soundcloud_kernel::is_soundcloud_url(&input.url) {
+        return crate::soundcloud_kernel::start(&app, &registry, input).await;
+    }
+    if crate::bandcamp_kernel::is_bandcamp_url(&input.url) {
+        return crate::bandcamp_kernel::start(&app, &registry, input).await;
+    }
+    if crate::archive_kernel::is_archive_url(&input.url) {
+        return crate::archive_kernel::start(&app, &registry, input).await;
+    }
     #[cfg(target_os = "android")]
     {
-        if crate::soundcloud_kernel::is_soundcloud_url(&input.url) {
-            return crate::soundcloud_kernel::start(&app, &registry, input).await;
-        }
-        if crate::bandcamp_kernel::is_bandcamp_url(&input.url) {
-            return crate::bandcamp_kernel::start(&app, &registry, input).await;
-        }
         if crate::audiomack_kernel::is_audiomack_url(&input.url) {
             return crate::audiomack_kernel::start(&app, &registry, input).await;
-        }
-        if crate::archive_kernel::is_archive_url(&input.url) {
-            return crate::archive_kernel::start(&app, &registry, input).await;
         }
         return crate::youtube_kernel::start(&app, &registry, input).await;
     }

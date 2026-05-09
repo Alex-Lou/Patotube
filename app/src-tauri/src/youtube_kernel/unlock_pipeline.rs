@@ -17,7 +17,7 @@ use tauri::AppHandle;
 
 use super::clients::web_client_only;
 use super::download::download_stream;
-use crate::output_path::resolve_output_path;
+use crate::output_path::destination_candidates;
 use super::player_api::{has_audio_only, resolve_player_with};
 use super::sigcipher::{fetch_player_js_for_video, Unlocker};
 use super::stream_pick::{pick_audio, PickedFormat};
@@ -29,6 +29,7 @@ pub async fn try_audio_via_unlock(
     job_id: &str,
     video_id: &str,
     title: &str,
+    output_dir: &str,
 ) -> Result<PathBuf, String> {
     let clients = web_client_only();
     let (resp, client) =
@@ -46,9 +47,9 @@ pub async fn try_audio_via_unlock(
     // is !Send, so it must not cross an await.
     let url = unlock_picked_url_blocking(&picked, &player_js_source).await?;
 
-    let out = resolve_output_path(&format!("{title}.{}", picked.extension)).await?;
-    download_stream(app, job_id, &url, &out, picked.content_length, client.user_agent).await?;
-    Ok(out)
+    let candidates =
+        destination_candidates(output_dir, &format!("{title}.{}", picked.extension)).await?;
+    download_stream(app, job_id, &url, &candidates, picked.content_length, client.user_agent).await
 }
 
 /// Build an Unlocker on a worker thread, run the cipher unlock, and

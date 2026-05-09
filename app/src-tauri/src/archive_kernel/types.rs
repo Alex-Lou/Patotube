@@ -28,7 +28,7 @@ pub struct ItemDetails {
 
 /// IA returns single-element fields as either `"x"` or `["x"]`
 /// inconsistently. This sidesteps the choice.
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(untagged)]
 pub enum StringOrList {
     Single(String),
