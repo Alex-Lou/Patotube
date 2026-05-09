@@ -91,6 +91,10 @@ const config: Config = {
           '0%, 100%': { transform: 'translateY(0) rotate(-2deg)' },
           '50%': { transform: 'translateY(-6px) rotate(2deg)' },
         },
+        'splash-slide': {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(400%)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -99,6 +103,7 @@ const config: Config = {
         'fade-out': 'fade-out 0.2s ease-out',
         shimmer: 'shimmer 2.4s linear infinite',
         'duck-bounce': 'duck-bounce 2.2s ease-in-out infinite',
+        'splash-slide': 'splash-slide 1.4s ease-in-out infinite',
       },
     },
   },
