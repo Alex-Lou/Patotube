@@ -26,7 +26,17 @@
     "comingSoon": "{{platform}} desteği yakında",
     "fetchFailed": "Bilgiler alınamadı",
     "downloadFailed": "İndirme başarısız",
-    "noTauri": "İndirmek için masaüstü uygulamasını açın"
+    "noTauri": "İndirmek için masaüstü uygulamasını açın",
+    "requiresSignin": "Bu video indirmek için YouTube oturumu açmayı gerektirir. Patotube hesap korumalı içeriklere erişemez.",
+    "ageGated": "Bu video yaş kısıtlamalıdır ve YouTube oturumu açmadan indirilemez.",
+    "privateVideo": "Bu video özeldir.",
+    "videoUnavailable": "Bu video kullanılamıyor.",
+    "couldNotOpenFile": "Dosya açılamadı",
+    "couldNotOpenFolder": "Klasör açılamadı",
+    "scHlsOnly": "Bu SoundCloud parçası yalnızca HLS (parçalı akış) olarak mevcut. Patotube mobilde henüz HLS indiremiyor.",
+    "scPlaylist": "Bu bir SoundCloud çalma listesi, tek bir parça değil. İndirmek için içindeki bir parçayı açın.",
+    "scShortLinkBroken": "Bu SoundCloud kısa bağlantısı genişletilemedi. Tam URL için web sitesinde açmayı deneyin.",
+    "scNotFound": "Bu SoundCloud parçası bulunamadı. Silinmiş veya özel yapılmış olabilir."
   },
   "format": {
     "label": "Format",
@@ -34,13 +44,15 @@
     "audio": "Sadece ses",
     "videoMp4": "MP4 video",
     "audioMp3": "MP3 ses",
+    "audioM4a": "M4A ses",
     "quality": "Kalite",
     "best": "En iyi mevcut",
     "high": "Yüksek (1080p)",
     "medium": "Orta (720p)",
     "low": "Düşük (480p)",
     "audioBitrate": "Bit hızı",
-    "kbps": "{{value}} kbps"
+    "kbps": "{{value}} kbps",
+    "audioMobileNote": "Ses, YouTube'un akış bit hızında M4A (AAC) olarak sunulur — bit hızı mobilde seçilemez."
   },
   "preview": {
     "title": "İndirmeyi onayla",
@@ -61,13 +73,19 @@
     "failed": "Başarısız",
     "openFile": "Dosyayı aç",
     "openFolder": "Klasörde göster",
+    "copyUrl": "Kaynak URL'yi kopyala",
+    "urlCopied": "URL kopyalandı",
     "remove": "Kaldır",
     "retry": "Tekrar dene",
+    "eta": "ETA",
     "clear": "Tamamlananları temizle"
   },
   "platform": {
     "youtube": "YouTube",
     "soundcloud": "SoundCloud",
+    "bandcamp": "Bandcamp",
+    "audiomack": "Audiomack",
+    "archive": "Internet Archive",
     "spotify": "Spotify",
     "deezer": "Deezer",
     "generic": "Web",
@@ -77,11 +95,35 @@
     "title": "Ayarlar",
     "downloadFolder": "İndirme klasörü",
     "browse": "Gözat",
+    "osDefault": "İşletim sistemi varsayılanı",
     "concurrent": "Paralel indirmeler",
     "theme": "Tema",
     "about": "Hakkında"
   },
+  "toast": {
+    "completed": "İndirildi: {{title}}",
+    "failed": "Başarısız: {{title}}",
+    "urlPasted": "URL eklendi"
+  },
+  "drop": {
+    "hint": "URL'yi herhangi bir yere bırak"
+  },
+  "update": {
+    "section": "Güncellemeler",
+    "checkButton": "Güncellemeleri ara",
+    "checking": "Kontrol ediliyor…",
+    "upToDate": "Güncelsiniz.",
+    "available": "Güncelleme mevcut: v{{version}}",
+    "installNow": "Şimdi yükle",
+    "downloading": "Güncelleme indiriliyor…",
+    "checkFailed": "Güncelleme kontrolü başarısız",
+    "failed": "Güncelleme başarısız",
+    "notInDesktop": "Güncellemeler masaüstü uygulamasından kontrol edilir."
+  },
   "footer": {
     "openSource": "Açık kaynak"
+  },
+  "a11y": {
+    "close": "Kapat"
   }
 }

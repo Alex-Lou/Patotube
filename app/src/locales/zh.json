@@ -26,7 +26,17 @@
     "comingSoon": "{{platform}} 即将支持",
     "fetchFailed": "无法获取信息",
     "downloadFailed": "下载失败",
-    "noTauri": "请在桌面应用中下载"
+    "noTauri": "请在桌面应用中下载",
+    "requiresSignin": "下载此视频需要登录 YouTube。Patotube 无法访问账户保护的内容。",
+    "ageGated": "此视频有年龄限制，未登录 YouTube 无法下载。",
+    "privateVideo": "此视频是私密的。",
+    "videoUnavailable": "此视频不可用。",
+    "couldNotOpenFile": "无法打开文件",
+    "couldNotOpenFolder": "无法打开文件夹",
+    "scHlsOnly": "此 SoundCloud 曲目仅以 HLS（分段流）形式提供。Patotube 暂时无法在移动端下载 HLS。",
+    "scPlaylist": "这是 SoundCloud 播放列表，不是单曲。请打开其中一首单曲再下载。",
+    "scShortLinkBroken": "无法展开此 SoundCloud 短链接。请在网页上打开以获取完整 URL。",
+    "scNotFound": "未找到此 SoundCloud 曲目。可能已被删除或设为私有。"
   },
   "format": {
     "label": "格式",
@@ -34,13 +44,15 @@
     "audio": "仅音频",
     "videoMp4": "MP4 视频",
     "audioMp3": "MP3 音频",
+    "audioM4a": "M4A 音频",
     "quality": "画质",
     "best": "最佳",
     "high": "高 (1080p)",
     "medium": "中 (720p)",
     "low": "低 (480p)",
     "audioBitrate": "比特率",
-    "kbps": "{{value}} kbps"
+    "kbps": "{{value}} kbps",
+    "audioMobileNote": "音频以 M4A (AAC) 形式按 YouTube 流的比特率提供 — 移动端无法选择比特率。"
   },
   "preview": {
     "title": "确认下载",
@@ -61,13 +73,19 @@
     "failed": "失败",
     "openFile": "打开文件",
     "openFolder": "在文件夹中显示",
+    "copyUrl": "复制源链接",
+    "urlCopied": "已复制链接",
     "remove": "移除",
     "retry": "重试",
+    "eta": "剩余",
     "clear": "清除已完成"
   },
   "platform": {
     "youtube": "YouTube",
     "soundcloud": "SoundCloud",
+    "bandcamp": "Bandcamp",
+    "audiomack": "Audiomack",
+    "archive": "Internet Archive",
     "spotify": "Spotify",
     "deezer": "Deezer",
     "generic": "网页",
@@ -77,11 +95,35 @@
     "title": "设置",
     "downloadFolder": "下载目录",
     "browse": "浏览",
+    "osDefault": "系统默认",
     "concurrent": "并行下载数",
     "theme": "主题",
     "about": "关于"
   },
+  "toast": {
+    "completed": "已下载: {{title}}",
+    "failed": "失败: {{title}}",
+    "urlPasted": "已添加链接"
+  },
+  "drop": {
+    "hint": "把链接拖到任意位置"
+  },
+  "update": {
+    "section": "更新",
+    "checkButton": "检查更新",
+    "checking": "正在检查…",
+    "upToDate": "已是最新版本。",
+    "available": "可用更新: v{{version}}",
+    "installNow": "立即安装",
+    "downloading": "正在下载更新…",
+    "checkFailed": "更新检查失败",
+    "failed": "更新失败",
+    "notInDesktop": "更新通过桌面应用检查。"
+  },
   "footer": {
     "openSource": "开源"
+  },
+  "a11y": {
+    "close": "关闭"
   }
 }

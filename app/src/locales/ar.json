@@ -26,7 +26,17 @@
     "comingSoon": "{{platform}} قريبًا",
     "fetchFailed": "تعذّر جلب المعلومات",
     "downloadFailed": "فشل التنزيل",
-    "noTauri": "افتح تطبيق سطح المكتب للتنزيل"
+    "noTauri": "افتح تطبيق سطح المكتب للتنزيل",
+    "requiresSignin": "يتطلب هذا الفيديو تسجيل الدخول إلى YouTube للتنزيل. لا يمكن لـ Patotube الوصول إلى المحتوى المحمي بحساب.",
+    "ageGated": "هذا الفيديو محدود بالعمر ولا يمكن تنزيله دون تسجيل الدخول إلى YouTube.",
+    "privateVideo": "هذا الفيديو خاص.",
+    "videoUnavailable": "هذا الفيديو غير متاح.",
+    "couldNotOpenFile": "تعذّر فتح الملف",
+    "couldNotOpenFolder": "تعذّر فتح المجلد",
+    "scHlsOnly": "مسار SoundCloud هذا متوفّر فقط بصيغة HLS (تدفق مقسّم). لا يستطيع Patotube تنزيل HLS على الهاتف بعد.",
+    "scPlaylist": "هذه قائمة تشغيل SoundCloud وليست مسارًا واحدًا. افتح أحد مساراتها لتنزيله.",
+    "scShortLinkBroken": "تعذّر توسيع هذا الرابط القصير لـ SoundCloud. افتحه على الموقع للحصول على الرابط الكامل.",
+    "scNotFound": "لم يتم العثور على مسار SoundCloud هذا. قد يكون قد حُذف أو جُعل خاصًا."
   },
   "format": {
     "label": "الصيغة",
@@ -34,13 +44,15 @@
     "audio": "صوت فقط",
     "videoMp4": "فيديو MP4",
     "audioMp3": "صوت MP3",
+    "audioM4a": "صوت M4A",
     "quality": "الجودة",
     "best": "الأفضل المتاحة",
     "high": "عالية (1080p)",
     "medium": "متوسطة (720p)",
     "low": "منخفضة (480p)",
     "audioBitrate": "معدل البت",
-    "kbps": "{{value}} ك.بت/ث"
+    "kbps": "{{value}} ك.بت/ث",
+    "audioMobileNote": "يُسلَّم الصوت بصيغة M4A (AAC) بمعدل بت تدفق YouTube — لا يمكن اختيار معدل البت على الهاتف."
   },
   "preview": {
     "title": "تأكيد التنزيل",
@@ -61,13 +73,19 @@
     "failed": "فشل",
     "openFile": "فتح الملف",
     "openFolder": "إظهار في المجلد",
+    "copyUrl": "نسخ الرابط الأصلي",
+    "urlCopied": "تم نسخ الرابط",
     "remove": "إزالة",
     "retry": "إعادة المحاولة",
+    "eta": "ETA",
     "clear": "مسح المكتملة"
   },
   "platform": {
     "youtube": "YouTube",
     "soundcloud": "SoundCloud",
+    "bandcamp": "Bandcamp",
+    "audiomack": "Audiomack",
+    "archive": "Internet Archive",
     "spotify": "Spotify",
     "deezer": "Deezer",
     "generic": "ويب",
@@ -77,11 +95,35 @@
     "title": "الإعدادات",
     "downloadFolder": "مجلد التنزيل",
     "browse": "استعراض",
+    "osDefault": "افتراضي النظام",
     "concurrent": "التنزيلات المتوازية",
     "theme": "السمة",
     "about": "حول"
   },
+  "toast": {
+    "completed": "تم التنزيل: {{title}}",
+    "failed": "فشل: {{title}}",
+    "urlPasted": "تم إضافة الرابط"
+  },
+  "drop": {
+    "hint": "اسحب الرابط هنا"
+  },
+  "update": {
+    "section": "التحديثات",
+    "checkButton": "البحث عن تحديثات",
+    "checking": "جارٍ البحث…",
+    "upToDate": "أنت محدّث.",
+    "available": "تحديث متاح: v{{version}}",
+    "installNow": "تثبيت الآن",
+    "downloading": "جارٍ تنزيل التحديث…",
+    "checkFailed": "فشل البحث عن تحديثات",
+    "failed": "فشل التحديث",
+    "notInDesktop": "يتم التحقق من التحديثات من تطبيق سطح المكتب."
+  },
   "footer": {
     "openSource": "مفتوح المصدر"
+  },
+  "a11y": {
+    "close": "إغلاق"
   }
 }
