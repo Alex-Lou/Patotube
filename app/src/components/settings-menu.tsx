@@ -27,7 +27,7 @@ import { isAndroid } from '@/lib/android/bridge';
 // on Android because Phase 1 (ffmpeg-kit) makes it meaningful again.
 
 const REPO_URL = 'https://github.com/Alex-Lou/Patotube';
-const APP_VERSION = '0.1.1';
+const APP_VERSION = '0.2.0';
 
 export function SettingsMenu(_props: { onAfterAction?: () => void }) {
   const { t } = useTranslation();
