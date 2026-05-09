@@ -18,6 +18,7 @@ import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn, formatBytes, formatDuration } from '@/lib/utils';
+import { getResolvedFormatLabel } from '@/lib/core/formats';
 import type { DownloadJob, JobStatus } from '@/lib/core/types';
 import { PlatformBadge } from './platform-badge';
 import {
@@ -56,34 +57,7 @@ export function QueueItem({
   const { t } = useTranslation();
   const { info, format, status, progress, speedBps, etaSec, error, filePath } = job;
 
-  // Format label honestly reflects what the user actually gets.
-  // Per-platform overrides for audio because each kernel ships
-  // its own native format:
-  //   - SoundCloud → MP3 (server-side libmp3lame)
-  //   - Bandcamp → MP3-128 (free-tier preview)
-  //   - Audiomack → MP3 (their API serves it directly)
-  //   - Internet Archive → varies (might be ogg/flac/mp4) — we
-  //     just label it generically; the file extension on disk
-  //     tells the user the truth.
-  //   - YouTube on Android → M4A AAC (no transcoder)
-  //   - YouTube on desktop → MP3 + bitrate (yt-dlp+ffmpeg)
-  const formatLabel = (() => {
-    if (format.kind === 'video') {
-      return `MP4 · ${t(`format.${format.quality}`)}`;
-    }
-    switch (info.platform) {
-      case 'soundcloud':
-        return 'MP3 · SoundCloud';
-      case 'bandcamp':
-        return 'MP3 · 128k';
-      case 'audiomack':
-        return 'MP3 · Audiomack';
-      case 'archive':
-        return 'Audio · Archive';
-      default:
-        return IS_ANDROID ? 'M4A · AAC' : `MP3 · ${format.bitrate}k`;
-    }
-  })();
+  const formatLabel = getResolvedFormatLabel(info.platform, format, IS_ANDROID, t);
   const FormatIcon = format.kind === 'video' ? Film : Music;
 
   return (
@@ -258,9 +232,13 @@ export function QueueItem({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="size-7"
+                    // Prominent vs. the neighbouring ghost icons so
+                    // the user spots the recovery affordance on a
+                    // failed row without reading every label.
+                    className="size-7 bg-primary/15 text-primary hover:bg-primary/25 hover:text-primary"
                     onClick={() => onRetry(job.id)}
                     aria-label={t('queue.retry')}
+                    title={t('queue.retry')}
                   >
                     <RotateCw className="size-4" />
                   </Button>
@@ -287,7 +265,7 @@ export function QueueItem({
                       <span>{formatBytes(speedBps)}/s</span>
                     )}
                     {typeof etaSec === 'number' && etaSec > 0 && (
-                      <span>ETA {formatDuration(etaSec)}</span>
+                      <span>{t('queue.eta')} {formatDuration(etaSec)}</span>
                     )}
                   </div>
                 </div>

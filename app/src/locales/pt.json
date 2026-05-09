@@ -26,7 +26,17 @@
     "comingSoon": "Suporte para {{platform}} em breve",
     "fetchFailed": "Não foi possível obter informações",
     "downloadFailed": "Falha no download",
-    "noTauri": "Abra o app desktop para baixar"
+    "noTauri": "Abra o app desktop para baixar",
+    "requiresSignin": "Este vídeo requer login no YouTube para ser baixado. O Patotube não pode acessar conteúdo protegido por conta.",
+    "ageGated": "Este vídeo tem restrição de idade e não pode ser baixado sem login no YouTube.",
+    "privateVideo": "Este vídeo é privado.",
+    "videoUnavailable": "Este vídeo não está disponível.",
+    "couldNotOpenFile": "Não foi possível abrir o arquivo",
+    "couldNotOpenFolder": "Não foi possível abrir a pasta",
+    "scHlsOnly": "Esta faixa do SoundCloud só está disponível como HLS (stream segmentado). O Patotube ainda não baixa HLS no celular.",
+    "scPlaylist": "Isto é uma playlist do SoundCloud, não uma faixa. Abra uma de suas faixas para baixá-la.",
+    "scShortLinkBroken": "Não foi possível expandir este link curto do SoundCloud. Abra-o no site para obter a URL completa.",
+    "scNotFound": "Esta faixa do SoundCloud não foi encontrada. Pode ter sido excluída ou tornada privada."
   },
   "format": {
     "label": "Formato",
@@ -34,13 +44,15 @@
     "audio": "Apenas áudio",
     "videoMp4": "Vídeo MP4",
     "audioMp3": "Áudio MP3",
+    "audioM4a": "Áudio M4A",
     "quality": "Qualidade",
     "best": "Melhor disponível",
     "high": "Alta (1080p)",
     "medium": "Média (720p)",
     "low": "Baixa (480p)",
     "audioBitrate": "Bitrate",
-    "kbps": "{{value}} kbps"
+    "kbps": "{{value}} kbps",
+    "audioMobileNote": "O áudio é entregue como M4A (AAC) no bitrate do stream do YouTube — o bitrate não é selecionável no celular."
   },
   "preview": {
     "title": "Confirmar download",
@@ -61,13 +73,19 @@
     "failed": "Falhou",
     "openFile": "Abrir arquivo",
     "openFolder": "Mostrar na pasta",
+    "copyUrl": "Copiar URL de origem",
+    "urlCopied": "URL copiada",
     "remove": "Remover",
     "retry": "Tentar novamente",
+    "eta": "ETA",
     "clear": "Limpar concluídos"
   },
   "platform": {
     "youtube": "YouTube",
     "soundcloud": "SoundCloud",
+    "bandcamp": "Bandcamp",
+    "audiomack": "Audiomack",
+    "archive": "Internet Archive",
     "spotify": "Spotify",
     "deezer": "Deezer",
     "generic": "Web",
@@ -77,11 +95,35 @@
     "title": "Configurações",
     "downloadFolder": "Pasta de download",
     "browse": "Procurar",
+    "osDefault": "Padrão do SO",
     "concurrent": "Downloads paralelos",
     "theme": "Tema",
     "about": "Sobre"
   },
+  "toast": {
+    "completed": "Baixado: {{title}}",
+    "failed": "Falhou: {{title}}",
+    "urlPasted": "URL adicionada"
+  },
+  "drop": {
+    "hint": "Solte uma URL em qualquer lugar"
+  },
+  "update": {
+    "section": "Atualizações",
+    "checkButton": "Verificar atualizações",
+    "checking": "Verificando…",
+    "upToDate": "Você está atualizado.",
+    "available": "Atualização disponível: v{{version}}",
+    "installNow": "Instalar agora",
+    "downloading": "Baixando atualização…",
+    "checkFailed": "Falha ao verificar atualizações",
+    "failed": "Atualização falhou",
+    "notInDesktop": "As atualizações são verificadas pelo app desktop."
+  },
   "footer": {
     "openSource": "Código aberto"
+  },
+  "a11y": {
+    "close": "Fechar"
   }
 }

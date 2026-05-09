@@ -7,6 +7,7 @@
 //                            `openFile`. Safe to call from any component.
 //
 // Heavy logic lives in sibling modules:
+//   * `actions.ts`       — module-scope enqueue / retry flows
 //   * `toasts.ts`        — sonner show/hide for done/fail
 //   * `post-process.ts`  — Android audio remux orchestration
 //   * `path-utils.ts`    — extension swap helpers (used by post-process)
@@ -15,8 +16,6 @@ import { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getTauri } from '@/lib/tauri/bindings';
 import { useQueueStore } from '@/lib/core/queue';
-import { useSettings } from '@/lib/core/settings';
-import type { FormatChoice, MediaInfo } from '@/lib/core/types';
 import { clamp } from '@/lib/utils';
 import {
   isAndroid,
@@ -25,13 +24,7 @@ import {
 } from '@/lib/android/bridge';
 import { runAudioPostProcess } from './post-process';
 import { showFailToast, showSuccessToast, type TFunc } from './toasts';
-
-async function resolveOutputDir(): Promise<string> {
-  const custom = useSettings.getState().downloadFolder;
-  if (custom) return custom;
-  const api = await getTauri();
-  return api.defaultDownloadDir();
-}
+import { enqueueJob, retryJob } from './actions';
 
 /**
  * Mount-once hook that wires the Tauri progress/status events to the
@@ -155,45 +148,8 @@ function handleFailedEvent(
  * side-effecting functions that callers trigger from UI.
  */
 export function useDownloadActions() {
-  const setStatus = useQueueStore((s) => s.setStatus);
-  const update = useQueueStore((s) => s.update);
-  const add = useQueueStore((s) => s.add);
-
-  const enqueue = useCallback(
-    async (info: MediaInfo, format: FormatChoice) => {
-      const job = add(info, format);
-      const api = await getTauri();
-      const outputDir = await resolveOutputDir();
-      try {
-        await api.startDownload({
-          jobId: job.id,
-          url: info.url,
-          format,
-          outputDir,
-        });
-      } catch (err) {
-        setStatus(job.id, 'failed', err instanceof Error ? err.message : String(err));
-      }
-    },
-    [add, setStatus],
-  );
-
-  const retry = useCallback(
-    async (jobId: string) => {
-      const job = useQueueStore.getState().jobs.find((j) => j.id === jobId);
-      if (!job) return;
-      setStatus(jobId, 'pending');
-      update(jobId, { progress: 0, error: undefined });
-      const api = await getTauri();
-      const outputDir = await resolveOutputDir();
-      try {
-        await api.startDownload({ jobId, url: job.info.url, format: job.format, outputDir });
-      } catch (err) {
-        setStatus(jobId, 'failed', err instanceof Error ? err.message : String(err));
-      }
-    },
-    [setStatus, update],
-  );
+  const enqueue = useCallback(enqueueJob, []);
+  const retry = useCallback(retryJob, []);
 
   const showInFolder = useCallback(async (path: string) => {
     const api = await getTauri();

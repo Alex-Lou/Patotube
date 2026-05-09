@@ -7,7 +7,7 @@
 //                that opens the containing folder.
 //   * failure → title + friendly error message (no buttons).
 
-import { Folder } from 'lucide-react';
+import { Folder, RotateCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { getTauri } from '@/lib/tauri/bindings';
 import { friendlyError } from '@/lib/core/errors';
@@ -19,6 +19,7 @@ import {
 } from '@/lib/android/bridge';
 import type { DownloadJob } from '@/lib/core/types';
 import type { useTranslation } from 'react-i18next';
+import { retryJob } from './actions';
 
 export type TFunc = ReturnType<typeof useTranslation>['t'];
 
@@ -78,5 +79,16 @@ export function showFailToast(
   toast.error(t('toast.failed', { title }), {
     id: `dl-fail-${jobId}`,
     description: friendlyError(rawError, t),
+    // Most failures here are transient (flaky network, sleeping
+    // server, expired YT cipher). Give the user a one-tap retry
+    // straight from the toast so they don't have to scroll the
+    // queue to find the failed row.
+    duration: 14000,
+    action: {
+      label: <RotateCw className="size-4" aria-label={t('queue.retry')} />,
+      onClick: () => {
+        void retryJob(jobId);
+      },
+    },
   });
 }

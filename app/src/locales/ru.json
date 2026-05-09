@@ -26,7 +26,17 @@
     "comingSoon": "Поддержка {{platform}} скоро появится",
     "fetchFailed": "Не удалось получить информацию",
     "downloadFailed": "Ошибка загрузки",
-    "noTauri": "Откройте десктопное приложение для загрузки"
+    "noTauri": "Откройте десктопное приложение для загрузки",
+    "requiresSignin": "Для загрузки этого видео требуется вход в YouTube. Patotube не может получить доступ к контенту, защищённому аккаунтом.",
+    "ageGated": "Это видео имеет возрастное ограничение и не может быть загружено без входа в YouTube.",
+    "privateVideo": "Это видео является приватным.",
+    "videoUnavailable": "Это видео недоступно.",
+    "couldNotOpenFile": "Не удалось открыть файл",
+    "couldNotOpenFolder": "Не удалось открыть папку",
+    "scHlsOnly": "Этот трек SoundCloud доступен только как HLS (сегментированный поток). Patotube пока не загружает HLS на мобильном.",
+    "scPlaylist": "Это плейлист SoundCloud, а не отдельный трек. Откройте один из его треков, чтобы скачать.",
+    "scShortLinkBroken": "Не удалось развернуть эту короткую ссылку SoundCloud. Откройте её на сайте, чтобы получить полный URL.",
+    "scNotFound": "Этот трек SoundCloud не найден. Возможно, он был удалён или сделан приватным."
   },
   "format": {
     "label": "Формат",
@@ -34,13 +44,15 @@
     "audio": "Только аудио",
     "videoMp4": "Видео MP4",
     "audioMp3": "Аудио MP3",
+    "audioM4a": "Аудио M4A",
     "quality": "Качество",
     "best": "Лучшее доступное",
     "high": "Высокое (1080p)",
     "medium": "Среднее (720p)",
     "low": "Низкое (480p)",
     "audioBitrate": "Битрейт",
-    "kbps": "{{value}} кбит/с"
+    "kbps": "{{value}} кбит/с",
+    "audioMobileNote": "Аудио поставляется как M4A (AAC) с битрейтом потока YouTube — на мобильном битрейт не выбирается."
   },
   "preview": {
     "title": "Подтвердить загрузку",
@@ -61,13 +73,19 @@
     "failed": "Ошибка",
     "openFile": "Открыть файл",
     "openFolder": "Показать в папке",
+    "copyUrl": "Копировать исходный URL",
+    "urlCopied": "URL скопирован",
     "remove": "Удалить",
     "retry": "Повторить",
+    "eta": "ETA",
     "clear": "Очистить завершённые"
   },
   "platform": {
     "youtube": "YouTube",
     "soundcloud": "SoundCloud",
+    "bandcamp": "Bandcamp",
+    "audiomack": "Audiomack",
+    "archive": "Internet Archive",
     "spotify": "Spotify",
     "deezer": "Deezer",
     "generic": "Веб",
@@ -77,11 +95,35 @@
     "title": "Настройки",
     "downloadFolder": "Папка загрузок",
     "browse": "Обзор",
+    "osDefault": "По умолчанию ОС",
     "concurrent": "Параллельные загрузки",
     "theme": "Тема",
     "about": "О программе"
   },
+  "toast": {
+    "completed": "Загружено: {{title}}",
+    "failed": "Ошибка: {{title}}",
+    "urlPasted": "URL добавлен"
+  },
+  "drop": {
+    "hint": "Перетащите URL сюда"
+  },
+  "update": {
+    "section": "Обновления",
+    "checkButton": "Проверить обновления",
+    "checking": "Проверка…",
+    "upToDate": "У вас актуальная версия.",
+    "available": "Доступно обновление: v{{version}}",
+    "installNow": "Установить",
+    "downloading": "Загрузка обновления…",
+    "checkFailed": "Не удалось проверить обновления",
+    "failed": "Ошибка обновления",
+    "notInDesktop": "Обновления проверяются из десктопного приложения."
+  },
   "footer": {
     "openSource": "Открытый исходный код"
+  },
+  "a11y": {
+    "close": "Закрыть"
   }
 }

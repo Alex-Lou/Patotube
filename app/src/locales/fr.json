@@ -77,6 +77,7 @@
     "urlCopied": "URL copiée",
     "remove": "Retirer",
     "retry": "Réessayer",
+    "eta": "ETA",
     "clear": "Effacer les terminés"
   },
   "platform": {
@@ -121,5 +122,8 @@
   },
   "footer": {
     "openSource": "Open source"
+  },
+  "a11y": {
+    "close": "Fermer"
   }
 }

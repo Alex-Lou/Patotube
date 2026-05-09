@@ -26,7 +26,17 @@
     "comingSoon": "{{platform}} は近日対応予定",
     "fetchFailed": "情報を取得できませんでした",
     "downloadFailed": "ダウンロードに失敗しました",
-    "noTauri": "ダウンロードはデスクトップアプリで実行してください"
+    "noTauri": "ダウンロードはデスクトップアプリで実行してください",
+    "requiresSignin": "この動画のダウンロードにはYouTubeへのログインが必要です。Patotubeはアカウント保護コンテンツにアクセスできません。",
+    "ageGated": "この動画は年齢制限があり、YouTubeへのログインなしではダウンロードできません。",
+    "privateVideo": "この動画は非公開です。",
+    "videoUnavailable": "この動画は利用できません。",
+    "couldNotOpenFile": "ファイルを開けませんでした",
+    "couldNotOpenFolder": "フォルダを開けませんでした",
+    "scHlsOnly": "このSoundCloudトラックはHLS（分割ストリーム）でのみ提供されています。Patotubeはモバイルでまだ HLS をダウンロードできません。",
+    "scPlaylist": "これはSoundCloudのプレイリストで、単一のトラックではありません。ダウンロードするには中のトラックを開いてください。",
+    "scShortLinkBroken": "このSoundCloud短縮リンクを展開できませんでした。完全なURLを取得するにはウェブサイトで開いてください。",
+    "scNotFound": "このSoundCloudトラックが見つかりませんでした。削除されたか非公開にされた可能性があります。"
   },
   "format": {
     "label": "フォーマット",
@@ -34,13 +44,15 @@
     "audio": "音声のみ",
     "videoMp4": "MP4動画",
     "audioMp3": "MP3音声",
+    "audioM4a": "M4A音声",
     "quality": "画質",
     "best": "最高品質",
     "high": "高 (1080p)",
     "medium": "中 (720p)",
     "low": "低 (480p)",
     "audioBitrate": "ビットレート",
-    "kbps": "{{value}} kbps"
+    "kbps": "{{value}} kbps",
+    "audioMobileNote": "音声はYouTubeのストリームビットレートでM4A (AAC) として提供されます — モバイルではビットレートを選択できません。"
   },
   "preview": {
     "title": "ダウンロードを確認",
@@ -61,13 +73,19 @@
     "failed": "失敗",
     "openFile": "ファイルを開く",
     "openFolder": "フォルダで表示",
+    "copyUrl": "ソースURLをコピー",
+    "urlCopied": "URLをコピーしました",
     "remove": "削除",
     "retry": "再試行",
+    "eta": "残り",
     "clear": "完了済みをクリア"
   },
   "platform": {
     "youtube": "YouTube",
     "soundcloud": "SoundCloud",
+    "bandcamp": "Bandcamp",
+    "audiomack": "Audiomack",
+    "archive": "Internet Archive",
     "spotify": "Spotify",
     "deezer": "Deezer",
     "generic": "Web",
@@ -77,11 +95,35 @@
     "title": "設定",
     "downloadFolder": "ダウンロード先",
     "browse": "参照",
+    "osDefault": "OSの既定",
     "concurrent": "並列ダウンロード数",
     "theme": "テーマ",
     "about": "情報"
   },
+  "toast": {
+    "completed": "ダウンロード完了: {{title}}",
+    "failed": "失敗: {{title}}",
+    "urlPasted": "URLを追加しました"
+  },
+  "drop": {
+    "hint": "URLをどこにでもドロップ"
+  },
+  "update": {
+    "section": "アップデート",
+    "checkButton": "アップデートを確認",
+    "checking": "確認中…",
+    "upToDate": "最新の状態です。",
+    "available": "アップデートあり: v{{version}}",
+    "installNow": "今すぐインストール",
+    "downloading": "アップデートをダウンロード中…",
+    "checkFailed": "アップデート確認に失敗",
+    "failed": "アップデート失敗",
+    "notInDesktop": "アップデートはデスクトップアプリから確認します。"
+  },
   "footer": {
     "openSource": "オープンソース"
+  },
+  "a11y": {
+    "close": "閉じる"
   }
 }
