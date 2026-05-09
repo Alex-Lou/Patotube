@@ -38,7 +38,7 @@ use tauri::AppHandle;
 #[cfg(target_os = "android")]
 use crate::commands::{FormatChoice, StartDownloadInput};
 #[cfg(target_os = "android")]
-use crate::downloader::MediaInfo;
+use crate::media_info::MediaInfo;
 #[cfg(target_os = "android")]
 use crate::jobs::JobRegistry;
 #[cfg(target_os = "android")]
