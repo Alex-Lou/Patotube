@@ -116,18 +116,22 @@ export function App() {
           position="bottom-right"
           richColors
           closeButton
-          // 420px gives long titles + the two action buttons enough
-          // room without forcing per-character word-wrap. Default is
-          // ~356px which collapses our success toast into a vertical
-          // mess.
+          // 420 px gives a comfortable single-line layout for the
+          // title + filename + folder icon button. Default sonner
+          // width (~356 px) collapses the title onto multiple lines.
           style={{ width: 420 }}
           toastOptions={{
             classNames: {
               toast: 'border border-border/60 shadow-lg',
               title: 'truncate',
               description: 'truncate text-xs opacity-70',
-              actionButton: 'shrink-0',
-              cancelButton: 'shrink-0',
+              // Strip sonner's default action-button chrome so our
+              // icon-only Folder button reads as a discreet
+              // affordance instead of a white pill grafted onto
+              // the toast. `!important` overrides win against
+              // sonner's inline styles.
+              actionButton:
+                '!bg-transparent !text-current !p-1.5 !min-w-0 !h-auto rounded-md hover:!bg-foreground/10 transition-colors',
             },
           }}
         />
