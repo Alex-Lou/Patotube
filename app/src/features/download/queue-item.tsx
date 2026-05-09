@@ -96,7 +96,12 @@ export function QueueItem({
     >
       <Card className="p-3">
         <div className="flex items-start gap-3">
-          <div className="aspect-video w-28 shrink-0 overflow-hidden rounded-md bg-muted sm:w-32">
+          {/* Smaller thumbnail on mobile so the action buttons +
+              title don't fight over a ~360 px viewport. We were
+              eating ~250 px in fixed chrome (w-28 thumb + 4×size-8
+              buttons), leaving the title with ~100 px and a
+              "Se fa..." truncation. */}
+          <div className="aspect-video w-20 shrink-0 overflow-hidden rounded-md bg-muted sm:w-28 md:w-32">
             {info.thumbnail && (
               <img
                 src={info.thumbnail}
@@ -108,69 +113,72 @@ export function QueueItem({
           </div>
 
           <div className="min-w-0 flex-1 space-y-1.5">
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0 flex-1">
-                {/* The title doubles as a "play" hotspot once the
-                    download is done — clicking it opens the file in
-                    the user's default player. While the job is in
-                    flight, it stays a plain non-interactive label
-                    so we don't mislead the user with a hand cursor
-                    on something they can't yet act on. */}
-                {status === 'done' && filePath ? (
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      if (IS_ANDROID && hasNativeBridge()) {
-                        if (!openFileNative(filePath)) {
-                          openDownloadsFolderNative();
-                        }
-                        return;
-                      }
-                      try {
-                        await onOpenFile(filePath);
-                      } catch (err) {
-                        toast.error(t('errors.couldNotOpenFile'), {
-                          description:
-                            err instanceof Error ? err.message : String(err),
-                        });
-                      }
-                    }}
-                    className="block w-full truncate text-left text-sm font-medium hover:text-primary cursor-pointer transition-colors"
-                    title={t('queue.openFile')}
-                  >
-                    {info.title}
-                  </button>
-                ) : (
-                  <p className="truncate text-sm font-medium" title={info.title}>
-                    {info.title}
-                  </p>
-                )}
-                {/* Metadata row: platform · format · quality · duration */}
-                <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-                  <PlatformBadge platform={info.platform} />
-                  <span className="inline-flex items-center gap-1">
-                    <FormatIcon className="size-3" />
-                    {formatLabel}
-                  </span>
-                  {typeof info.durationSec === 'number' && info.durationSec > 0 && (
-                    <span className="inline-flex items-center gap-1">
-                      <Clock className="size-3" />
-                      {formatDuration(info.durationSec)}
-                    </span>
-                  )}
-                </div>
-                <div className="mt-1">
-                  <StatusLabel status={status} />
-                </div>
-              </div>
+            {/* The title doubles as a "play" hotspot once the
+                download is done — clicking it opens the file in
+                the user's default player. While the job is in
+                flight, it stays a plain non-interactive label
+                so we don't mislead the user with a hand cursor
+                on something they can't yet act on. */}
+            {status === 'done' && filePath ? (
+              <button
+                type="button"
+                onClick={async () => {
+                  if (IS_ANDROID && hasNativeBridge()) {
+                    if (!openFileNative(filePath)) {
+                      openDownloadsFolderNative();
+                    }
+                    return;
+                  }
+                  try {
+                    await onOpenFile(filePath);
+                  } catch (err) {
+                    toast.error(t('errors.couldNotOpenFile'), {
+                      description:
+                        err instanceof Error ? err.message : String(err),
+                    });
+                  }
+                }}
+                className="block w-full truncate text-left text-sm font-medium hover:text-primary cursor-pointer transition-colors"
+                title={t('queue.openFile')}
+              >
+                {info.title}
+              </button>
+            ) : (
+              <p className="truncate text-sm font-medium" title={info.title}>
+                {info.title}
+              </p>
+            )}
 
-              <div className="flex shrink-0 items-center gap-1">
-                {/* Copy source URL — useful at any status (re-paste
-                    elsewhere, share, retry in a different tool…). */}
+            {/* Metadata row: platform · format · quality · duration */}
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+              <PlatformBadge platform={info.platform} />
+              <span className="inline-flex items-center gap-1">
+                <FormatIcon className="size-3" />
+                {formatLabel}
+              </span>
+              {typeof info.durationSec === 'number' && info.durationSec > 0 && (
+                <span className="inline-flex items-center gap-1">
+                  <Clock className="size-3" />
+                  {formatDuration(info.durationSec)}
+                </span>
+              )}
+            </div>
+
+            {/* Status + action row. On mobile we drop the status
+                label onto the same line as the actions to save a
+                full row of vertical space, and we only show the
+                terminal-state actions (open file, retry) — the
+                "copy URL" link icon moves below to avoid a cramped
+                4-icon row competing with the title above. */}
+            <div className="flex items-center justify-between gap-2">
+              <StatusLabel status={status} />
+
+              <div className="flex shrink-0 items-center gap-0.5">
+                {/* Copy source URL — useful at any status. */}
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="size-8"
+                  className="size-7"
                   onClick={async () => {
                     try {
                       await navigator.clipboard.writeText(info.url);
@@ -197,7 +205,7 @@ export function QueueItem({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="size-8"
+                      className="size-7"
                       onClick={async () => {
                         // Android: native FileProvider + ACTION_VIEW.
                         if (IS_ANDROID && hasNativeBridge()) {
@@ -222,7 +230,7 @@ export function QueueItem({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="size-8"
+                      className="size-7"
                       onClick={async () => {
                         // Android: open the system Downloads folder.
                         if (IS_ANDROID && hasNativeBridge()) {
@@ -250,7 +258,7 @@ export function QueueItem({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="size-8"
+                    className="size-7"
                     onClick={() => onRetry(job.id)}
                     aria-label={t('queue.retry')}
                   >
@@ -260,7 +268,7 @@ export function QueueItem({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="size-8"
+                  className="size-7"
                   onClick={() => onRemove(job.id)}
                   aria-label={t('queue.remove')}
                 >
