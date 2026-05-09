@@ -258,9 +258,13 @@ export function QueueItem({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="size-7"
+                    // Prominent vs. the neighbouring ghost icons so
+                    // the user spots the recovery affordance on a
+                    // failed row without reading every label.
+                    className="size-7 bg-primary/15 text-primary hover:bg-primary/25 hover:text-primary"
                     onClick={() => onRetry(job.id)}
                     aria-label={t('queue.retry')}
+                    title={t('queue.retry')}
                   >
                     <RotateCw className="size-4" />
                   </Button>
