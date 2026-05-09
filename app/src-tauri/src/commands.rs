@@ -60,6 +60,10 @@ pub async fn start_download(
         format,
         output_dir,
     };
+    eprintln!(
+        "[patotube] commands::start_download received job={} url={}",
+        input.job_id, input.url
+    );
     #[cfg(target_os = "android")]
     {
         if crate::soundcloud_kernel::is_soundcloud_url(&input.url) {
