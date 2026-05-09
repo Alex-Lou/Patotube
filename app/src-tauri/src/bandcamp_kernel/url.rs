@@ -3,14 +3,16 @@
 
 #![cfg_attr(not(target_os = "android"), allow(dead_code))]
 
-/// True if the URL points at a `<artist>.bandcamp.com/track/<slug>`
-/// page (or an album, but we only handle individual tracks today).
+/// True if the URL points at any `*.bandcamp.com` host.
+///
+/// We were previously requiring the trailing `/` after the host,
+/// which mis-rejected URLs like `https://artist.bandcamp.com`
+/// (no path) — typical of mobile share-sheet links. The new check
+/// only requires the `.bandcamp.com` host substring; the kernel's
+/// page fetch will deal with the missing path naturally.
 pub fn is_bandcamp_url(url: &str) -> bool {
     let lower = url.trim().to_lowercase();
-    // Match any subdomain.bandcamp.com path. We do NOT match
-    // bandcamp.com root pages — those are user / label landings,
-    // not playable tracks.
-    lower.contains(".bandcamp.com/")
+    lower.contains(".bandcamp.com")
 }
 
 /// True if the URL specifically references a track (vs an album,
@@ -44,8 +46,14 @@ mod tests {
     #[test]
     fn rejects_non_bandcamp() {
         assert!(!is_bandcamp_url("https://soundcloud.com/x/y"));
-        assert!(!is_bandcamp_url("https://bandcamp.com/discover")); // root, no subdomain
         assert!(!is_bandcamp_url(""));
+    }
+
+    #[test]
+    fn detects_url_without_trailing_slash() {
+        // Mobile share sheets often emit the bare host with no
+        // trailing slash. The previous regex rejected these.
+        assert!(is_bandcamp_url("https://artist.bandcamp.com"));
     }
 
     #[test]

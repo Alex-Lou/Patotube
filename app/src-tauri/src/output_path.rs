@@ -1,38 +1,41 @@
 // Resolves the on-disk write path for a download.
 //
-// On Android, the user-requested output_dir is generally
-// meaningless — Tauri's `download_dir()` returns paths the app
-// can't actually write to thanks to scoped storage. We probe a
-// fixed list of known-writable candidates instead.
+// On desktop the user-supplied output_dir IS the truth — Tauri's
+// `download_dir()` returns the OS Downloads folder, or a custom
+// path the user picked in settings. We just ensure it exists and
+// append the filename.
 //
-// On desktop, the user-supplied output_dir is the truth — the OS
-// download folder, or a custom one the user picked. We just
-// ensure the dir exists and append the filename.
-//
-// `resolve_destination` is the cross-platform entry point. The
-// android-specific candidate-probe lives behind it.
+// On Android scoped storage rules mean the user-requested
+// download_dir is often un-writable. We instead return a
+// fallback chain — the streamer tries each candidate in order
+// until `File::create` succeeds. We deliberately DON'T probe
+// each candidate first because Android 13+'s scoped storage
+// sometimes accepts a probe create + delete + re-create as
+// "first write succeeded, second blocked" (MediaStore caches
+// the deletion). One create attempt per candidate, no probe.
 
 #![allow(dead_code)]
 
 use std::path::PathBuf;
 
-/// Build the final on-disk path a kernel should stream into.
+/// Build the full list of candidate paths a kernel can stream
+/// into. Streamer tries each in order until one accepts the
+/// File::create. The Vec is non-empty as long as `preferred_dir`
+/// is.
 ///
 /// `preferred_dir` is the user-supplied output dir (the OS
-/// downloads folder, or a custom one set in settings). It's
-/// honoured on desktop and ignored on Android (where we have to
-/// probe writable locations because of scoped storage).
-pub async fn resolve_destination(
+/// downloads folder, or a custom one set in settings). Honoured
+/// on desktop; supplemented (not replaced) on Android by
+/// known-writable fallbacks for when scoped storage refuses the
+/// preferred path.
+pub async fn destination_candidates(
     preferred_dir: &str,
     filename: &str,
-) -> Result<PathBuf, String> {
+) -> Result<Vec<PathBuf>, String> {
     #[cfg(target_os = "android")]
     {
-        // The frontend passes Tauri's download_dir on Android, but
-        // it's a path under /storage/... that scoped storage often
-        // refuses. Walk our known-writable candidates instead.
         let _ = preferred_dir;
-        resolve_android_candidate(filename).await
+        Ok(android_candidates(filename).await)
     }
     #[cfg(not(target_os = "android"))]
     {
@@ -40,69 +43,41 @@ pub async fn resolve_destination(
         tokio::fs::create_dir_all(&dir)
             .await
             .map_err(|e| format!("could not create output dir {preferred_dir:?}: {e}"))?;
-        Ok(dir.join(filename))
+        Ok(vec![dir.join(filename)])
     }
 }
 
 #[cfg(target_os = "android")]
-const CANDIDATE_DIRS: &[&str] = &[
-    // Primary: ROOT of public /sdcard/Download. We save files at
-    // the very root (no Patotube subfolder) so every Android file
-    // manager picks them up in the default "Downloads" view —
-    // Xiaomi, Samsung, Google Files, etc. all hide subfolders
-    // from that view.
+const ANDROID_CANDIDATE_DIRS: &[&str] = &[
+    // Primary: ROOT of public /sdcard/Download. Visible under
+    // "Downloads" in every Android file manager.
     "/storage/emulated/0/Download",
-    // Fallback: app-external. Always writable, always visible
-    // through Internal storage → Android → data → io.patotube.app
-    // → files → Download.
+    // Fallback: app-external. Always writable, visible through
+    // Internal storage → Android → data → io.patotube.app →
+    // files → Download.
     "/storage/emulated/0/Android/data/io.patotube.app/files/Download",
-    // Last-resort: app-private internal. Hidden from file managers
-    // but unconditionally writable.
+    // Last-resort: app-private internal. Hidden from file
+    // managers but unconditionally writable.
     "/data/data/io.patotube.app/files/Download",
 ];
 
-/// Android-only: probe each candidate by attempting to create + delete
-/// the EXACT filename the caller wants. A previous version probed a
-/// hidden ".patotube-probe" marker, but Android 13+'s scoped storage
-/// sometimes accepts dotfile writes in /sdcard/Download while
-/// rejecting regular file creates — which made the probe a false
-/// positive and left the actual download to die with a confusing
-/// EACCES.
-///
-/// The package name `io.patotube.app` must stay in sync with
-/// `tauri.conf.json` identifier — it's compiled into Android's app
-/// data paths.
+/// Android-only: build the candidate list. We `mkdir -p` each
+/// candidate (no penalty if it already exists) but don't probe
+/// — the streamer attempts File::create on each in turn,
+/// accepting whichever succeeds first.
 #[cfg(target_os = "android")]
-async fn resolve_android_candidate(filename: &str) -> Result<PathBuf, String> {
-    let mut last_err: Option<String> = None;
-    for dir in CANDIDATE_DIRS {
+async fn android_candidates(filename: &str) -> Vec<PathBuf> {
+    let mut out = Vec::with_capacity(ANDROID_CANDIDATE_DIRS.len());
+    for dir in ANDROID_CANDIDATE_DIRS {
         let p = PathBuf::from(dir);
+        // Ignore mkdir errors — File::create will surface them
+        // again per-candidate with a clearer error.
         if let Err(e) = tokio::fs::create_dir_all(&p).await {
-            eprintln!("[patotube] output_path: mkdir failed for {dir}: {e}");
-            last_err = Some(format!("{dir}: mkdir: {e}"));
-            continue;
+            eprintln!("[patotube] output_path: mkdir {dir} failed: {e}");
+            // Still add the path; create might still succeed if
+            // the dir already exists from a previous run.
         }
-        let target = p.join(filename);
-        match tokio::fs::File::create(&target).await {
-            Ok(_) => {
-                let _ = tokio::fs::remove_file(&target).await;
-                eprintln!(
-                    "[patotube] output_path: chose {} (probe of real filename succeeded)",
-                    target.display()
-                );
-                return Ok(target);
-            }
-            Err(e) => {
-                eprintln!(
-                    "[patotube] output_path: probe create failed at {}: {e}",
-                    target.display()
-                );
-                last_err = Some(format!("{dir}: create: {e}"));
-            }
-        }
+        out.push(p.join(filename));
     }
-    Err(format!(
-        "No writable download folder. Last error: {}",
-        last_err.unwrap_or_else(|| "none".into())
-    ))
+    out
 }
