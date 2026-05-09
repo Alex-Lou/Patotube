@@ -6,8 +6,6 @@
 // rotates the published key occasionally and we don't want a
 // cold cache to brick downloads for the rest of the process.
 
-#![cfg(target_os = "android")]
-
 use serde_json::Value;
 
 use super::client_id::{get_client_id, refresh_client_id};

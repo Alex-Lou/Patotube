@@ -3,8 +3,14 @@
 // the right user-agent cooperates. Different CDN nodes happen to
 // 403 on different UAs even within a single video, so we cycle
 // through every UA we know about before giving up.
+//
+// File destination is given as a list of candidates (Android
+// scoped storage may refuse the public Download dir while
+// accepting the app-external one — same shape as the SC/BC/IA
+// pipeline). The streamer commits to the first candidate that
+// accepts File::create and writes the whole download there.
 
-use std::path::Path;
+use std::path::PathBuf;
 use std::time::Instant;
 
 use futures_util::StreamExt;
@@ -22,10 +28,10 @@ pub async fn download_stream(
     app: &AppHandle,
     job_id: &str,
     url: &str,
-    out_path: &Path,
+    candidates: &[PathBuf],
     declared_total: Option<u64>,
     primary_user_agent: &str,
-) -> Result<(), String> {
+) -> Result<PathBuf, String> {
     let mut uas: Vec<&str> = vec![primary_user_agent];
     for c in ALL_CLIENTS {
         if c.user_agent != primary_user_agent {
@@ -35,8 +41,8 @@ pub async fn download_stream(
 
     let mut last_err: Option<String> = None;
     for (i, ua) in uas.iter().enumerate() {
-        match try_download_once(app, job_id, url, out_path, declared_total, ua).await {
-            Ok(()) => return Ok(()),
+        match try_download_once(app, job_id, url, candidates, declared_total, ua).await {
+            Ok(path) => return Ok(path),
             Err(e) => {
                 let recoverable = e.contains("403") || e.contains("CDN");
                 if i + 1 < uas.len() && recoverable {
@@ -54,10 +60,10 @@ async fn try_download_once(
     app: &AppHandle,
     job_id: &str,
     url: &str,
-    out_path: &Path,
+    candidates: &[PathBuf],
     declared_total: Option<u64>,
     user_agent: &str,
-) -> Result<(), String> {
+) -> Result<PathBuf, String> {
     let http = http_client(user_agent)?;
     // Range + matching client UA + youtube.com Origin/Referer is the
     // shape the official apps use. Plain GETs get 403'd from most
@@ -79,9 +85,7 @@ async fn try_download_once(
     }
 
     let bytes_total = response.content_length().or(declared_total);
-    let mut file = File::create(out_path)
-        .await
-        .map_err(|e| format!("could not write to download folder: {e}"))?;
+    let (mut file, out_path) = open_first_writable(candidates).await?;
 
     let mut stream = response.bytes_stream();
     let mut bytes_done: u64 = 0;
@@ -118,5 +122,28 @@ async fn try_download_once(
     file.flush()
         .await
         .map_err(|e| format!("disk flush error: {e}"))?;
-    Ok(())
+    Ok(out_path)
+}
+
+/// Try `File::create` on each candidate in order; first success
+/// wins. Mirrors `streamer::open_first_writable` but stays local
+/// so the YouTube path keeps its multi-UA retry isolated.
+async fn open_first_writable(candidates: &[PathBuf]) -> Result<(File, PathBuf), String> {
+    let mut last_err: Option<String> = None;
+    for candidate in candidates {
+        match File::create(candidate).await {
+            Ok(f) => return Ok((f, candidate.clone())),
+            Err(e) => {
+                eprintln!(
+                    "[patotube] yt download: File::create failed at {}: {e}",
+                    candidate.display()
+                );
+                last_err = Some(format!("{}: {e}", candidate.display()));
+            }
+        }
+    }
+    Err(format!(
+        "could not write to download folder: every candidate refused. Last error: {}",
+        last_err.unwrap_or_else(|| "(unknown)".into())
+    ))
 }
