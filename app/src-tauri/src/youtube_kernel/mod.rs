@@ -49,7 +49,7 @@ use self::clients::{audio_clients, default_clients, ClientProfile};
 #[cfg(target_os = "android")]
 use self::download::download_stream;
 #[cfg(target_os = "android")]
-use crate::output_path::resolve_output_path;
+use crate::output_path::destination_candidates;
 #[cfg(target_os = "android")]
 use self::player_api::{
     has_audio_only, has_combined_video, has_metadata, resolve_player_with,
@@ -124,8 +124,7 @@ pub async fn start(
         }
     };
     let title = sanitize_filename(&title_raw);
-
-    let _ = &input.output_dir; // kept for desktop parity
+    let output_dir = input.output_dir.clone();
 
     let app_handle = app.clone();
     let registry_clone = registry.clone();
@@ -140,6 +139,7 @@ pub async fn start(
             &title,
             format_choice,
             want_audio,
+            &output_dir,
         )
         .await;
 
@@ -181,25 +181,26 @@ async fn run_download(
     title: &str,
     format: FormatChoice,
     want_audio: bool,
+    output_dir: &str,
 ) -> Result<PathBuf, String> {
     if want_audio {
-        match try_audio_only(app, job_id, video_id, title).await {
+        match try_audio_only(app, job_id, video_id, title, output_dir).await {
             Ok(p) => return Ok(p),
             Err(e) => eprintln!("[patotube] audio-only fast path failed: {e}"),
         }
-        match unlock_pipeline::try_audio_via_unlock(app, job_id, video_id, title).await {
+        match unlock_pipeline::try_audio_via_unlock(app, job_id, video_id, title, output_dir).await {
             Ok(p) => return Ok(p),
             Err(e) => eprintln!(
                 "[patotube] audio-only unlock path failed: {e} — falling back to combined mp4"
             ),
         }
-        return try_combined(app, job_id, video_id, title, "best", "m4a").await;
+        return try_combined(app, job_id, video_id, title, "best", "m4a", output_dir).await;
     }
     let quality = match format {
         FormatChoice::Video { quality } => quality,
         FormatChoice::Audio { .. } => "best".into(),
     };
-    try_combined(app, job_id, video_id, title, &quality, "mp4").await
+    try_combined(app, job_id, video_id, title, &quality, "mp4", output_dir).await
 }
 
 #[cfg(target_os = "android")]
@@ -208,6 +209,7 @@ async fn try_audio_only(
     job_id: &str,
     video_id: &str,
     title: &str,
+    output_dir: &str,
 ) -> Result<PathBuf, String> {
     let clients = audio_clients();
     let (resp, client) =
@@ -216,16 +218,13 @@ async fn try_audio_only(
         .streaming_data
         .ok_or_else(|| "No streaming data".to_string())?;
     let picked = pick_audio(&streaming)?;
-    // Mobile/TV clients hand out plain URLs. If we get back a
-    // ciphered-only format that means we asked the wrong client;
-    // bubble up so the caller falls through to the WEB+unlock path.
     let url = picked
         .direct_url
         .ok_or_else(|| "format requires signature unlock — fall through".to_string())?;
-    let out = resolve_output_path(&format!("{title}.{}", picked.extension)).await?;
-    download_stream(app, job_id, &url, &out, picked.content_length, client.user_agent)
-        .await?;
-    Ok(out)
+    let candidates =
+        destination_candidates(output_dir, &format!("{title}.{}", picked.extension)).await?;
+    download_stream(app, job_id, &url, &candidates, picked.content_length, client.user_agent)
+        .await
 }
 
 #[cfg(target_os = "android")]
@@ -236,6 +235,7 @@ async fn try_combined(
     title: &str,
     quality: &str,
     save_ext: &str,
+    output_dir: &str,
 ) -> Result<PathBuf, String> {
     let clients = default_clients();
     let (resp, client) =
@@ -247,10 +247,10 @@ async fn try_combined(
     let url = picked
         .direct_url
         .ok_or_else(|| "combined-MP4 format requires signature unlock".to_string())?;
-    let out = resolve_output_path(&format!("{title}.{save_ext}")).await?;
-    download_stream(app, job_id, &url, &out, picked.content_length, client.user_agent)
-        .await?;
-    Ok(out)
+    let candidates =
+        destination_candidates(output_dir, &format!("{title}.{save_ext}")).await?;
+    download_stream(app, job_id, &url, &candidates, picked.content_length, client.user_agent)
+        .await
 }
 
 /// Convenience: resolve_player_with seeded with `default_clients()`.
