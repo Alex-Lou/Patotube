@@ -51,6 +51,10 @@ use crate::streamer::stream_to_disk;
 #[cfg(target_os = "android")]
 use crate::youtube_url::sanitize_filename;
 
+// Re-exported for `commands.rs`'s URL routing — only consumed in
+// the Android cfg block, so silence the unused-import lint on
+// desktop builds.
+#[cfg_attr(not(target_os = "android"), allow(unused_imports))]
 pub use self::url::is_soundcloud_url;
 
 /// Resolves a SoundCloud track URL to user-facing metadata.
