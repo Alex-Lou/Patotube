@@ -10,7 +10,7 @@
 // Reuses the central `events::ProgressPayload` so the frontend
 // only needs one listener.
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::time::Instant;
 
 use futures_util::StreamExt;
@@ -25,12 +25,24 @@ const DESKTOP_UA: &str =
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 \
      (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
+/// Stream `url` to the first writable path in `candidates`. Tries
+/// each in order: opens the file, on EACCES (or any File::create
+/// error) moves to the next candidate. The first candidate that
+/// accepts the create wins; we then commit to that path for the
+/// whole download.
+///
+/// Returns the path that was actually used, so the caller can
+/// surface it back to the frontend.
 pub async fn stream_to_disk(
     app: &AppHandle,
     job_id: &str,
     url: &str,
-    out_path: &Path,
-) -> Result<(), String> {
+    candidates: &[PathBuf],
+) -> Result<PathBuf, String> {
+    if candidates.is_empty() {
+        return Err("no destination candidates provided".into());
+    }
+
     let http = reqwest::Client::builder()
         .user_agent(DESKTOP_UA)
         .build()
@@ -47,18 +59,17 @@ pub async fn stream_to_disk(
     }
 
     let bytes_total = response.content_length();
+
+    // Pick a writable destination by attempting File::create on
+    // each candidate. On Android scoped storage often blocks the
+    // public Download dir but accepts the app-external one — the
+    // candidate list reflects that fallback order.
+    let (mut file, out_path) = open_first_writable(candidates).await?;
     eprintln!(
-        "[patotube] streamer: opening {} for write (content-length: {:?})",
+        "[patotube] streamer: writing to {} (content-length: {:?})",
         out_path.display(),
         bytes_total
     );
-    let mut file = File::create(out_path).await.map_err(|e| {
-        eprintln!(
-            "[patotube] streamer: File::create failed at {}: {e}",
-            out_path.display()
-        );
-        format!("could not write to download folder: {e}")
-    })?;
 
     let mut stream = response.bytes_stream();
     let mut bytes_done: u64 = 0;
@@ -95,5 +106,43 @@ pub async fn stream_to_disk(
     file.flush()
         .await
         .map_err(|e| format!("disk flush error: {e}"))?;
-    Ok(())
+    Ok(out_path)
+}
+
+/// Try `File::create` on each candidate in order, returning the
+/// first that succeeds with both the open file and the path
+/// chosen. Surfaces the LAST error if every candidate fails.
+async fn open_first_writable(
+    candidates: &[PathBuf],
+) -> Result<(File, PathBuf), String> {
+    let mut last_err: Option<String> = None;
+    for candidate in candidates {
+        match File::create(candidate).await {
+            Ok(file) => return Ok((file, candidate.clone())),
+            Err(e) => {
+                eprintln!(
+                    "[patotube] streamer: File::create failed at {}: {e}",
+                    candidate.display()
+                );
+                last_err = Some(format!("{}: {e}", candidate.display()));
+            }
+        }
+    }
+    Err(format!(
+        "could not write to download folder: every candidate refused. Last error: {}",
+        last_err.unwrap_or_else(|| "(unknown)".into())
+    ))
+}
+
+/// Backwards-compat wrapper for callers that still pass a single
+/// path. Useful for the YouTube path which already chose its dir
+/// upstream. Will go away once that gets the candidate treatment.
+pub async fn stream_to_single_path(
+    app: &AppHandle,
+    job_id: &str,
+    url: &str,
+    out_path: &Path,
+) -> Result<(), String> {
+    let candidates = vec![out_path.to_path_buf()];
+    stream_to_disk(app, job_id, url, &candidates).await.map(|_| ())
 }

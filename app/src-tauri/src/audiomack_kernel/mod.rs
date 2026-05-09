@@ -31,7 +31,7 @@ use crate::events::emit_status;
 #[cfg(target_os = "android")]
 use crate::jobs::JobRegistry;
 #[cfg(target_os = "android")]
-use crate::output_path::resolve_output_path;
+use crate::output_path::destination_candidates;
 #[cfg(target_os = "android")]
 use crate::streamer::stream_to_disk;
 #[cfg(target_os = "android")]
@@ -158,14 +158,13 @@ pub async fn start(
         song.title.clone().unwrap_or_else(|| api_path.clone()),
     );
     let title = sanitize_filename(&title_raw);
-
-    let _ = &input.output_dir; // kept for desktop parity
+    let output_dir = input.output_dir.clone();
 
     let app_handle = app.clone();
     let registry_clone = registry.clone();
 
     tokio::spawn(async move {
-        let result = run_download(&app_handle, &job_id, &stream_url, &title).await;
+        let result = run_download(&app_handle, &job_id, &stream_url, &title, &output_dir).await;
         match result {
             Ok(path) => emit_status(
                 &app_handle,
@@ -188,9 +187,9 @@ async fn run_download(
     job_id: &str,
     stream_url: &str,
     title: &str,
+    output_dir: &str,
 ) -> Result<PathBuf, String> {
     // Audiomack consistently serves MP3.
-    let out = resolve_output_path(&format!("{title}.mp3")).await?;
-    stream_to_disk(app, job_id, stream_url, &out).await?;
-    Ok(out)
+    let candidates = destination_candidates(output_dir, &format!("{title}.mp3")).await?;
+    stream_to_disk(app, job_id, stream_url, &candidates).await
 }

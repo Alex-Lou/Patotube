@@ -15,17 +15,24 @@ import {
   isAndroid,
   hasNativeBridge,
   openDownloadsFolderNative,
+  openFileNative,
 } from '@/lib/android/bridge';
 import type { DownloadJob } from '@/lib/core/types';
 import type { useTranslation } from 'react-i18next';
 
 export type TFunc = ReturnType<typeof useTranslation>['t'];
 
-/** Reveal the file in the OS file manager (Explorer on Windows,
- *  Finder on macOS, Files on Linux/Android). */
+/** Show / open the file. On desktop this reveals it in Explorer
+ *  / Finder via Tauri's opener plugin. On Android there's no
+ *  standard "reveal file in some file manager" intent, so we
+ *  open the file itself via FileProvider — the user gets their
+ *  music / video player with the track loaded, which is what
+ *  they want from a download-completion toast anyway. Falls
+ *  back to the system Downloads folder if no app on the device
+ *  can handle the file. */
 function showInFolder(filePath: string): void {
   if (isAndroid() && hasNativeBridge()) {
-    openDownloadsFolderNative();
+    if (!openFileNative(filePath)) openDownloadsFolderNative();
     return;
   }
   void getTauri().then((api) => api.showInFolder(filePath));

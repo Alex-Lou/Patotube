@@ -20,7 +20,7 @@ use crate::commands::StartDownloadInput;
 use crate::downloader::MediaInfo;
 use crate::events::emit_status;
 use crate::jobs::JobRegistry;
-use crate::output_path::resolve_destination;
+use crate::output_path::destination_candidates;
 use crate::streamer::stream_to_disk;
 use crate::youtube_url::sanitize_filename;
 
@@ -161,7 +161,7 @@ async fn run_download(
 ) -> Result<PathBuf, String> {
     let picked = file_pick::pick_best(&item)?;
     let stream_url = format!("{DOWNLOAD_BASE}{identifier}/{}", picked.name);
-    let out = resolve_destination(output_dir, &format!("{title}.{}", picked.extension)).await?;
-    stream_to_disk(app, job_id, &stream_url, &out).await?;
-    Ok(out)
+    let candidates =
+        destination_candidates(output_dir, &format!("{title}.{}", picked.extension)).await?;
+    stream_to_disk(app, job_id, &stream_url, &candidates).await
 }
