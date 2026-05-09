@@ -7,8 +7,22 @@
 //   TARGET=x86_64-pc-windows-msvc node ...     # override
 
 import { execSync } from 'node:child_process';
-import { createWriteStream, existsSync, mkdirSync, renameSync } from 'node:fs';
+import { copyFileSync, createWriteStream, existsSync, mkdirSync } from 'node:fs';
 import { rm } from 'node:fs/promises';
+
+// Cross-filesystem-safe rename. fs.renameSync trips EXDEV when src
+// and dest live on different mounts (e.g. /tmp ext4 → /mnt/c NTFS
+// inside WSL). copyFileSync + unlink works regardless of mount.
+function moveAcrossFs(src, dest) {
+  copyFileSync(src, dest);
+  try {
+    // We don't need to await this — the source is in tmpdir, leaving
+    // it for `rm` of the parent dir to sweep up is fine.
+    void rm(src, { force: true });
+  } catch {
+    /* ignore */
+  }
+}
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import https from 'node:https';
@@ -87,9 +101,7 @@ async function main() {
 
   const ffmpegDest = join(binDir, `ffmpeg-${triple}${sfx}`);
   if (!existsSync(ffmpegDest)) {
-    if (!isWindows(triple)) {
-      console.warn('[!] ffmpeg auto-fetch only implemented for Windows. Install ffmpeg manually.');
-    } else {
+    if (isWindows(triple)) {
       const tmp = join(tmpdir(), `ffmpeg-${Date.now()}.zip`);
       const url = 'https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip';
       console.log(`> fetching ${url}`);
@@ -101,9 +113,28 @@ async function main() {
       if (!entry) throw new Error('ffmpeg.exe not found in archive');
       const tmpOut = join(tmpdir(), `ffmpeg-out-${Date.now()}.exe`);
       zip.extractEntryTo(entry, dirname(tmpOut), false, true, false, 'ffmpeg.exe');
-      renameSync(join(dirname(tmpOut), 'ffmpeg.exe'), ffmpegDest);
+      moveAcrossFs(join(dirname(tmpOut), 'ffmpeg.exe'), ffmpegDest);
       await rm(tmp, { force: true });
       console.log(`> wrote ${ffmpegDest}`);
+    } else if (isLinux(triple) && triple.startsWith('x86_64-')) {
+      // John Van Sickle's static GPL build — well-known, no glibc
+      // dependency, works across Ubuntu / Fedora / Arch out of the
+      // box. The release tarball nests the binary inside a dated
+      // directory we have to spelunk through.
+      const tmp = join(tmpdir(), `ffmpeg-${Date.now()}.tar.xz`);
+      const url = 'https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz';
+      console.log(`> fetching ${url}`);
+      await followingDownload(url, tmp);
+      const extractDir = join(tmpdir(), `ffmpeg-x-${Date.now()}`);
+      mkdirSync(extractDir, { recursive: true });
+      execSync(`tar -xJf "${tmp}" -C "${extractDir}" --strip-components=1`);
+      moveAcrossFs(join(extractDir, 'ffmpeg'), ffmpegDest);
+      execSync(`chmod +x "${ffmpegDest}"`);
+      await rm(tmp, { force: true });
+      await rm(extractDir, { recursive: true, force: true });
+      console.log(`> wrote ${ffmpegDest}`);
+    } else {
+      console.warn(`[!] ffmpeg auto-fetch not implemented for ${triple}. Install ffmpeg manually.`);
     }
   } else {
     console.log(`> ffmpeg already present`);
