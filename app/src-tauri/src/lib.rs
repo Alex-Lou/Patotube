@@ -3,9 +3,7 @@ mod downloader;
 mod events;
 mod jobs;
 // Shared platform helpers used by every kernel.
-#[cfg(target_os = "android")]
 mod output_path;
-#[cfg(target_os = "android")]
 mod streamer;
 // Pure URL/filename helpers, kept outside the cfg-gated extractor so
 // they can be unit-tested on the desktop host. See youtube_url.rs.

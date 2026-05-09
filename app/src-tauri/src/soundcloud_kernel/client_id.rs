@@ -29,7 +29,6 @@ static CACHED_CLIENT_ID: Lazy<Mutex<Option<String>>> = Lazy::new(|| Mutex::new(N
 
 /// Returns a usable `client_id`, fetching + extracting it on
 /// first call. Subsequent calls return the cached value.
-#[cfg(target_os = "android")]
 pub async fn get_client_id() -> Result<String, String> {
     if let Some(cached) = read_cache() {
         return Ok(cached);
@@ -41,14 +40,12 @@ pub async fn get_client_id() -> Result<String, String> {
 
 /// Force a re-extract — used when a request 401s, signalling
 /// SoundCloud rotated the key while we were running.
-#[cfg(target_os = "android")]
 pub async fn refresh_client_id() -> Result<String, String> {
     let fresh = extract_fresh_client_id().await?;
     write_cache(&fresh);
     Ok(fresh)
 }
 
-#[cfg(target_os = "android")]
 async fn extract_fresh_client_id() -> Result<String, String> {
     let http = reqwest::Client::builder()
         .user_agent(DESKTOP_UA)

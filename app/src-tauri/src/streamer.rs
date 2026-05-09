@@ -10,8 +10,6 @@
 // Reuses the central `events::ProgressPayload` so the frontend
 // only needs one listener.
 
-#![cfg(target_os = "android")]
-
 use std::path::Path;
 use std::time::Instant;
 
