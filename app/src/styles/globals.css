@@ -224,8 +224,12 @@ body {
     width: auto;
   }
 
+  /* width: 100% (not auto) + min-width: 0 forces the toast to be
+     bounded by the wrapper instead of being pushed wider by long
+     unbreakable text inside a flex container. */
   [data-sonner-toaster][data-sonner-toaster] [data-sonner-toast] {
-    width: auto;
+    width: 100%;
     max-width: 100%;
+    min-width: 0;
   }
 }
