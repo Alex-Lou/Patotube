@@ -42,9 +42,14 @@ function showInFolder(filePath: string): void {
 }
 
 export function showSuccessToast(jobId: string, job: DownloadJob, t: TFunc): void {
+  // Description shows just the filename, not the full path. The
+  // full path was wrapping vertically in the toast, making the
+  // whole thing unreadable. Users who want the path can hover the
+  // queue item or click the "show in folder" button.
+  const filename = job.filePath ? basename(job.filePath) : undefined;
   toast.success(t('toast.completed', { title: job.info.title }), {
     id: `dl-done-${jobId}`,
-    description: job.filePath ?? undefined,
+    description: filename,
     duration: 14000,
     action: job.filePath
       ? {
@@ -63,6 +68,14 @@ export function showSuccessToast(jobId: string, job: DownloadJob, t: TFunc): voi
         }
       : undefined,
   });
+}
+
+/** Last path segment, regardless of separator (handles both
+ *  POSIX `/sdcard/Download/foo.mp3` and Windows
+ *  `C:\Users\...\foo.mp3`). */
+function basename(path: string): string {
+  const lastSlash = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'));
+  return lastSlash >= 0 ? path.slice(lastSlash + 1) : path;
 }
 
 export function showFailToast(

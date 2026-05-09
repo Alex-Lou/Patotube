@@ -116,9 +116,18 @@ export function App() {
           position="bottom-right"
           richColors
           closeButton
+          // 420px gives long titles + the two action buttons enough
+          // room without forcing per-character word-wrap. Default is
+          // ~356px which collapses our success toast into a vertical
+          // mess.
+          style={{ width: 420 }}
           toastOptions={{
             classNames: {
               toast: 'border border-border/60 shadow-lg',
+              title: 'truncate',
+              description: 'truncate text-xs opacity-70',
+              actionButton: 'shrink-0',
+              cancelButton: 'shrink-0',
             },
           }}
         />
