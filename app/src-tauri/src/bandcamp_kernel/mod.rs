@@ -27,7 +27,7 @@ use crate::commands::StartDownloadInput;
 use crate::downloader::MediaInfo;
 use crate::events::emit_status;
 use crate::jobs::JobRegistry;
-use crate::output_path::resolve_destination;
+use crate::output_path::destination_candidates;
 use crate::streamer::stream_to_disk;
 use crate::youtube_url::sanitize_filename;
 
@@ -142,7 +142,7 @@ async fn run_download(
     output_dir: &str,
 ) -> Result<PathBuf, String> {
     let (url, ext) = extract::pick_first_stream(&tralbum)?;
-    let out = resolve_destination(output_dir, &format!("{title}.{ext}")).await?;
-    stream_to_disk(app, job_id, &url, &out).await?;
-    Ok(out)
+    let candidates =
+        destination_candidates(output_dir, &format!("{title}.{ext}")).await?;
+    stream_to_disk(app, job_id, &url, &candidates).await
 }
