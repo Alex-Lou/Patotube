@@ -117,9 +117,12 @@ export function App() {
           richColors
           closeButton
           // 420 px gives a comfortable single-line layout for the
-          // title + filename + folder icon button. Default sonner
-          // width (~356 px) collapses the title onto multiple lines.
-          style={{ width: 420 }}
+          // title + filename + folder icon button on desktop. On
+          // mobile (Android WebView, ~360 px viewport) a fixed 420
+          // overflows past the right edge and the bottom navigation
+          // bar clips the description, so we cap at viewport-minus-
+          // gutter and let `truncate` handle long titles.
+          style={{ width: 'min(420px, calc(100vw - 24px))' }}
           toastOptions={{
             classNames: {
               toast: 'border border-border/60 shadow-lg',
