@@ -12,6 +12,7 @@ import {
 import { cn } from '@/lib/utils';
 import {
   AUDIO_BITRATES,
+  DEFAULT_AUDIO_BITRATE,
   VIDEO_QUALITIES,
 } from '@/lib/core/formats';
 import type {
@@ -38,7 +39,7 @@ export function FormatPicker({ value, onChange, audioOnly = false }: FormatPicke
     onChange(
       kind === 'video'
         ? { kind: 'video', quality: 'best' }
-        : { kind: 'audio', bitrate: 192 },
+        : { kind: 'audio', bitrate: DEFAULT_AUDIO_BITRATE },
     );
   };
 

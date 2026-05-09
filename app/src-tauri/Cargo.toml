@@ -41,13 +41,13 @@ url = "2"
 boa_engine = "0.21"
 regex = "1"
 
-# --- Mobile-only: native YouTube extractor HTTP layer ---
-# yt-dlp has no Android port. Instead of pulling rustypipe + rquickjs
-# (heavy cross-compile setup for QuickJS), we hit YouTube's internal
-# `youtubei/v1/player` API directly with the ANDROID client signature,
-# which returns un-encrypted CDN URLs and side-steps JS deobfuscation
-# entirely. Same trick yt-dlp's `--player-client=android` uses.
-[target.'cfg(target_os = "android")'.dependencies]
+# Promoted to top-level: SoundCloud / Bandcamp / Internet Archive
+# kernels run on desktop too now (faster than spawning yt-dlp for
+# every metadata fetch — especially for SoundCloud, where their
+# api-v2 returns in <500 ms vs yt-dlp's 3-5 s subprocess + page
+# parse). YouTube continues to use the yt-dlp sidecar on desktop
+# because its extraction needs the full yt-dlp signature/n-param
+# machinery our Rust sigcipher doesn't yet match.
 reqwest = { version = "0.12", default-features = false, features = ["rustls-tls-webpki-roots", "stream", "json"] }
 futures-util = "0.3"
 

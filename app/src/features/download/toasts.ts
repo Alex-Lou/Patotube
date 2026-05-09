@@ -16,25 +16,50 @@ import type { useTranslation } from 'react-i18next';
 
 export type TFunc = ReturnType<typeof useTranslation>['t'];
 
+/**
+ * Open the file in the user's default player. On Android we go
+ * through the native FileProvider bridge; on desktop we hand the
+ * absolute path to Tauri's opener plugin which forwards to the OS
+ * (which then shows its picker on first run if no default app is
+ * registered for the extension).
+ */
+function openFile(filePath: string): void {
+  if (isAndroid() && hasNativeBridge()) {
+    if (!openFileNative(filePath)) openDownloadsFolderNative();
+    return;
+  }
+  void getTauri().then((api) => api.openPath(filePath));
+}
+
+/** Reveal the file in the OS file manager (Explorer on Windows,
+ *  Finder on macOS, Files on Linux/Android). */
+function showInFolder(filePath: string): void {
+  if (isAndroid() && hasNativeBridge()) {
+    openDownloadsFolderNative();
+    return;
+  }
+  void getTauri().then((api) => api.showInFolder(filePath));
+}
+
 export function showSuccessToast(jobId: string, job: DownloadJob, t: TFunc): void {
-  const onAndroid = isAndroid() && hasNativeBridge();
   toast.success(t('toast.completed', { title: job.info.title }), {
     id: `dl-done-${jobId}`,
     description: job.filePath ?? undefined,
-    duration: 12000,
+    duration: 14000,
     action: job.filePath
       ? {
           label: t('queue.openFile'),
-          onClick: () => {
-            const filePath = job.filePath!;
-            if (onAndroid) {
-              if (!openFileNative(filePath)) {
-                openDownloadsFolderNative();
-              }
-            } else {
-              void getTauri().then((api) => api.openPath(filePath));
-            }
-          },
+          onClick: () => openFile(job.filePath!),
+        }
+      : undefined,
+    // Sonner exposes a second button via `cancel` — we repurpose
+    // it as the "show in folder" action. It's visually a
+    // secondary button, which matches the priority: most users
+    // want to play the file first, locate it second.
+    cancel: job.filePath
+      ? {
+          label: t('queue.openFolder'),
+          onClick: () => showInFolder(job.filePath!),
         }
       : undefined,
   });

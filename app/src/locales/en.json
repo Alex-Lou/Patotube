@@ -73,6 +73,8 @@
     "failed": "Failed",
     "openFile": "Open file",
     "openFolder": "Show in folder",
+    "copyUrl": "Copy source URL",
+    "urlCopied": "URL copied",
     "remove": "Remove",
     "retry": "Retry",
     "clear": "Clear completed"

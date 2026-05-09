@@ -10,6 +10,7 @@ import {
   Music,
   Clock,
   Play,
+  Link2,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
@@ -109,9 +110,41 @@ export function QueueItem({
           <div className="min-w-0 flex-1 space-y-1.5">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium" title={info.title}>
-                  {info.title}
-                </p>
+                {/* The title doubles as a "play" hotspot once the
+                    download is done — clicking it opens the file in
+                    the user's default player. While the job is in
+                    flight, it stays a plain non-interactive label
+                    so we don't mislead the user with a hand cursor
+                    on something they can't yet act on. */}
+                {status === 'done' && filePath ? (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (IS_ANDROID && hasNativeBridge()) {
+                        if (!openFileNative(filePath)) {
+                          openDownloadsFolderNative();
+                        }
+                        return;
+                      }
+                      try {
+                        await onOpenFile(filePath);
+                      } catch (err) {
+                        toast.error(t('errors.couldNotOpenFile'), {
+                          description:
+                            err instanceof Error ? err.message : String(err),
+                        });
+                      }
+                    }}
+                    className="block w-full truncate text-left text-sm font-medium hover:text-primary cursor-pointer transition-colors"
+                    title={t('queue.openFile')}
+                  >
+                    {info.title}
+                  </button>
+                ) : (
+                  <p className="truncate text-sm font-medium" title={info.title}>
+                    {info.title}
+                  </p>
+                )}
                 {/* Metadata row: platform · format · quality · duration */}
                 <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
                   <PlatformBadge platform={info.platform} />
@@ -132,6 +165,33 @@ export function QueueItem({
               </div>
 
               <div className="flex shrink-0 items-center gap-1">
+                {/* Copy source URL — useful at any status (re-paste
+                    elsewhere, share, retry in a different tool…). */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(info.url);
+                      toast.success(t('queue.urlCopied'));
+                    } catch {
+                      // Fallback via Tauri clipboard plugin (the
+                      // browser API can be blocked in WebView).
+                      try {
+                        const { writeText } = await import('@tauri-apps/plugin-clipboard-manager');
+                        await writeText(info.url);
+                        toast.success(t('queue.urlCopied'));
+                      } catch {
+                        toast.error(t('errors.couldNotOpenFile'));
+                      }
+                    }
+                  }}
+                  aria-label={t('queue.copyUrl')}
+                  title={t('queue.copyUrl')}
+                >
+                  <Link2 className="size-4" />
+                </Button>
                 {status === 'done' && filePath && (
                   <>
                     <Button
