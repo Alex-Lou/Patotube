@@ -2,7 +2,7 @@
 // Bump APP_VERSION on each release; the download URLs and the GitHub
 // API URL the download counter pings are all derived from it.
 
-export const APP_VERSION = '0.1.0';
+export const APP_VERSION = '0.2.0';
 
 export const GITHUB_OWNER = 'Alex-Lou';
 export const GITHUB_REPO = 'Patotube';

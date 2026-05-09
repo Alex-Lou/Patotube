@@ -1,0 +1,7 @@
+# Captured player.js fixtures used by the manual sigcipher tests
+# (see app/src-tauri/src/youtube_kernel/sigcipher/mod.rs::tests::
+#  real_player_js_builds_an_unlocker). These are 2-3 MB JS files
+# YouTube reships every few weeks; pinning a copy in git would
+# just rot. Regenerate locally with the recipe in
+# docs/youtube-kernel.md.
+/tests/fixtures/
