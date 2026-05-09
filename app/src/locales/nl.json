@@ -26,7 +26,17 @@
     "comingSoon": "Ondersteuning voor {{platform}} komt binnenkort",
     "fetchFailed": "Kon informatie niet ophalen",
     "downloadFailed": "Download mislukt",
-    "noTauri": "Open de desktop-app om te downloaden"
+    "noTauri": "Open de desktop-app om te downloaden",
+    "requiresSignin": "Deze video vereist een YouTube-aanmelding om te downloaden. Patotube heeft geen toegang tot account-beschermde content.",
+    "ageGated": "Deze video heeft een leeftijdsbeperking en kan niet worden gedownload zonder YouTube-aanmelding.",
+    "privateVideo": "Deze video is privé.",
+    "videoUnavailable": "Deze video is niet beschikbaar.",
+    "couldNotOpenFile": "Kon bestand niet openen",
+    "couldNotOpenFolder": "Kon map niet openen",
+    "scHlsOnly": "Deze SoundCloud-track is alleen beschikbaar als HLS (gesegmenteerde stream). Patotube kan HLS nog niet downloaden op mobiel.",
+    "scPlaylist": "Dit is een SoundCloud-afspeellijst, geen enkele track. Open een van de tracks om die te downloaden.",
+    "scShortLinkBroken": "Deze SoundCloud-korte link kon niet worden uitgebreid. Open hem op de website om de volledige URL te krijgen.",
+    "scNotFound": "Deze SoundCloud-track is niet gevonden. Mogelijk is deze verwijderd of privé gemaakt."
   },
   "format": {
     "label": "Formaat",
@@ -34,13 +44,15 @@
     "audio": "Alleen audio",
     "videoMp4": "MP4-video",
     "audioMp3": "MP3-audio",
+    "audioM4a": "M4A-audio",
     "quality": "Kwaliteit",
     "best": "Beste beschikbaar",
     "high": "Hoog (1080p)",
     "medium": "Gemiddeld (720p)",
     "low": "Laag (480p)",
     "audioBitrate": "Bitrate",
-    "kbps": "{{value}} kbps"
+    "kbps": "{{value}} kbps",
+    "audioMobileNote": "Audio wordt geleverd als M4A (AAC) op YouTube's stream-bitrate — bitrate is niet selecteerbaar op mobiel."
   },
   "preview": {
     "title": "Download bevestigen",
@@ -61,13 +73,19 @@
     "failed": "Mislukt",
     "openFile": "Bestand openen",
     "openFolder": "In map tonen",
+    "copyUrl": "Bron-URL kopiëren",
+    "urlCopied": "URL gekopieerd",
     "remove": "Verwijderen",
     "retry": "Opnieuw proberen",
+    "eta": "ETA",
     "clear": "Voltooide wissen"
   },
   "platform": {
     "youtube": "YouTube",
     "soundcloud": "SoundCloud",
+    "bandcamp": "Bandcamp",
+    "audiomack": "Audiomack",
+    "archive": "Internet Archive",
     "spotify": "Spotify",
     "deezer": "Deezer",
     "generic": "Web",
@@ -77,11 +95,35 @@
     "title": "Instellingen",
     "downloadFolder": "Downloadmap",
     "browse": "Bladeren",
+    "osDefault": "Standaard van OS",
     "concurrent": "Parallelle downloads",
     "theme": "Thema",
     "about": "Over"
   },
+  "toast": {
+    "completed": "Gedownload: {{title}}",
+    "failed": "Mislukt: {{title}}",
+    "urlPasted": "URL toegevoegd"
+  },
+  "drop": {
+    "hint": "Sleep een URL ergens neer"
+  },
+  "update": {
+    "section": "Updates",
+    "checkButton": "Controleer op updates",
+    "checking": "Controleren…",
+    "upToDate": "Je bent up-to-date.",
+    "available": "Update beschikbaar: v{{version}}",
+    "installNow": "Nu installeren",
+    "downloading": "Update downloaden…",
+    "checkFailed": "Updatecontrole mislukt",
+    "failed": "Update mislukt",
+    "notInDesktop": "Updates worden gecontroleerd via de desktop-app."
+  },
   "footer": {
     "openSource": "Open source"
+  },
+  "a11y": {
+    "close": "Sluiten"
   }
 }

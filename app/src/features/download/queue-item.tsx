@@ -291,7 +291,7 @@ export function QueueItem({
                       <span>{formatBytes(speedBps)}/s</span>
                     )}
                     {typeof etaSec === 'number' && etaSec > 0 && (
-                      <span>ETA {formatDuration(etaSec)}</span>
+                      <span>{t('queue.eta')} {formatDuration(etaSec)}</span>
                     )}
                   </div>
                 </div>
