@@ -25,5 +25,10 @@ export function friendlyError(
   }
   if (s.includes('private')) return t('errors.privateVideo');
   if (s.includes('unavailable')) return t('errors.videoUnavailable');
+  // SoundCloud-specific
+  if (/HLS only|no progressive transcoding/i.test(raw)) return t('errors.scHlsOnly');
+  if (/playlist, not a single track/i.test(raw)) return t('errors.scPlaylist');
+  if (/short URL did not redirect/i.test(raw)) return t('errors.scShortLinkBroken');
+  if (/SoundCloud returned status 404/i.test(raw)) return t('errors.scNotFound');
   return raw;
 }

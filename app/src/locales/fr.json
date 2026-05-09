@@ -32,7 +32,11 @@
     "privateVideo": "Cette vidéo est privée.",
     "videoUnavailable": "Cette vidéo est indisponible.",
     "couldNotOpenFile": "Impossible d'ouvrir le fichier",
-    "couldNotOpenFolder": "Impossible d'ouvrir le dossier"
+    "couldNotOpenFolder": "Impossible d'ouvrir le dossier",
+    "scHlsOnly": "Cette track SoundCloud n'est disponible qu'en HLS (stream segmenté). Patotube ne sait pas encore télécharger ce format sur mobile.",
+    "scPlaylist": "Ce lien SoundCloud est une playlist, pas une track. Ouvre une track individuelle pour la télécharger.",
+    "scShortLinkBroken": "Ce lien court SoundCloud n'a pas pu être étendu. Ouvre-le sur le site pour récupérer l'URL complète.",
+    "scNotFound": "Cette track SoundCloud est introuvable. Elle a peut-être été supprimée ou rendue privée."
   },
   "format": {
     "label": "Format",
