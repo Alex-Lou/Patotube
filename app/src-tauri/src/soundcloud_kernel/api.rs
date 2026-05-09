@@ -12,6 +12,7 @@ use serde_json::Value;
 
 use super::client_id::{get_client_id, refresh_client_id};
 use super::types::{StreamRedirect, Track};
+use super::url::is_short_url;
 
 const RESOLVE_ENDPOINT: &str = "https://api-v2.soundcloud.com/resolve";
 const DESKTOP_UA: &str =
@@ -21,15 +22,29 @@ const DESKTOP_UA: &str =
 /// Resolve a track URL to its full metadata, including the
 /// `media.transcodings` list a downloader picks from.
 pub async fn resolve_track(track_url: &str) -> Result<Track, String> {
-    let body: Value = call_with_retry(|client_id| async move {
-        let http = build_http()?;
-        let response = http
-            .get(RESOLVE_ENDPOINT)
-            .query(&[("url", track_url), ("client_id", client_id.as_str())])
-            .send()
-            .await
-            .map_err(|e| format!("network error contacting SC resolve: {e}"))?;
-        Ok(response)
+    // SC's `on.soundcloud.com/<token>` short links 404 against
+    // the resolve API directly — they have to be expanded via an
+    // HTTP redirect first. The mobile share sheet emits these by
+    // default, so without expansion the SC kernel was unusable
+    // for anyone copying from the official app.
+    let canonical_url = if is_short_url(track_url) {
+        expand_short_url(track_url).await?
+    } else {
+        track_url.to_string()
+    };
+
+    let body: Value = call_with_retry(|client_id| {
+        let url = canonical_url.clone();
+        async move {
+            let http = build_http()?;
+            let response = http
+                .get(RESOLVE_ENDPOINT)
+                .query(&[("url", url.as_str()), ("client_id", client_id.as_str())])
+                .send()
+                .await
+                .map_err(|e| format!("network error contacting SC resolve: {e}"))?;
+            Ok(response)
+        }
     })
     .await?;
 
@@ -112,4 +127,40 @@ fn build_http() -> Result<reqwest::Client, String> {
         .user_agent(DESKTOP_UA)
         .build()
         .map_err(|e| format!("could not build http client: {e}"))
+}
+
+/// Follow a SoundCloud short link (`on.soundcloud.com/<token>`)
+/// to its canonical `soundcloud.com/<user>/<track>` URL via HTTP
+/// redirects. reqwest follows up to 10 redirects automatically;
+/// we read `response.url()` to get the final landing page.
+async fn expand_short_url(short_url: &str) -> Result<String, String> {
+    let http = build_http()?;
+    let response = http
+        .get(short_url)
+        .send()
+        .await
+        .map_err(|e| format!("network error expanding SC short URL: {e}"))?;
+
+    if !response.status().is_success() {
+        return Err(format!(
+            "SoundCloud short URL expansion returned {}",
+            response.status()
+        ));
+    }
+
+    let final_url = response.url().to_string();
+    // Sanity check: the expansion must have actually moved off of
+    // on.soundcloud.com (otherwise we'd just resolve the same 404
+    // again on the next hop).
+    if final_url.contains("://on.soundcloud.com/") {
+        return Err("SoundCloud short URL did not redirect to a canonical track URL".into());
+    }
+    // Strip query string + fragment — SC tags shorts with tracking
+    // params (`utm_source=…`) the resolver doesn't want.
+    let no_frag = final_url
+        .split_once('#')
+        .map(|(a, _)| a)
+        .unwrap_or(&final_url);
+    let no_query = no_frag.split_once('?').map(|(a, _)| a).unwrap_or(no_frag);
+    Ok(no_query.to_string())
 }

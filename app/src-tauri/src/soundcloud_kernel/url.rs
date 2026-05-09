@@ -20,6 +20,16 @@ pub fn is_soundcloud_url(url: &str) -> bool {
         .any(|h| lower.contains(&format!("://{h}/")) || lower.contains(&format!("://{h}?")))
 }
 
+/// True if `url` is a SoundCloud short-link served by
+/// `on.soundcloud.com/<token>`. These are produced by the mobile
+/// SC app's share sheet and have to be expanded via an HTTP
+/// redirect before the resolve API will accept them.
+pub fn is_short_url(url: &str) -> bool {
+    url.trim()
+        .to_lowercase()
+        .contains("://on.soundcloud.com/")
+}
+
 /// Normalises a user-supplied URL into the canonical form SC's
 /// resolve API expects. We strip query strings + fragments
 /// because they confuse the resolver, and replace `m.` /
@@ -93,5 +103,19 @@ mod tests {
             canonicalise("  https://soundcloud.com/foo/bar  "),
             Some("https://soundcloud.com/foo/bar".to_string()),
         );
+    }
+
+    #[test]
+    fn is_short_url_recognises_on_subdomain() {
+        assert!(is_short_url("https://on.soundcloud.com/abc123"));
+        assert!(is_short_url("HTTPS://ON.SOUNDCLOUD.COM/abc"));
+    }
+
+    #[test]
+    fn is_short_url_rejects_canonical_links() {
+        assert!(!is_short_url("https://soundcloud.com/user/track"));
+        assert!(!is_short_url("https://www.soundcloud.com/x"));
+        assert!(!is_short_url("https://m.soundcloud.com/x"));
+        assert!(!is_short_url("https://youtube.com/watch?v=abc"));
     }
 }
