@@ -4,6 +4,7 @@ import { Toaster } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Download } from 'lucide-react';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { Splash } from '@/components/splash';
 import { Header } from '@/components/header';
 import { UrlInput } from '@/features/download/url-input';
 import { PreviewDialog } from '@/features/download/preview-dialog';
@@ -15,13 +16,24 @@ import { validateUrl } from '@/lib/core/url';
 import { getTauri } from '@/lib/tauri/bindings';
 import type { MediaInfo } from '@/lib/core/types';
 
+// Time the splash screen stays visible after first paint. Long
+// enough for one duck bounce + a fade-out tail, short enough that
+// the user never feels they're waiting on us.
+const SPLASH_DURATION_MS = 900;
+
 export function App() {
   const { t } = useTranslation();
   const { resolvedTheme } = useTheme();
   const [pendingPreview, setPendingPreview] = useState<MediaInfo | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
   useDownloadEvents();
   const { enqueue } = useDownloadActions();
+
+  useEffect(() => {
+    const id = setTimeout(() => setShowSplash(false), SPLASH_DURATION_MS);
+    return () => clearTimeout(id);
+  }, []);
 
   // Global drag & drop: dropping a URL anywhere triggers the fetch flow.
   useEffect(() => {
@@ -186,6 +198,8 @@ export function App() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        <AnimatePresence>{showSplash && <Splash />}</AnimatePresence>
       </div>
     </TooltipProvider>
   );
