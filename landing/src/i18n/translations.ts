@@ -74,8 +74,6 @@ type Dict = {
   featureI18nBody: string;
   featureNativeTitle: string;
   featureNativeBody: string;
-  featureSoonTitle: string;
-  featureSoonBody: string;
   featureOssTitle: string;
   featureOssBody: string;
   footerCopy: string;
@@ -110,7 +108,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     featuresTitle: "What it does, what it doesn't.",
     featureYtTitle: 'YouTube and SoundCloud',
     featureYtBody:
-      'Paste your link, the app handles the rest. Spotify and Deezer matching on the way.',
+      'Paste your link, the app handles the rest.',
     featureFormatsTitle: 'MP4 video or MP3 audio',
     featureFormatsBody:
       'Pick the kind, pick the quality, hit download. ffmpeg ships in the bundle, no extra install.',
@@ -120,9 +118,6 @@ export const DICT: Record<LandingLocale, Dict> = {
     featureNativeTitle: 'Light, fast, native',
     featureNativeBody:
       'Built on Tauri. Tiny binary, a real OS window, no telemetry, no tracking.',
-    featureSoonTitle: 'Spotify and Deezer soon',
-    featureSoonBody:
-      'Coming soon: paste a Spotify or Deezer link, the app will fetch the matching track. UI is already there, the engine is being built.',
     featureOssTitle: 'Open source',
     featureOssBody:
       'MIT licensed. The whole codebase is on GitHub — read it, report bugs, suggest improvements.',
@@ -157,7 +152,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     featuresTitle: "Ce qu'elle fait, ce qu'elle ne fait pas.",
     featureYtTitle: "YouTube et SoundCloud",
     featureYtBody:
-      "Colle ton lien, l'app gère le reste. Matching Spotify et Deezer en cours.",
+      "Colle ton lien, l'app gère le reste.",
     featureFormatsTitle: 'Vidéo MP4 ou audio MP3',
     featureFormatsBody:
       "Choisis le type, choisis la qualité, télécharge. ffmpeg est embarqué, rien à installer en plus.",
@@ -167,9 +162,6 @@ export const DICT: Record<LandingLocale, Dict> = {
     featureNativeTitle: 'Léger, rapide, natif',
     featureNativeBody:
       "Construit sur Tauri. Petit binaire, vraie fenêtre native, aucun tracker, aucune télémétrie.",
-    featureSoonTitle: 'Spotify et Deezer bientôt',
-    featureSoonBody:
-      "Bientôt : colle un lien Spotify ou Deezer, l'app ira chercher le morceau équivalent. L'interface est prête, le moteur est en construction.",
     featureOssTitle: 'Open source',
     featureOssBody:
       "Sous licence MIT. Tout le code est sur GitHub — lis-le, signale un bug, propose une amélioration.",
@@ -204,7 +196,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     featuresTitle: 'Lo que hace, lo que no hace.',
     featureYtTitle: 'YouTube y SoundCloud',
     featureYtBody:
-      'Pega tu enlace, la app se encarga del resto. Matching Spotify y Deezer en camino.',
+      'Pega tu enlace, la app se encarga del resto.',
     featureFormatsTitle: 'Vídeo MP4 o audio MP3',
     featureFormatsBody:
       'Elige el tipo, elige la calidad, descarga. ffmpeg viene incluido, sin instalación extra.',
@@ -214,9 +206,6 @@ export const DICT: Record<LandingLocale, Dict> = {
     featureNativeTitle: 'Ligero, rápido, nativo',
     featureNativeBody:
       'Hecho con Tauri. Binario diminuto, ventana nativa real, sin trackers, sin telemetría.',
-    featureSoonTitle: 'Spotify y Deezer pronto',
-    featureSoonBody:
-      'Próximamente: pega un enlace de Spotify o Deezer y la app buscará el equivalente. La interfaz está lista, el motor está en construcción.',
     featureOssTitle: 'Código abierto',
     featureOssBody:
       'Licencia MIT. Todo el código está en GitHub — léelo, reporta un bug, propone una mejora.',
@@ -251,7 +240,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     featuresTitle: 'ما يفعله، وما لا يفعله.',
     featureYtTitle: 'يوتيوب وساوند كلاود',
     featureYtBody:
-      'ألصِق رابطك والتطبيق يتولى الباقي. مطابقة Spotify وDeezer قريبًا.',
+      'ألصِق رابطك والتطبيق يتولى الباقي.',
     featureFormatsTitle: 'فيديو MP4 أو صوت MP3',
     featureFormatsBody:
       'اختر النوع، اختر الجودة، نزّل. ffmpeg مرفق، لا حاجة لتثبيت إضافي.',
@@ -261,9 +250,6 @@ export const DICT: Record<LandingLocale, Dict> = {
     featureNativeTitle: 'خفيف وسريع وأصلي',
     featureNativeBody:
       'مبني على Tauri. ملف صغير، نافذة نظام حقيقية، بلا متتبعات، بلا تتبع.',
-    featureSoonTitle: 'Spotify و Deezer قريبًا',
-    featureSoonBody:
-      'قريبًا: ألصق رابط Spotify أو Deezer وسيبحث التطبيق عن المسار المماثل. الواجهة جاهزة، المحرك قيد البناء.',
     featureOssTitle: 'مفتوح المصدر',
     featureOssBody:
       'ترخيص MIT. الكود بأكمله على GitHub — اقرأه، أبلغ عن خطأ، اقترح تحسينًا.',
@@ -298,7 +284,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     featuresTitle: '何ができて、何ができないか。',
     featureYtTitle: 'YouTube と SoundCloud',
     featureYtBody:
-      'リンクを貼り付ければ、あとはアプリにお任せ。Spotify と Deezer マッチング対応予定。',
+      'リンクを貼り付ければ、あとはアプリにお任せ。',
     featureFormatsTitle: 'MP4動画 または MP3音声',
     featureFormatsBody:
       '種類を選び、画質を選び、ダウンロード。ffmpeg 同梱、追加インストール不要。',
@@ -308,9 +294,6 @@ export const DICT: Record<LandingLocale, Dict> = {
     featureNativeTitle: '軽量、高速、ネイティブ',
     featureNativeBody:
       'Tauri 製。極小バイナリ、本物の OS ウィンドウ、トラッカーなし、テレメトリなし。',
-    featureSoonTitle: 'Spotify と Deezer は近日対応',
-    featureSoonBody:
-      '近日対応：Spotify や Deezer のリンクを貼ると、アプリが対応する曲を取得します。UI は完成、エンジンは構築中。',
     featureOssTitle: 'オープンソース',
     featureOssBody:
       'MIT ライセンス。コードはすべて GitHub 上 — 読んで、バグ報告、改善提案を。',
@@ -345,7 +328,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     featuresTitle: '它能做什么，不能做什么。',
     featureYtTitle: 'YouTube 和 SoundCloud',
     featureYtBody:
-      '粘贴你的链接，剩下的交给应用。Spotify 和 Deezer 匹配即将到来。',
+      '粘贴你的链接，剩下的交给应用。',
     featureFormatsTitle: 'MP4 视频或 MP3 音频',
     featureFormatsBody:
       '选类型，选画质，下载。ffmpeg 已内置，无需额外安装。',
@@ -355,9 +338,6 @@ export const DICT: Record<LandingLocale, Dict> = {
     featureNativeTitle: '轻盈、快速、原生',
     featureNativeBody:
       '基于 Tauri 构建。体积极小，真正的系统窗口，无追踪，无遥测。',
-    featureSoonTitle: 'Spotify 和 Deezer 即将到来',
-    featureSoonBody:
-      '即将支持：粘贴 Spotify 或 Deezer 链接，应用会获取对应的曲目。UI 已就绪，引擎正在构建中。',
     featureOssTitle: '开源',
     featureOssBody:
       'MIT 许可证。所有代码都在 GitHub 上 — 阅读、报告 bug、提出改进。',
@@ -392,7 +372,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     featuresTitle: 'Hvað það gerir, hvað það gerir ekki.',
     featureYtTitle: 'YouTube og SoundCloud',
     featureYtBody:
-      'Límdu inn slóðina, forritið sér um restina. Spotify og Deezer pörun á leiðinni.',
+      'Límdu inn slóðina, forritið sér um restina.',
     featureFormatsTitle: 'MP4 myndband eða MP3 hljóð',
     featureFormatsBody:
       'Veldu tegund, veldu gæði, sæktu. ffmpeg fylgir með, engin auka uppsetning.',
@@ -402,9 +382,6 @@ export const DICT: Record<LandingLocale, Dict> = {
     featureNativeTitle: 'Létt, hratt, innfætt',
     featureNativeBody:
       'Byggt á Tauri. Lítill keyrsluskrá, alvöru kerfisgluggi, engar njósnir, engin gagnasöfnun.',
-    featureSoonTitle: 'Spotify og Deezer á leiðinni',
-    featureSoonBody:
-      'Á leiðinni: límdu Spotify eða Deezer hlekk, forritið mun finna samsvarandi lag. Viðmótið er tilbúið, vélin er í smíðum.',
     featureOssTitle: 'Opinn hugbúnaður',
     featureOssBody:
       'MIT leyfi. Allur kóðinn er á GitHub — lestu hann, tilkynntu villu, leggðu til endurbætur.',
@@ -439,7 +416,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     featuresTitle: 'O que faz, o que não faz.',
     featureYtTitle: 'YouTube e SoundCloud',
     featureYtBody:
-      'Cole seu link, o app cuida do resto. Matching Spotify e Deezer em breve.',
+      'Cole seu link, o app cuida do resto.',
     featureFormatsTitle: 'Vídeo MP4 ou áudio MP3',
     featureFormatsBody:
       'Escolha o tipo, escolha a qualidade, baixe. ffmpeg incluído, sem instalação extra.',
@@ -449,9 +426,6 @@ export const DICT: Record<LandingLocale, Dict> = {
     featureNativeTitle: 'Leve, rápido, nativo',
     featureNativeBody:
       'Construído com Tauri. Binário pequeno, janela nativa real, sem rastreamento, sem telemetria.',
-    featureSoonTitle: 'Spotify e Deezer em breve',
-    featureSoonBody:
-      'Em breve: cole um link do Spotify ou Deezer e o app buscará a faixa correspondente. A interface está pronta, o motor está em construção.',
     featureOssTitle: 'Código aberto',
     featureOssBody:
       'Licença MIT. Todo o código está no GitHub — leia, reporte bugs, sugira melhorias.',
@@ -486,7 +460,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     featuresTitle: 'Cosa fa, cosa non fa.',
     featureYtTitle: 'YouTube e SoundCloud',
     featureYtBody:
-      "Incolla il tuo link, l'app si occupa del resto. Matching Spotify e Deezer in arrivo.",
+      "Incolla il tuo link, l'app si occupa del resto.",
     featureFormatsTitle: 'Video MP4 o audio MP3',
     featureFormatsBody:
       'Scegli il tipo, scegli la qualità, scarica. ffmpeg incluso, nessuna installazione extra.',
@@ -496,9 +470,6 @@ export const DICT: Record<LandingLocale, Dict> = {
     featureNativeTitle: 'Leggero, veloce, nativo',
     featureNativeBody:
       'Costruito su Tauri. Binario minuscolo, finestra nativa reale, senza tracker, senza telemetria.',
-    featureSoonTitle: 'Spotify e Deezer in arrivo',
-    featureSoonBody:
-      "Prossimamente: incolla un link Spotify o Deezer e l'app troverà il brano corrispondente. L'interfaccia è pronta, il motore è in costruzione.",
     featureOssTitle: 'Open source',
     featureOssBody:
       'Licenza MIT. Tutto il codice è su GitHub — leggilo, segnala bug, proponi miglioramenti.',
@@ -533,7 +504,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     featuresTitle: 'Was es kann, was es nicht kann.',
     featureYtTitle: 'YouTube und SoundCloud',
     featureYtBody:
-      'Link einfügen, die App erledigt den Rest. Spotify- und Deezer-Matching in Arbeit.',
+      'Link einfügen, die App erledigt den Rest.',
     featureFormatsTitle: 'MP4-Video oder MP3-Audio',
     featureFormatsBody:
       'Typ wählen, Qualität wählen, herunterladen. ffmpeg enthalten, keine zusätzliche Installation.',
@@ -543,9 +514,6 @@ export const DICT: Record<LandingLocale, Dict> = {
     featureNativeTitle: 'Leicht, schnell, nativ',
     featureNativeBody:
       'Auf Tauri basiert. Winzige Binary, echtes OS-Fenster, kein Tracking, keine Telemetrie.',
-    featureSoonTitle: 'Spotify und Deezer demnächst',
-    featureSoonBody:
-      'Demnächst: Spotify- oder Deezer-Link einfügen, die App findet den passenden Track. Die Oberfläche ist fertig, der Motor wird gebaut.',
     featureOssTitle: 'Open Source',
     featureOssBody:
       'MIT-Lizenz. Der gesamte Code liegt auf GitHub — lies ihn, melde Bugs, schlage Verbesserungen vor.',
@@ -580,7 +548,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     featuresTitle: 'Wat het doet, wat het niet doet.',
     featureYtTitle: 'YouTube en SoundCloud',
     featureYtBody:
-      'Plak je link, de app regelt de rest. Spotify- en Deezer-matching is op komst.',
+      'Plak je link, de app regelt de rest.',
     featureFormatsTitle: 'MP4-video of MP3-audio',
     featureFormatsBody:
       'Kies het type, kies de kwaliteit, download. ffmpeg meegeleverd, geen extra installatie.',
@@ -590,9 +558,6 @@ export const DICT: Record<LandingLocale, Dict> = {
     featureNativeTitle: 'Licht, snel, native',
     featureNativeBody:
       'Gebouwd op Tauri. Klein binary, echt OS-venster, geen tracking, geen telemetrie.',
-    featureSoonTitle: 'Spotify en Deezer binnenkort',
-    featureSoonBody:
-      'Binnenkort: plak een Spotify- of Deezer-link en de app zoekt de bijpassende track. De interface is klaar, de motor wordt gebouwd.',
     featureOssTitle: 'Open source',
     featureOssBody:
       'MIT-licentie. Alle code staat op GitHub — lees het, meld bugs, stel verbeteringen voor.',
@@ -627,7 +592,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     featuresTitle: 'Co robi, czego nie robi.',
     featureYtTitle: 'YouTube i SoundCloud',
     featureYtBody:
-      'Wklej swój link, aplikacja zajmie się resztą. Dopasowanie Spotify i Deezer wkrótce.',
+      'Wklej swój link, aplikacja zajmie się resztą.',
     featureFormatsTitle: 'Wideo MP4 lub audio MP3',
     featureFormatsBody:
       'Wybierz typ, wybierz jakość, pobierz. ffmpeg w pakiecie, bez dodatkowej instalacji.',
@@ -637,9 +602,6 @@ export const DICT: Record<LandingLocale, Dict> = {
     featureNativeTitle: 'Lekki, szybki, natywny',
     featureNativeBody:
       'Zbudowany na Tauri. Mały plik binarny, prawdziwe okno OS, bez śledzenia, bez telemetrii.',
-    featureSoonTitle: 'Spotify i Deezer wkrótce',
-    featureSoonBody:
-      'Wkrótce: wklej link Spotify lub Deezer, a aplikacja znajdzie pasujący utwór. Interfejs gotowy, silnik w budowie.',
     featureOssTitle: 'Open source',
     featureOssBody:
       'Licencja MIT. Cały kod jest na GitHubie — przeczytaj, zgłoś bug, zaproponuj ulepszenie.',
@@ -674,7 +636,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     featuresTitle: 'Что делает, чего не делает.',
     featureYtTitle: 'YouTube и SoundCloud',
     featureYtBody:
-      'Вставьте ссылку — приложение разберётся. Сопоставление Spotify и Deezer скоро.',
+      'Вставьте ссылку — приложение разберётся.',
     featureFormatsTitle: 'Видео MP4 или аудио MP3',
     featureFormatsBody:
       'Выберите тип, выберите качество, загружайте. ffmpeg включён, без дополнительной установки.',
@@ -684,9 +646,6 @@ export const DICT: Record<LandingLocale, Dict> = {
     featureNativeTitle: 'Лёгкий, быстрый, нативный',
     featureNativeBody:
       'Построен на Tauri. Крошечный бинарник, настоящее окно ОС, без слежения, без телеметрии.',
-    featureSoonTitle: 'Spotify и Deezer скоро',
-    featureSoonBody:
-      'Скоро: вставьте ссылку Spotify или Deezer, и приложение найдёт соответствующий трек. Интерфейс готов, движок в разработке.',
     featureOssTitle: 'Открытый исходный код',
     featureOssBody:
       'Лицензия MIT. Весь код на GitHub — читайте, сообщайте об ошибках, предлагайте улучшения.',
@@ -721,7 +680,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     featuresTitle: 'Neler yapar, neler yapmaz.',
     featureYtTitle: 'YouTube ve SoundCloud',
     featureYtBody:
-      "Linkini yapıştır, uygulama gerisini halletsin. Spotify ve Deezer eşleştirmesi yakında.",
+      "Linkini yapıştır, uygulama gerisini halletsin.",
     featureFormatsTitle: 'MP4 video veya MP3 ses',
     featureFormatsBody:
       'Türü seç, kaliteyi seç, indir. ffmpeg pakete dahil, ekstra kurulum yok.',
@@ -731,9 +690,6 @@ export const DICT: Record<LandingLocale, Dict> = {
     featureNativeTitle: 'Hafif, hızlı, yerel',
     featureNativeBody:
       'Tauri üzerine kurulu. Minik bir ikili dosya, gerçek OS penceresi, takip yok, telemetri yok.',
-    featureSoonTitle: 'Spotify ve Deezer yakında',
-    featureSoonBody:
-      'Yakında: bir Spotify veya Deezer linki yapıştırın, uygulama eşleşen şarkıyı bulacak. Arayüz hazır, motor inşa halinde.',
     featureOssTitle: 'Açık kaynak',
     featureOssBody:
       "MIT lisansı. Tüm kod GitHub'da — oku, hata bildir, iyileştirme öner.",
@@ -768,7 +724,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     featuresTitle: 'क्या करता है, क्या नहीं।',
     featureYtTitle: 'YouTube और SoundCloud',
     featureYtBody:
-      'अपना लिंक पेस्ट करें, ऐप बाकी संभालता है। Spotify और Deezer मिलान जल्द आ रहा है।',
+      'अपना लिंक पेस्ट करें, ऐप बाकी संभालता है।',
     featureFormatsTitle: 'MP4 वीडियो या MP3 ऑडियो',
     featureFormatsBody:
       'प्रकार चुनें, गुणवत्ता चुनें, डाउनलोड करें। ffmpeg बंडल में शामिल, कोई अतिरिक्त इंस्टॉल नहीं।',
@@ -778,9 +734,6 @@ export const DICT: Record<LandingLocale, Dict> = {
     featureNativeTitle: 'हल्का, तेज़, मूल',
     featureNativeBody:
       'Tauri पर आधारित। छोटी बाइनरी, असली OS विंडो, कोई ट्रैकिंग नहीं, कोई टेलीमेट्री नहीं।',
-    featureSoonTitle: 'Spotify और Deezer जल्द आ रहे हैं',
-    featureSoonBody:
-      'जल्द: Spotify या Deezer लिंक पेस्ट करें, ऐप मेल खाने वाला गाना ढूंढेगा। इंटरफ़ेस तैयार, इंजन निर्माणाधीन।',
     featureOssTitle: 'ओपन सोर्स',
     featureOssBody:
       'MIT लाइसेंस। पूरा कोड GitHub पर है — पढ़ें, बग रिपोर्ट करें, सुधार सुझाएं।',
@@ -815,7 +768,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     featuresTitle: '무엇을 하고 무엇을 하지 않는가.',
     featureYtTitle: 'YouTube와 SoundCloud',
     featureYtBody:
-      '링크를 붙여넣으면 앱이 알아서 처리합니다. Spotify와 Deezer 매칭 곧 출시 예정.',
+      '링크를 붙여넣으면 앱이 알아서 처리합니다.',
     featureFormatsTitle: 'MP4 비디오 또는 MP3 오디오',
     featureFormatsBody:
       '종류를 고르고, 품질을 고르고, 다운로드. ffmpeg 번들 포함, 추가 설치 불필요.',
@@ -825,9 +778,6 @@ export const DICT: Record<LandingLocale, Dict> = {
     featureNativeTitle: '가볍고, 빠르고, 네이티브',
     featureNativeBody:
       'Tauri 기반. 작은 바이너리, 진짜 OS 창, 추적 없음, 텔레메트리 없음.',
-    featureSoonTitle: 'Spotify와 Deezer 곧 출시',
-    featureSoonBody:
-      '곧 출시: Spotify나 Deezer 링크를 붙여넣으면 앱이 해당 트랙을 찾습니다. 인터페이스는 준비됨, 엔진 구축 중.',
     featureOssTitle: '오픈 소스',
     featureOssBody:
       'MIT 라이선스. 모든 코드는 GitHub에 있습니다 — 읽고, 버그 신고하고, 개선 제안하세요.',
