@@ -73,6 +73,8 @@
     "failed": "Échec",
     "openFile": "Ouvrir le fichier",
     "openFolder": "Afficher dans le dossier",
+    "copyUrl": "Copier l'URL source",
+    "urlCopied": "URL copiée",
     "remove": "Retirer",
     "retry": "Réessayer",
     "clear": "Effacer les terminés"

@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/features/theme/theme-provider';
 import { useSettings } from '@/lib/core/settings';
-import { AUDIO_BITRATES, VIDEO_QUALITIES } from '@/lib/core/formats';
+import { AUDIO_BITRATES, DEFAULT_AUDIO_BITRATE, VIDEO_QUALITIES } from '@/lib/core/formats';
 import type { AudioBitrate, VideoQuality } from '@/lib/core/types';
 import { isAndroid } from '@/lib/android/bridge';
 // onAndroid still drives the "hide download folder picker / hide
@@ -90,7 +90,7 @@ export function SettingsMenu(_props: { onAfterAction?: () => void }) {
             onClick={() =>
               setDefaultFormat({
                 kind: 'audio',
-                bitrate: defaultFormat.kind === 'audio' ? defaultFormat.bitrate : 192,
+                bitrate: defaultFormat.kind === 'audio' ? defaultFormat.bitrate : DEFAULT_AUDIO_BITRATE,
               })
             }
             icon={<Music className="size-4" />}
