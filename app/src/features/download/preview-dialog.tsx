@@ -92,7 +92,12 @@ export function PreviewDialog({ info, onClose, onConfirm }: PreviewDialogProps) 
               <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 {t('format.label')}
               </h4>
-              <FormatPicker value={format} onChange={setFormat} audioOnly={audioOnly} />
+              <FormatPicker
+                value={format}
+                onChange={setFormat}
+                audioOnly={audioOnly}
+                platform={info.platform}
+              />
             </div>
 
             <div className="flex justify-end gap-2 pt-2">

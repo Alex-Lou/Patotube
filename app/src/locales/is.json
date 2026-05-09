@@ -26,7 +26,17 @@
     "comingSoon": "Stuðningur við {{platform}} er á leiðinni",
     "fetchFailed": "Tókst ekki að sækja upplýsingar",
     "downloadFailed": "Niðurhal mistókst",
-    "noTauri": "Opnaðu skjáborðsforritið til að hlaða niður"
+    "noTauri": "Opnaðu skjáborðsforritið til að hlaða niður",
+    "requiresSignin": "Þetta myndband krefst YouTube-innskráningar til niðurhals. Patotube hefur ekki aðgang að efni sem er aðgangs-stýrt.",
+    "ageGated": "Þetta myndband er aldursstýrt og verður ekki hlaðið niður án YouTube-innskráningar.",
+    "privateVideo": "Þetta myndband er einkamál.",
+    "videoUnavailable": "Þetta myndband er ekki í boði.",
+    "couldNotOpenFile": "Tókst ekki að opna skrá",
+    "couldNotOpenFolder": "Tókst ekki að opna möppu",
+    "scHlsOnly": "Þetta SoundCloud-lag er aðeins í boði sem HLS (búta-stream). Patotube getur ekki sótt HLS á síma ennþá.",
+    "scPlaylist": "Þetta er SoundCloud-spilunarlisti, ekki einstakt lag. Opnaðu eitt laganna til að hlaða því niður.",
+    "scShortLinkBroken": "Tókst ekki að stækka þennan stutta SoundCloud-tengil. Opnaðu hann á vefnum til að fá fulla slóð.",
+    "scNotFound": "Þetta SoundCloud-lag fannst ekki. Því kann að hafa verið eytt eða gert að einkamáli."
   },
   "format": {
     "label": "Snið",
@@ -34,13 +44,15 @@
     "audio": "Aðeins hljóð",
     "videoMp4": "MP4 myndband",
     "audioMp3": "MP3 hljóð",
+    "audioM4a": "M4A hljóð",
     "quality": "Gæði",
     "best": "Besta í boði",
     "high": "Hátt (1080p)",
     "medium": "Miðlungs (720p)",
     "low": "Lágt (480p)",
     "audioBitrate": "Bitahraði",
-    "kbps": "{{value}} kbps"
+    "kbps": "{{value}} kbps",
+    "audioMobileNote": "Hljóð er afhent sem M4A (AAC) á straumbitahraða YouTube — bitahraði er ekki valanlegur á síma."
   },
   "preview": {
     "title": "Staðfesta niðurhal",
@@ -61,13 +73,19 @@
     "failed": "Mistókst",
     "openFile": "Opna skrá",
     "openFolder": "Sýna í möppu",
+    "copyUrl": "Afrita upprunaslóð",
+    "urlCopied": "Slóð afrituð",
     "remove": "Fjarlægja",
     "retry": "Reyna aftur",
+    "eta": "ETA",
     "clear": "Hreinsa lokuð"
   },
   "platform": {
     "youtube": "YouTube",
     "soundcloud": "SoundCloud",
+    "bandcamp": "Bandcamp",
+    "audiomack": "Audiomack",
+    "archive": "Internet Archive",
     "spotify": "Spotify",
     "deezer": "Deezer",
     "generic": "Vefur",
@@ -77,11 +95,35 @@
     "title": "Stillingar",
     "downloadFolder": "Niðurhalsmappa",
     "browse": "Velja",
+    "osDefault": "Sjálfgefið kerfis",
     "concurrent": "Samhliða niðurhöl",
     "theme": "Þema",
     "about": "Um"
   },
+  "toast": {
+    "completed": "Hlaðið niður: {{title}}",
+    "failed": "Mistókst: {{title}}",
+    "urlPasted": "Slóð bætt við"
+  },
+  "drop": {
+    "hint": "Slepptu slóð hvar sem er"
+  },
+  "update": {
+    "section": "Uppfærslur",
+    "checkButton": "Leita að uppfærslum",
+    "checking": "Athuga…",
+    "upToDate": "Þú ert með nýjustu útgáfu.",
+    "available": "Uppfærsla í boði: v{{version}}",
+    "installNow": "Setja upp núna",
+    "downloading": "Hleður niður uppfærslu…",
+    "checkFailed": "Uppfærsluleit mistókst",
+    "failed": "Uppfærsla mistókst",
+    "notInDesktop": "Uppfærslur eru athugaðar úr skjáborðsforritinu."
+  },
   "footer": {
     "openSource": "Opinn hugbúnaður"
+  },
+  "a11y": {
+    "close": "Loka"
   }
 }
