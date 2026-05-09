@@ -113,32 +113,44 @@ export function App() {
 
         <Toaster
           theme={resolvedTheme}
-          position="bottom-right"
+          // bottom-center is the only position whose mobile rule is
+          // symmetric (left + right + transform:none). bottom-right
+          // anchors with `right: var(...)` AND `left: var(...)` AND
+          // `width: 100%`, which over-constrains the wrapper in LTR
+          // and pushes it past the right edge of a 360 px viewport.
+          position="bottom-center"
           richColors
           closeButton
-          // sonner exposes its toast width via the `--width` CSS
-          // variable (NOT a regular `width` prop on the wrapper —
-          // setting style.width does nothing). 420 px gives the
-          // title + filename + folder icon room on desktop, and on
-          // mobile (Android WebView, ~360 px viewport) we clamp to
-          // the viewport minus a 16 px gutter so the toast sits
-          // fully inside the screen and the description stops
-          // bleeding past the right edge / bottom nav bar.
           style={
             {
               '--width': 'min(420px, calc(100vw - 16px))',
             } as React.CSSProperties
           }
-          // Pin the toast to the right edge, but only by 8 px so
-          // the rounded corner stays visible instead of being
-          // half-eaten by the system nav. Same idea on the bottom.
           offset={{ right: 8, bottom: 12, left: 8, top: 12 }}
-          mobileOffset={{ right: 8, bottom: 12, left: 8, top: 12 }}
+          // Push the bottom offset above the Android system nav bar.
+          // index.html has viewport-fit=cover so env() resolves > 0
+          // when the WebView draws edge-to-edge.
+          mobileOffset={{
+            right: 8,
+            left: 8,
+            bottom: 'calc(12px + env(safe-area-inset-bottom))',
+            top: 'calc(12px + env(safe-area-inset-top))',
+          }}
           toastOptions={{
             classNames: {
               toast: 'border border-border/60 shadow-lg',
-              title: 'truncate',
-              description: 'truncate text-xs opacity-70',
+              // [data-content] is a flex item; without min-w-0 it
+              // refuses to shrink below the intrinsic width of long
+              // unbreakable strings, which is what was pushing the
+              // title past the right edge on mobile.
+              content: 'min-w-0',
+              // No `truncate`: let long titles wrap onto multiple
+              // lines so the toast grows in height instead of in
+              // width. sonner already sets overflow-wrap:anywhere
+              // on the toast so even a wordless 80-char string
+              // breaks correctly.
+              title: 'break-words',
+              description: 'break-words text-xs opacity-70',
               // Strip sonner's default action-button chrome so our
               // icon-only Folder button reads as a discreet
               // affordance instead of a white pill grafted onto
