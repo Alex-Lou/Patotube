@@ -37,6 +37,7 @@ use crate::streamer::stream_to_disk;
 #[cfg(target_os = "android")]
 use crate::youtube_url::sanitize_filename;
 
+#[cfg_attr(not(target_os = "android"), allow(unused_imports))]
 pub use self::url::is_audiomack_url;
 
 #[cfg(target_os = "android")]

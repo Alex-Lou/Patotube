@@ -21,7 +21,11 @@ export const PLATFORMS: Record<PlatformId, PlatformInfo> = {
   },
   audiomack: {
     id: 'audiomack',
-    status: 'active',
+    // Marked comingSoon while Audiomack's public API is broken
+    // upstream — yt-dlp itself returns 404 on every track since
+    // late 2025 (see yt-dlp/yt-dlp#14815). Will flip back to
+    // 'active' once the upstream extractor is fixed.
+    status: 'comingSoon',
     hostnames: ['audiomack.com', 'www.audiomack.com'],
   },
   archive: {

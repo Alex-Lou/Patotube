@@ -36,6 +36,7 @@ use crate::youtube_url::sanitize_filename;
 #[cfg(target_os = "android")]
 use self::types::{ItemMetadata, StringOrList};
 
+#[cfg_attr(not(target_os = "android"), allow(unused_imports))]
 pub use self::url::is_archive_url;
 
 #[cfg(target_os = "android")]
