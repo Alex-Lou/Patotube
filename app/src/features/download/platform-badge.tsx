@@ -1,4 +1,13 @@
-import { Youtube, Music2, AudioWaveform, Disc3, Globe } from 'lucide-react';
+import {
+  Youtube,
+  Music2,
+  AudioWaveform,
+  Disc3,
+  Globe,
+  Music,
+  Mic2,
+  Library,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import type { PlatformId } from '@/lib/core/types';
@@ -7,6 +16,9 @@ import { PLATFORMS } from '@/lib/core/platform';
 const ICONS: Record<PlatformId, typeof Globe> = {
   youtube: Youtube,
   soundcloud: AudioWaveform,
+  bandcamp: Music,
+  audiomack: Mic2,
+  archive: Library,
   spotify: Music2,
   deezer: Disc3,
   generic: Globe,

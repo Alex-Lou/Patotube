@@ -96,6 +96,12 @@ fn detect_platform(url: &str) -> String {
         "youtube"
     } else if lower.contains("soundcloud.com") {
         "soundcloud"
+    } else if lower.contains(".bandcamp.com") {
+        "bandcamp"
+    } else if lower.contains("audiomack.com") {
+        "audiomack"
+    } else if lower.contains("archive.org") {
+        "archive"
     } else if lower.contains("spotify.com") {
         "spotify"
     } else if lower.contains("deezer.com") {
