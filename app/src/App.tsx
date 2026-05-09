@@ -116,13 +116,24 @@ export function App() {
           position="bottom-right"
           richColors
           closeButton
-          // 420 px gives a comfortable single-line layout for the
-          // title + filename + folder icon button on desktop. On
-          // mobile (Android WebView, ~360 px viewport) a fixed 420
-          // overflows past the right edge and the bottom navigation
-          // bar clips the description, so we cap at viewport-minus-
-          // gutter and let `truncate` handle long titles.
-          style={{ width: 'min(420px, calc(100vw - 24px))' }}
+          // sonner exposes its toast width via the `--width` CSS
+          // variable (NOT a regular `width` prop on the wrapper —
+          // setting style.width does nothing). 420 px gives the
+          // title + filename + folder icon room on desktop, and on
+          // mobile (Android WebView, ~360 px viewport) we clamp to
+          // the viewport minus a 16 px gutter so the toast sits
+          // fully inside the screen and the description stops
+          // bleeding past the right edge / bottom nav bar.
+          style={
+            {
+              '--width': 'min(420px, calc(100vw - 16px))',
+            } as React.CSSProperties
+          }
+          // Pin the toast to the right edge, but only by 8 px so
+          // the rounded corner stays visible instead of being
+          // half-eaten by the system nav. Same idea on the bottom.
+          offset={{ right: 8, bottom: 12, left: 8, top: 12 }}
+          mobileOffset={{ right: 8, bottom: 12, left: 8, top: 12 }}
           toastOptions={{
             classNames: {
               toast: 'border border-border/60 shadow-lg',
