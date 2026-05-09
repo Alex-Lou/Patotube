@@ -26,7 +26,17 @@
     "comingSoon": "Wsparcie dla {{platform}} wkrótce",
     "fetchFailed": "Nie udało się pobrać informacji",
     "downloadFailed": "Pobieranie nie powiodło się",
-    "noTauri": "Otwórz aplikację desktopową, aby pobrać"
+    "noTauri": "Otwórz aplikację desktopową, aby pobrać",
+    "requiresSignin": "To wideo wymaga zalogowania w YouTube, aby je pobrać. Patotube nie ma dostępu do treści chronionych kontem.",
+    "ageGated": "To wideo ma ograniczenie wiekowe i nie można go pobrać bez zalogowania się do YouTube.",
+    "privateVideo": "To wideo jest prywatne.",
+    "videoUnavailable": "To wideo jest niedostępne.",
+    "couldNotOpenFile": "Nie można otworzyć pliku",
+    "couldNotOpenFolder": "Nie można otworzyć folderu",
+    "scHlsOnly": "Ten utwór SoundCloud jest dostępny tylko jako HLS (segmentowany stream). Patotube nie pobiera jeszcze HLS na mobile.",
+    "scPlaylist": "To jest playlista SoundCloud, a nie pojedynczy utwór. Otwórz jeden z jej utworów, by go pobrać.",
+    "scShortLinkBroken": "Nie udało się rozwinąć tego krótkiego linku SoundCloud. Otwórz go na stronie, by uzyskać pełny URL.",
+    "scNotFound": "Nie znaleziono tego utworu SoundCloud. Mógł zostać usunięty lub ustawiony jako prywatny."
   },
   "format": {
     "label": "Format",
@@ -34,13 +44,15 @@
     "audio": "Tylko dźwięk",
     "videoMp4": "Wideo MP4",
     "audioMp3": "Audio MP3",
+    "audioM4a": "Audio M4A",
     "quality": "Jakość",
     "best": "Najlepsza dostępna",
     "high": "Wysoka (1080p)",
     "medium": "Średnia (720p)",
     "low": "Niska (480p)",
     "audioBitrate": "Bitrate",
-    "kbps": "{{value}} kbps"
+    "kbps": "{{value}} kbps",
+    "audioMobileNote": "Dźwięk dostarczany jest jako M4A (AAC) z bitrate'em strumienia YouTube — bitrate nie jest wybieralny na mobile."
   },
   "preview": {
     "title": "Potwierdź pobieranie",
@@ -61,13 +73,19 @@
     "failed": "Nieudane",
     "openFile": "Otwórz plik",
     "openFolder": "Pokaż w folderze",
+    "copyUrl": "Kopiuj URL źródła",
+    "urlCopied": "URL skopiowany",
     "remove": "Usuń",
     "retry": "Ponów",
+    "eta": "ETA",
     "clear": "Wyczyść ukończone"
   },
   "platform": {
     "youtube": "YouTube",
     "soundcloud": "SoundCloud",
+    "bandcamp": "Bandcamp",
+    "audiomack": "Audiomack",
+    "archive": "Internet Archive",
     "spotify": "Spotify",
     "deezer": "Deezer",
     "generic": "Sieć",
@@ -77,11 +95,35 @@
     "title": "Ustawienia",
     "downloadFolder": "Folder pobierania",
     "browse": "Przeglądaj",
+    "osDefault": "Domyślne systemu",
     "concurrent": "Równoległe pobierania",
     "theme": "Motyw",
     "about": "O programie"
   },
+  "toast": {
+    "completed": "Pobrano: {{title}}",
+    "failed": "Nieudane: {{title}}",
+    "urlPasted": "URL dodano"
+  },
+  "drop": {
+    "hint": "Upuść URL gdziekolwiek"
+  },
+  "update": {
+    "section": "Aktualizacje",
+    "checkButton": "Sprawdź aktualizacje",
+    "checking": "Sprawdzanie…",
+    "upToDate": "Masz aktualną wersję.",
+    "available": "Dostępna aktualizacja: v{{version}}",
+    "installNow": "Zainstaluj teraz",
+    "downloading": "Pobieranie aktualizacji…",
+    "checkFailed": "Nie udało się sprawdzić aktualizacji",
+    "failed": "Aktualizacja nie powiodła się",
+    "notInDesktop": "Aktualizacje sprawdzane są z aplikacji desktopowej."
+  },
   "footer": {
     "openSource": "Open source"
+  },
+  "a11y": {
+    "close": "Zamknij"
   }
 }
