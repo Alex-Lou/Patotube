@@ -1,6 +1,6 @@
 // Patotube Bandcamp extraction kernel.
 //
-// Public surface (Android only):
+// Public surface (cross-platform):
 //   - `fetch_info(url)` — resolves a track page to MediaInfo.
 //   - `start(app, registry, input)` — downloads the streamable
 //     mp3-128 file the page exposes.
@@ -19,36 +19,24 @@
 mod extract;
 mod url;
 
-#[cfg(target_os = "android")]
 use std::path::PathBuf;
 
-#[cfg(target_os = "android")]
 use tauri::AppHandle;
 
-#[cfg(target_os = "android")]
 use crate::commands::StartDownloadInput;
-#[cfg(target_os = "android")]
 use crate::downloader::MediaInfo;
-#[cfg(target_os = "android")]
 use crate::events::emit_status;
-#[cfg(target_os = "android")]
 use crate::jobs::JobRegistry;
-#[cfg(target_os = "android")]
-use crate::output_path::resolve_output_path;
-#[cfg(target_os = "android")]
+use crate::output_path::resolve_destination;
 use crate::streamer::stream_to_disk;
-#[cfg(target_os = "android")]
 use crate::youtube_url::sanitize_filename;
 
-#[cfg_attr(not(target_os = "android"), allow(unused_imports))]
 pub use self::url::is_bandcamp_url;
 
-#[cfg(target_os = "android")]
 const DESKTOP_UA: &str =
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 \
      (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
-#[cfg(target_os = "android")]
 async fn fetch_page(track_url: &str) -> Result<String, String> {
     let http = reqwest::Client::builder()
         .user_agent(DESKTOP_UA)
@@ -72,7 +60,6 @@ async fn fetch_page(track_url: &str) -> Result<String, String> {
         .map_err(|e| format!("could not read Bandcamp page body: {e}"))
 }
 
-#[cfg(target_os = "android")]
 pub async fn fetch_info(track_url: &str) -> Result<MediaInfo, String> {
     let page = fetch_page(track_url).await?;
     let tralbum = extract::extract_tralbum(&page)?;
@@ -95,7 +82,6 @@ pub async fn fetch_info(track_url: &str) -> Result<MediaInfo, String> {
     })
 }
 
-#[cfg(target_os = "android")]
 pub async fn start(
     app: &AppHandle,
     registry: &JobRegistry,
@@ -125,14 +111,13 @@ pub async fn start(
         extract::pick_title(&tralbum),
     );
     let title = sanitize_filename(&title_raw);
-
-    let _ = &input.output_dir; // kept for desktop parity
+    let output_dir = input.output_dir.clone();
 
     let app_handle = app.clone();
     let registry_clone = registry.clone();
 
     tokio::spawn(async move {
-        let result = run_download(&app_handle, &job_id, tralbum, &title).await;
+        let result = run_download(&app_handle, &job_id, tralbum, &title, &output_dir).await;
         match result {
             Ok(path) => emit_status(
                 &app_handle,
@@ -149,15 +134,15 @@ pub async fn start(
     Ok(())
 }
 
-#[cfg(target_os = "android")]
 async fn run_download(
     app: &AppHandle,
     job_id: &str,
     tralbum: extract::TrAlbum,
     title: &str,
+    output_dir: &str,
 ) -> Result<PathBuf, String> {
     let (url, ext) = extract::pick_first_stream(&tralbum)?;
-    let out = resolve_output_path(&format!("{title}.{ext}")).await?;
+    let out = resolve_destination(output_dir, &format!("{title}.{ext}")).await?;
     stream_to_disk(app, job_id, &url, &out).await?;
     Ok(out)
 }

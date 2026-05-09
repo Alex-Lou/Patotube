@@ -10,6 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import type { FormatChoice, MediaInfo } from '@/lib/core/types';
 import { useSettings } from '@/lib/core/settings';
+import { DEFAULT_AUDIO_BITRATE } from '@/lib/core/formats';
 import { formatDuration } from '@/lib/utils';
 import { FormatPicker } from './format-picker';
 
@@ -37,7 +38,7 @@ export function PreviewDialog({ info, onClose, onConfirm }: PreviewDialogProps) 
     if (info) {
       const initial: FormatChoice =
         audioOnly && defaultFormat.kind === 'video'
-          ? { kind: 'audio', bitrate: 192 }
+          ? { kind: 'audio', bitrate: DEFAULT_AUDIO_BITRATE }
           : defaultFormat;
       setFormat(initial);
       setImgError(false);

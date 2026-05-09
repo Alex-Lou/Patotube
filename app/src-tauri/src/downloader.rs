@@ -140,6 +140,18 @@ pub async fn start(
         "%(title)s.%(ext)s".into(),
     ];
 
+    // Tell yt-dlp where to find the ffmpeg sidecar. Without this,
+    // yt-dlp searches PATH — which on a sideloaded Tauri install
+    // doesn't include our `binaries/` folder, so audio extraction
+    // (`-x --audio-format mp3`) silently falls back to leaving the
+    // raw .webm/.m4a on disk and the user sees a "file not found"
+    // error in their player. Pointing at the sidecar location makes
+    // it deterministic.
+    if let Some(ffmpeg_dir) = ffmpeg_sidecar_dir() {
+        args.push("--ffmpeg-location".into());
+        args.push(ffmpeg_dir);
+    }
+
     match &input.format {
         FormatChoice::Video { quality } => {
             let h = match quality.as_str() {
@@ -199,7 +211,12 @@ pub async fn start(
                         last_file = Some(file);
                     } else if let Some(merged) = parse_merging_into(&line) {
                         last_file = Some(merged);
-                    } else if line.contains("[ExtractAudio]") {
+                    } else if let Some(extracted) = parse_extract_audio_dest(&line) {
+                        // ExtractAudio renamed the file to its
+                        // final form (e.g. .webm → .mp3); update
+                        // the tracker so the "open file" toast
+                        // points at the right path.
+                        last_file = Some(extracted);
                         emit_status(&app_handle, &job_id, "converting", None, None);
                     }
                 }
@@ -239,6 +256,21 @@ pub async fn start(
     Ok(())
 }
 
+/// Locate the directory holding our `ffmpeg` sidecar so yt-dlp
+/// can be pointed at it via `--ffmpeg-location`. Tauri copies the
+/// platform-suffixed binaries into `target/<profile>/`, dropping
+/// the suffix; we ship from the same dir as the running exe.
+///
+/// Returns `None` if the current exe path can't be resolved (we
+/// then let yt-dlp fall back to its own PATH search). This is a
+/// defensive helper: missing ffmpeg only matters for audio
+/// extraction, not for raw video downloads.
+fn ffmpeg_sidecar_dir() -> Option<String> {
+    let exe = std::env::current_exe().ok()?;
+    let dir = exe.parent()?;
+    Some(dir.to_string_lossy().into_owned())
+}
+
 fn parse_progress(job_id: &str, line: &str) -> Option<ProgressPayload> {
     let trimmed = line.trim();
     let rest = trimmed.strip_prefix("PROGRESS|")?;
@@ -266,6 +298,18 @@ fn parse_merging_into(line: &str) -> Option<String> {
     line.trim()
         .strip_prefix("[Merger] Merging formats into ")
         .map(|s| s.trim_matches('"').to_string())
+}
+
+/// yt-dlp emits `[ExtractAudio] Destination: foo.mp3` after a
+/// successful audio post-process. Without parsing this, we
+/// continue to report the original `[download] Destination:
+/// foo.webm` as the final file — and Windows then tells the
+/// user the .webm doesn't exist when they click Open File
+/// (because the post-process renamed it to .mp3).
+fn parse_extract_audio_dest(line: &str) -> Option<String> {
+    line.trim()
+        .strip_prefix("[ExtractAudio] Destination: ")
+        .map(|s| s.to_string())
 }
 
 /// Make yt-dlp's noisy stderr something a user can actually act on.
