@@ -15,9 +15,11 @@ const release = (asset: string) =>
 export const ASSETS = {
   windowsExe: `Patotube_${APP_VERSION}_x64-setup.exe`,
   android: 'Patotube.apk',
+  linuxAppImage: `Patotube_${APP_VERSION}_amd64.AppImage`,
 } as const;
 
 export const DOWNLOAD_URLS = {
   windows: release(ASSETS.windowsExe),
   android: release(ASSETS.android),
+  linux: release(ASSETS.linuxAppImage),
 } as const;

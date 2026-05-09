@@ -83,8 +83,7 @@ type Dict = {
 };
 
 export const DICT: Record<LandingLocale, Dict> = {
-  en: {
-    navFeatures: 'Features',
+  en: {    navFeatures: 'Features',
     navDownload: 'Download',
     heroLine1: 'Drop a URL,',
     heroLine2: 'get the file.',
@@ -103,9 +102,9 @@ export const DICT: Record<LandingLocale, Dict> = {
     macosLabel: 'macOS',
     macosSub: 'coming soon',
     linuxLabel: 'Linux',
-    linuxSub: 'coming soon',
+    linuxSub: '.AppImage',
     hoverCta: 'Click to download →',
-    featuresTitle: "What it does, what it doesn't.",
+    featuresTitle: "What's inside",
     featureYtTitle: 'YouTube and SoundCloud',
     featureYtBody:
       'Paste your link, the app handles the rest.',
@@ -127,8 +126,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     comingSoon: 'Coming soon',
   },
 
-  fr: {
-    navFeatures: 'Fonctionnalités',
+  fr: {    navFeatures: 'Fonctionnalités',
     navDownload: 'Télécharger',
     heroLine1: 'Une URL,',
     heroLine2: 'un fichier.',
@@ -147,9 +145,9 @@ export const DICT: Record<LandingLocale, Dict> = {
     macosLabel: 'macOS',
     macosSub: 'bientôt',
     linuxLabel: 'Linux',
-    linuxSub: 'bientôt',
+    linuxSub: '.AppImage',
     hoverCta: 'Cliquer pour télécharger →',
-    featuresTitle: "Ce qu'elle fait, ce qu'elle ne fait pas.",
+    featuresTitle: "Dans la boîte",
     featureYtTitle: "YouTube et SoundCloud",
     featureYtBody:
       "Colle ton lien, l'app gère le reste.",
@@ -171,8 +169,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     comingSoon: 'Bientôt',
   },
 
-  es: {
-    navFeatures: 'Características',
+  es: {    navFeatures: 'Características',
     navDownload: 'Descargar',
     heroLine1: 'Pega una URL,',
     heroLine2: 'recibe el archivo.',
@@ -191,9 +188,9 @@ export const DICT: Record<LandingLocale, Dict> = {
     macosLabel: 'macOS',
     macosSub: 'próximamente',
     linuxLabel: 'Linux',
-    linuxSub: 'próximamente',
+    linuxSub: '.AppImage',
     hoverCta: 'Pulsa para descargar →',
-    featuresTitle: 'Lo que hace, lo que no hace.',
+    featuresTitle: "Lo que hay dentro",
     featureYtTitle: 'YouTube y SoundCloud',
     featureYtBody:
       'Pega tu enlace, la app se encarga del resto.',
@@ -215,8 +212,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     comingSoon: 'Próximamente',
   },
 
-  ar: {
-    navFeatures: 'المميزات',
+  ar: {    navFeatures: 'المميزات',
     navDownload: 'تنزيل',
     heroLine1: 'ألصِق رابطًا،',
     heroLine2: 'احصل على الملف.',
@@ -235,9 +231,9 @@ export const DICT: Record<LandingLocale, Dict> = {
     macosLabel: 'macOS',
     macosSub: 'قريبًا',
     linuxLabel: 'Linux',
-    linuxSub: 'قريبًا',
+    linuxSub: '.AppImage',
     hoverCta: 'اضغط للتنزيل ←',
-    featuresTitle: 'ما يفعله، وما لا يفعله.',
+    featuresTitle: "ما في الداخل",
     featureYtTitle: 'يوتيوب وساوند كلاود',
     featureYtBody:
       'ألصِق رابطك والتطبيق يتولى الباقي.',
@@ -259,8 +255,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     comingSoon: 'قريبًا',
   },
 
-  ja: {
-    navFeatures: '機能',
+  ja: {    navFeatures: '機能',
     navDownload: 'ダウンロード',
     heroLine1: 'URLを貼って、',
     heroLine2: 'ファイルをゲット。',
@@ -279,9 +274,9 @@ export const DICT: Record<LandingLocale, Dict> = {
     macosLabel: 'macOS',
     macosSub: '近日対応',
     linuxLabel: 'Linux',
-    linuxSub: '近日対応',
+    linuxSub: '.AppImage',
     hoverCta: 'クリックでダウンロード →',
-    featuresTitle: '何ができて、何ができないか。',
+    featuresTitle: "中身は",
     featureYtTitle: 'YouTube と SoundCloud',
     featureYtBody:
       'リンクを貼り付ければ、あとはアプリにお任せ。',
@@ -303,8 +298,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     comingSoon: '近日対応',
   },
 
-  zh: {
-    navFeatures: '功能',
+  zh: {    navFeatures: '功能',
     navDownload: '下载',
     heroLine1: '粘贴链接，',
     heroLine2: '获取文件。',
@@ -323,9 +317,9 @@ export const DICT: Record<LandingLocale, Dict> = {
     macosLabel: 'macOS',
     macosSub: '即将支持',
     linuxLabel: 'Linux',
-    linuxSub: '即将支持',
+    linuxSub: '.AppImage',
     hoverCta: '点击下载 →',
-    featuresTitle: '它能做什么，不能做什么。',
+    featuresTitle: "里面有什么",
     featureYtTitle: 'YouTube 和 SoundCloud',
     featureYtBody:
       '粘贴你的链接，剩下的交给应用。',
@@ -347,8 +341,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     comingSoon: '即将支持',
   },
 
-  is: {
-    navFeatures: 'Eiginleikar',
+  is: {    navFeatures: 'Eiginleikar',
     navDownload: 'Sækja',
     heroLine1: 'Límdu inn slóð,',
     heroLine2: 'fáðu skrána.',
@@ -367,9 +360,9 @@ export const DICT: Record<LandingLocale, Dict> = {
     macosLabel: 'macOS',
     macosSub: 'á leiðinni',
     linuxLabel: 'Linux',
-    linuxSub: 'á leiðinni',
+    linuxSub: '.AppImage',
     hoverCta: 'Smelltu til að sækja →',
-    featuresTitle: 'Hvað það gerir, hvað það gerir ekki.',
+    featuresTitle: "Hvað er innan",
     featureYtTitle: 'YouTube og SoundCloud',
     featureYtBody:
       'Límdu inn slóðina, forritið sér um restina.',
@@ -391,8 +384,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     comingSoon: 'Á leiðinni',
   },
 
-  pt: {
-    navFeatures: 'Recursos',
+  pt: {    navFeatures: 'Recursos',
     navDownload: 'Baixar',
     heroLine1: 'Cole uma URL,',
     heroLine2: 'receba o arquivo.',
@@ -411,9 +403,9 @@ export const DICT: Record<LandingLocale, Dict> = {
     macosLabel: 'macOS',
     macosSub: 'em breve',
     linuxLabel: 'Linux',
-    linuxSub: 'em breve',
+    linuxSub: '.AppImage',
     hoverCta: 'Clique para baixar →',
-    featuresTitle: 'O que faz, o que não faz.',
+    featuresTitle: "O que tem dentro",
     featureYtTitle: 'YouTube e SoundCloud',
     featureYtBody:
       'Cole seu link, o app cuida do resto.',
@@ -435,8 +427,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     comingSoon: 'Em breve',
   },
 
-  it: {
-    navFeatures: 'Funzionalità',
+  it: {    navFeatures: 'Funzionalità',
     navDownload: 'Scarica',
     heroLine1: 'Incolla un URL,',
     heroLine2: 'ottieni il file.',
@@ -455,9 +446,9 @@ export const DICT: Record<LandingLocale, Dict> = {
     macosLabel: 'macOS',
     macosSub: 'prossimamente',
     linuxLabel: 'Linux',
-    linuxSub: 'prossimamente',
+    linuxSub: '.AppImage',
     hoverCta: 'Clicca per scaricare →',
-    featuresTitle: 'Cosa fa, cosa non fa.',
+    featuresTitle: "Cosa c'è dentro",
     featureYtTitle: 'YouTube e SoundCloud',
     featureYtBody:
       "Incolla il tuo link, l'app si occupa del resto.",
@@ -479,8 +470,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     comingSoon: 'Prossimamente',
   },
 
-  de: {
-    navFeatures: 'Funktionen',
+  de: {    navFeatures: 'Funktionen',
     navDownload: 'Herunterladen',
     heroLine1: 'URL einfügen,',
     heroLine2: 'Datei erhalten.',
@@ -499,9 +489,9 @@ export const DICT: Record<LandingLocale, Dict> = {
     macosLabel: 'macOS',
     macosSub: 'demnächst',
     linuxLabel: 'Linux',
-    linuxSub: 'demnächst',
+    linuxSub: '.AppImage',
     hoverCta: 'Zum Herunterladen klicken →',
-    featuresTitle: 'Was es kann, was es nicht kann.',
+    featuresTitle: "Was drin ist",
     featureYtTitle: 'YouTube und SoundCloud',
     featureYtBody:
       'Link einfügen, die App erledigt den Rest.',
@@ -523,8 +513,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     comingSoon: 'Demnächst',
   },
 
-  nl: {
-    navFeatures: 'Functies',
+  nl: {    navFeatures: 'Functies',
     navDownload: 'Downloaden',
     heroLine1: 'Plak een URL,',
     heroLine2: 'krijg het bestand.',
@@ -543,9 +532,9 @@ export const DICT: Record<LandingLocale, Dict> = {
     macosLabel: 'macOS',
     macosSub: 'binnenkort',
     linuxLabel: 'Linux',
-    linuxSub: 'binnenkort',
+    linuxSub: '.AppImage',
     hoverCta: 'Klik om te downloaden →',
-    featuresTitle: 'Wat het doet, wat het niet doet.',
+    featuresTitle: "Wat erin zit",
     featureYtTitle: 'YouTube en SoundCloud',
     featureYtBody:
       'Plak je link, de app regelt de rest.',
@@ -567,8 +556,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     comingSoon: 'Binnenkort',
   },
 
-  pl: {
-    navFeatures: 'Funkcje',
+  pl: {    navFeatures: 'Funkcje',
     navDownload: 'Pobierz',
     heroLine1: 'Wklej URL,',
     heroLine2: 'otrzymaj plik.',
@@ -587,9 +575,9 @@ export const DICT: Record<LandingLocale, Dict> = {
     macosLabel: 'macOS',
     macosSub: 'wkrótce',
     linuxLabel: 'Linux',
-    linuxSub: 'wkrótce',
+    linuxSub: '.AppImage',
     hoverCta: 'Kliknij, aby pobrać →',
-    featuresTitle: 'Co robi, czego nie robi.',
+    featuresTitle: "Co jest w środku",
     featureYtTitle: 'YouTube i SoundCloud',
     featureYtBody:
       'Wklej swój link, aplikacja zajmie się resztą.',
@@ -611,8 +599,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     comingSoon: 'Wkrótce',
   },
 
-  ru: {
-    navFeatures: 'Функции',
+  ru: {    navFeatures: 'Функции',
     navDownload: 'Скачать',
     heroLine1: 'Вставьте ссылку,',
     heroLine2: 'получите файл.',
@@ -631,9 +618,9 @@ export const DICT: Record<LandingLocale, Dict> = {
     macosLabel: 'macOS',
     macosSub: 'скоро',
     linuxLabel: 'Linux',
-    linuxSub: 'скоро',
+    linuxSub: '.AppImage',
     hoverCta: 'Нажмите для загрузки →',
-    featuresTitle: 'Что делает, чего не делает.',
+    featuresTitle: "Что внутри",
     featureYtTitle: 'YouTube и SoundCloud',
     featureYtBody:
       'Вставьте ссылку — приложение разберётся.',
@@ -655,8 +642,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     comingSoon: 'Скоро',
   },
 
-  tr: {
-    navFeatures: 'Özellikler',
+  tr: {    navFeatures: 'Özellikler',
     navDownload: 'İndir',
     heroLine1: 'URL yapıştır,',
     heroLine2: 'dosyayı al.',
@@ -675,9 +661,9 @@ export const DICT: Record<LandingLocale, Dict> = {
     macosLabel: 'macOS',
     macosSub: 'yakında',
     linuxLabel: 'Linux',
-    linuxSub: 'yakında',
+    linuxSub: '.AppImage',
     hoverCta: 'İndirmek için tıkla →',
-    featuresTitle: 'Neler yapar, neler yapmaz.',
+    featuresTitle: "İçinde ne var",
     featureYtTitle: 'YouTube ve SoundCloud',
     featureYtBody:
       "Linkini yapıştır, uygulama gerisini halletsin.",
@@ -699,8 +685,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     comingSoon: 'Yakında',
   },
 
-  hi: {
-    navFeatures: 'सुविधाएँ',
+  hi: {    navFeatures: 'सुविधाएँ',
     navDownload: 'डाउनलोड',
     heroLine1: 'URL पेस्ट करें,',
     heroLine2: 'फ़ाइल पाएं।',
@@ -719,9 +704,9 @@ export const DICT: Record<LandingLocale, Dict> = {
     macosLabel: 'macOS',
     macosSub: 'जल्द आ रहा है',
     linuxLabel: 'Linux',
-    linuxSub: 'जल्द आ रहा है',
+    linuxSub: '.AppImage',
     hoverCta: 'डाउनलोड के लिए क्लिक करें →',
-    featuresTitle: 'क्या करता है, क्या नहीं।',
+    featuresTitle: "अंदर क्या है",
     featureYtTitle: 'YouTube और SoundCloud',
     featureYtBody:
       'अपना लिंक पेस्ट करें, ऐप बाकी संभालता है।',
@@ -743,8 +728,7 @@ export const DICT: Record<LandingLocale, Dict> = {
     comingSoon: 'जल्द आ रहा है',
   },
 
-  ko: {
-    navFeatures: '기능',
+  ko: {    navFeatures: '기능',
     navDownload: '다운로드',
     heroLine1: 'URL을 붙여넣고,',
     heroLine2: '파일을 받으세요.',
@@ -763,9 +747,9 @@ export const DICT: Record<LandingLocale, Dict> = {
     macosLabel: 'macOS',
     macosSub: '출시 예정',
     linuxLabel: 'Linux',
-    linuxSub: '출시 예정',
+    linuxSub: '.AppImage',
     hoverCta: '클릭하여 다운로드 →',
-    featuresTitle: '무엇을 하고 무엇을 하지 않는가.',
+    featuresTitle: "안에 무엇이 있나",
     featureYtTitle: 'YouTube와 SoundCloud',
     featureYtBody:
       '링크를 붙여넣으면 앱이 알아서 처리합니다.',
