@@ -118,8 +118,10 @@ pub async fn start(
     input: StartDownloadInput,
 ) -> Result<(), String> {
     let job_id = input.job_id.clone();
+    eprintln!("[patotube] downloader::start invoked job={job_id} url={}", input.url);
 
     emit_status(app, &job_id, "downloading", None, None);
+    eprintln!("[patotube] emit_status downloading sent for job={job_id}");
 
     let mut args: Vec<String> = vec![
         "--no-playlist".into(),
@@ -165,10 +167,18 @@ pub async fn start(
     let shell = app.shell();
     let cmd = shell
         .sidecar("yt-dlp")
-        .map_err(|e| format!("sidecar yt-dlp not found: {e}"))?
+        .map_err(|e| {
+            eprintln!("[patotube] sidecar resolution failed: {e}");
+            format!("sidecar yt-dlp not found: {e}")
+        })?
         .args(args);
+    eprintln!("[patotube] sidecar resolved, spawning…");
 
-    let (mut rx, child) = cmd.spawn().map_err(|e| format!("spawn failed: {e}"))?;
+    let (mut rx, child) = cmd.spawn().map_err(|e| {
+        eprintln!("[patotube] spawn failed: {e}");
+        format!("spawn failed: {e}")
+    })?;
+    eprintln!("[patotube] yt-dlp spawned for job={job_id}, listening for events");
     registry.register(job_id.clone(), child);
 
     let app_handle = app.clone();
