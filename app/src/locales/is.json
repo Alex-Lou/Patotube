@@ -125,5 +125,21 @@
   },
   "a11y": {
     "close": "Loka"
+  },
+  "files": {
+    "title": "Niðurhölin mín",
+    "refresh": "Endurhlaða",
+    "empty": "Engin niðurhöl ennþá. Límdu slóð fyrir ofan.",
+    "open": "Opna",
+    "share": "Deila",
+    "delete": "Eyða",
+    "more": "Fleira",
+    "deleted": "Eytt",
+    "deleteFailed": "Tókst ekki að eyða skrá",
+    "shareUnavailable": "Deiling er ekki í boði á þessu tæki",
+    "loadFailed": "Tókst ekki að hlaða niðurhölum",
+    "playerLoading": "Hleður…",
+    "shareFailed": "Tókst ekki að opna deilingarvalmynd",
+    "playerLoadFailed": "Tókst ekki að spila þessa skrá"
   }
 }

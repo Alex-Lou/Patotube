@@ -125,5 +125,21 @@
   },
   "a11y": {
     "close": "Kapat"
+  },
+  "files": {
+    "title": "İndirilenlerim",
+    "refresh": "Yenile",
+    "empty": "Henüz indirme yok. Yukarıya bir URL yapıştırın.",
+    "open": "Aç",
+    "share": "Paylaş",
+    "delete": "Sil",
+    "more": "Daha fazla",
+    "deleted": "Silindi",
+    "deleteFailed": "Dosya silinemedi",
+    "shareUnavailable": "Paylaşım bu cihazda kullanılamıyor",
+    "loadFailed": "İndirilenler yüklenemedi",
+    "playerLoading": "Yükleniyor…",
+    "shareFailed": "Paylaşım menüsü açılamadı",
+    "playerLoadFailed": "Bu dosya oynatılamadı"
   }
 }
