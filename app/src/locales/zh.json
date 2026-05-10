@@ -125,5 +125,21 @@
   },
   "a11y": {
     "close": "关闭"
+  },
+  "files": {
+    "title": "我的下载",
+    "refresh": "刷新",
+    "empty": "暂无下载。在上方粘贴链接。",
+    "open": "打开",
+    "share": "分享",
+    "delete": "删除",
+    "more": "更多",
+    "deleted": "已删除",
+    "deleteFailed": "无法删除文件",
+    "shareUnavailable": "此设备不支持分享",
+    "loadFailed": "无法加载下载列表",
+    "playerLoading": "正在加载…",
+    "shareFailed": "无法打开分享菜单",
+    "playerLoadFailed": "无法播放此文件"
   }
 }

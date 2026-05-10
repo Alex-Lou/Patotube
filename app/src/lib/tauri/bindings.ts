@@ -26,6 +26,18 @@ export interface DownloadStatusEvent {
 
 export type Unlisten = () => void;
 
+/** One entry in the FilesSheet listing. Mirrors `files::DownloadEntry`
+ *  on the Rust side — keep field names in sync (serde renames to
+ *  camelCase). */
+export interface DownloadEntry {
+  name: string;
+  path: string;
+  size: number;
+  /** Unix epoch seconds, or 0 if the FS didn't expose it. */
+  mtime: number;
+  mimeKind: 'audio' | 'video';
+}
+
 export interface TauriApi {
   fetchMediaInfo(url: string): Promise<MediaInfo>;
   startDownload(input: {
@@ -39,6 +51,8 @@ export interface TauriApi {
   defaultDownloadDir(): Promise<string>;
   openPath(path: string): Promise<void>;
   showInFolder(path: string): Promise<void>;
+  listDownloads(): Promise<DownloadEntry[]>;
+  deleteDownload(path: string): Promise<void>;
   onProgress(handler: (e: DownloadProgressEvent) => void): Promise<Unlisten>;
   onStatus(handler: (e: DownloadStatusEvent) => void): Promise<Unlisten>;
 }
@@ -64,6 +78,8 @@ async function realApi(): Promise<TauriApi> {
     defaultDownloadDir: () => invoke('default_download_dir'),
     openPath: (path) => invoke('open_path', { path }),
     showInFolder: (path) => invoke('show_in_folder', { path }),
+    listDownloads: () => invoke('list_downloads'),
+    deleteDownload: (path) => invoke('delete_download', { path }),
     onProgress: subscribe<DownloadProgressEvent>('download://progress'),
     onStatus: subscribe<DownloadStatusEvent>('download://status'),
   };

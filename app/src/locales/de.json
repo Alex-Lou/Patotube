@@ -125,5 +125,21 @@
   },
   "a11y": {
     "close": "Schließen"
+  },
+  "files": {
+    "title": "Meine Downloads",
+    "refresh": "Aktualisieren",
+    "empty": "Noch keine Downloads. Oben eine URL einfügen.",
+    "open": "Öffnen",
+    "share": "Teilen",
+    "delete": "Löschen",
+    "more": "Mehr",
+    "deleted": "Gelöscht",
+    "deleteFailed": "Datei konnte nicht gelöscht werden",
+    "shareUnavailable": "Teilen auf diesem Gerät nicht verfügbar",
+    "loadFailed": "Downloads konnten nicht geladen werden",
+    "playerLoading": "Wird geladen…",
+    "shareFailed": "Teilen-Menü konnte nicht geöffnet werden",
+    "playerLoadFailed": "Datei konnte nicht abgespielt werden"
   }
 }

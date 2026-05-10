@@ -125,5 +125,21 @@
   },
   "a11y": {
     "close": "Sluiten"
+  },
+  "files": {
+    "title": "Mijn downloads",
+    "refresh": "Vernieuwen",
+    "empty": "Nog geen downloads. Plak hierboven een URL.",
+    "open": "Openen",
+    "share": "Delen",
+    "delete": "Verwijderen",
+    "more": "Meer",
+    "deleted": "Verwijderd",
+    "deleteFailed": "Kon bestand niet verwijderen",
+    "shareUnavailable": "Delen niet beschikbaar op dit apparaat",
+    "loadFailed": "Kon downloads niet laden",
+    "playerLoading": "Laden…",
+    "shareFailed": "Kon het deelmenu niet openen",
+    "playerLoadFailed": "Kon dit bestand niet afspelen"
   }
 }
