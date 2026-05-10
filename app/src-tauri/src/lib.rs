@@ -1,4 +1,8 @@
 mod commands;
+// Built-in mini file manager for the downloads folder. Used
+// primarily on Android (where the device may not ship a system
+// file manager) but the listing command works on every platform.
+mod files;
 // `MediaInfo` lives on its own so every kernel can import it without
 // dragging the yt-dlp orchestration with it. The orchestrator
 // (`downloader`) is desktop-only — Android uses the native kernels
@@ -86,6 +90,8 @@ pub fn run() {
             commands::default_download_dir,
             commands::open_path,
             commands::show_in_folder,
+            files::list_downloads,
+            files::delete_download,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Patotube");

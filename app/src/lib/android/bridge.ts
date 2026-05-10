@@ -16,6 +16,16 @@ interface PatoMobileBridge {
   scanFile(path: string): void;
   deleteFile(path: string): boolean;
   renameFile(srcPath: string, dstPath: string): boolean;
+  shareFile(path: string): boolean;
+  /** Read-and-clear the latest external Android intent forwarded
+   *  by MainActivity. Returns a JSON string or null. JSON shapes:
+   *  `{"kind":"download","url":"…"}` or
+   *  `{"kind":"open-file","path":"…"}`. */
+  consumePendingIntent(): string | null;
+  /** Read a file into a base64 string. The embedded HTML5 player
+   *  uses this on Android because Tauri's asset:// protocol tends
+   *  to silently fail for arbitrary paths in the system WebView. */
+  readFileBase64(path: string): string | null;
   // Async — returns void and calls
   // window.__patotubeFFmpegCallback(callbackId, { error: string })
   // when the remux finishes. error === "" means success.
@@ -26,12 +36,23 @@ interface BridgeCallbackResult {
   error: string;
 }
 
+/** Decoded shape of `consumePendingIntent`. Either a download
+ *  request (share-from-app or `patotube://download?url=…`) or an
+ *  open-file request ("Open with → Patotube" or
+ *  `patotube://open-file?path=…`). */
+export type PendingIntent =
+  | { kind: 'download'; url: string }
+  | { kind: 'open-file'; path: string };
+
 declare global {
   interface Window {
     PatoMobile?: PatoMobileBridge;
     // Name kept for historical reasons even though we no longer use
     // ffmpeg — renaming would force a coordinated bridge update.
     __patotubeFFmpegCallback?: (id: number, result: BridgeCallbackResult) => void;
+    /** Push hook the Kotlin side calls after parking a fresh
+     *  pending intent — saves the JS side from polling on a timer. */
+    __patotubeOnIntent?: () => void;
   }
 }
 
@@ -51,6 +72,52 @@ export const hasAudioRemuxBridge = (): boolean =>
 /** Try to open a file through Android's default app for its MIME type. */
 export function openFileNative(path: string): boolean {
   return window.PatoMobile?.openFile(path) === true;
+}
+
+/** Bring up the system share sheet for a downloaded file. Returns
+ *  false if the bridge is missing or the file no longer exists —
+ *  caller can fall back to `navigator.share` or surface a toast. */
+export function shareFileNative(path: string): boolean {
+  try {
+    return window.PatoMobile?.shareFile(path) === true;
+  } catch {
+    return false;
+  }
+}
+
+/** Read-and-clear the latest external Android intent. Caller
+ *  drives the loop: invoke on mount, on visibilitychange, and
+ *  whenever `window.__patotubeOnIntent` fires (Kotlin push hook). */
+export function consumePendingIntent(): PendingIntent | null {
+  try {
+    const raw = window.PatoMobile?.consumePendingIntent();
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === 'object' && typeof parsed.kind === 'string') {
+      return parsed as PendingIntent;
+    }
+  } catch {
+    /* malformed payload — drop silently */
+  }
+  return null;
+}
+
+/** Read a file's bytes via the native bridge and wrap them in a
+ *  Blob URL. Used by the embedded HTML5 player on Android, where
+ *  Tauri's asset:// protocol doesn't reliably load arbitrary
+ *  paths in the system WebView. Caller must `URL.revokeObjectURL`
+ *  the returned URL when the player closes to free the memory. */
+export function readAsBlobUrl(path: string, mime: string): string | null {
+  try {
+    const base64 = window.PatoMobile?.readFileBase64(path);
+    if (!base64) return null;
+    const binary = atob(base64);
+    const buf = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) buf[i] = binary.charCodeAt(i);
+    return URL.createObjectURL(new Blob([buf], { type: mime }));
+  } catch {
+    return null;
+  }
 }
 
 /** Open the system Downloads folder in the device's file picker / Files app. */
