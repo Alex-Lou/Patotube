@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Toaster } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -6,6 +6,9 @@ import { Download } from 'lucide-react';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Splash } from '@/components/splash';
 import { Header } from '@/components/header';
+import { FilePlayerDialog } from '@/features/files/file-player-dialog';
+import { usePlayerStore } from '@/features/files/player-store';
+import { consumePendingIntent, hasNativeBridge } from '@/lib/android/bridge';
 import { UrlInput } from '@/features/download/url-input';
 import { PreviewDialog } from '@/features/download/preview-dialog';
 import { QueueList } from '@/features/download/queue-list';
@@ -35,13 +38,39 @@ export function App() {
     return () => clearTimeout(id);
   }, []);
 
-  // Deep-link handler — `patotube://download?url=…` from the
-  // browser companion (extension / userscript / bookmarklet) or
-  // any URL launcher pre-registered with the OS. Same downstream
-  // flow as a drop or a paste: validate, fetch info, open the
-  // preview dialog. Cold-start uses the JS plugin's `getCurrent()`
-  // because the URL may be delivered before React has mounted;
-  // warm-start uses `onOpenUrl()` for subsequent clicks.
+  // Single dispatcher for "an external thing handed us an action".
+  // Used by three sources: the desktop Tauri deep-link plugin
+  // (custom-protocol scheme), the Android PatoMobile bridge (share
+  // / open-with intents, mobile-browser `patotube://` taps), and
+  // global drag-and-drop. Splits on `kind`, never on the source.
+  const dispatchExternalAction = useCallback(
+    (intent: { kind: 'download'; url: string } | { kind: 'open-file'; path: string }) => {
+      setShowSplash(false);
+      if (intent.kind === 'download') {
+        const v = validateUrl(intent.url);
+        if (!v.ok) return;
+        const platform = detectPlatform(v.url);
+        if (!isActive(platform)) return;
+        void (async () => {
+          try {
+            const api = await getTauri();
+            const info = await api.fetchMediaInfo(v.url);
+            setPendingPreview(info);
+          } catch {
+            /* swallowed; the URL input flow surfaces fetch errors */
+          }
+        })();
+      } else if (intent.kind === 'open-file') {
+        usePlayerStore.getState().playPath(intent.path);
+      }
+    },
+    [],
+  );
+
+  // Deep-link handler — desktop side via Tauri's plugin, fed by
+  // the OS-registered URL scheme `patotube://`. Cold-start uses
+  // `getCurrent()` because the URL may be delivered before React
+  // has mounted; warm-start uses `onOpenUrl()` for subsequent clicks.
   useEffect(() => {
     if (typeof window === 'undefined' || !('__TAURI_INTERNALS__' in window)) {
       return;
@@ -56,22 +85,17 @@ export function App() {
         return;
       }
       if (parsed.protocol !== 'patotube:') return;
-      const target = parsed.searchParams.get('url');
-      if (!target) return;
-      const v = validateUrl(target);
-      if (!v.ok) return;
-      const platform = detectPlatform(v.url);
-      if (!isActive(platform)) return;
-      setShowSplash(false);
-      void (async () => {
-        try {
-          const api = await getTauri();
-          const info = await api.fetchMediaInfo(v.url);
-          setPendingPreview(info);
-        } catch {
-          /* swallowed; the URL input flow is the canonical place to surface fetch errors */
-        }
-      })();
+      // The URL parser sometimes lands the action in `host`,
+      // sometimes in `pathname` depending on the trailing slashes
+      // — handle both.
+      const action = parsed.host || parsed.pathname.replace(/^\/+/, '');
+      if (action === 'download') {
+        const target = parsed.searchParams.get('url');
+        if (target) dispatchExternalAction({ kind: 'download', url: target });
+      } else if (action === 'open-file') {
+        const path = parsed.searchParams.get('path');
+        if (path) dispatchExternalAction({ kind: 'open-file', path });
+      }
     };
 
     let unlisten: (() => void) | undefined;
@@ -89,7 +113,34 @@ export function App() {
       cancelled = true;
       unlisten?.();
     };
-  }, []);
+  }, [dispatchExternalAction]);
+
+  // Android intent handler — share-target SEND, "Open with →
+  // Patotube" VIEW, and `patotube://` taps in a mobile browser
+  // all flow through this. The Tauri deep-link plugin doesn't
+  // register schemes on Android, so MainActivity captures the
+  // intent and parks the payload in the PatoMobile bridge; we
+  // drain it here on mount, on every focus return, and via the
+  // Kotlin push hook (`window.__patotubeOnIntent`) for warm-start
+  // intents that arrive while the app is already foregrounded.
+  useEffect(() => {
+    if (!hasNativeBridge()) return;
+
+    const drain = () => {
+      const intent = consumePendingIntent();
+      if (intent) dispatchExternalAction(intent);
+    };
+
+    drain(); // cold-start
+    window.__patotubeOnIntent = drain;
+    document.addEventListener('visibilitychange', drain);
+    return () => {
+      if (window.__patotubeOnIntent === drain) {
+        delete window.__patotubeOnIntent;
+      }
+      document.removeEventListener('visibilitychange', drain);
+    };
+  }, [dispatchExternalAction]);
 
   // Global drag & drop: dropping a URL anywhere triggers the fetch flow.
   useEffect(() => {
@@ -256,6 +307,12 @@ export function App() {
         </AnimatePresence>
 
         <AnimatePresence>{showSplash && <Splash />}</AnimatePresence>
+
+        {/* Embedded media player. Opened from FilesSheet row click
+            when no system app handles the MIME, OR from a
+            `patotube://open-file?path=…` intent (Android "Open
+            with → Patotube" chooser). */}
+        <FilePlayerDialog />
       </div>
     </TooltipProvider>
   );
