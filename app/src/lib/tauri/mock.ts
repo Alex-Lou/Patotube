@@ -48,6 +48,25 @@ export function mockTauri(): TauriApi {
     },
     async openPath() {},
     async showInFolder() {},
+    async listDownloads() {
+      return [
+        {
+          name: 'Demo song.mp3',
+          path: '/mock/downloads/Demo song.mp3',
+          size: 4_750_941,
+          mtime: Math.floor(Date.now() / 1000) - 60,
+          mimeKind: 'audio',
+        },
+        {
+          name: 'Demo clip.mp4',
+          path: '/mock/downloads/Demo clip.mp4',
+          size: 19_978_604,
+          mtime: Math.floor(Date.now() / 1000) - 3600,
+          mimeKind: 'video',
+        },
+      ];
+    },
+    async deleteDownload() {},
     async onProgress(handler) {
       progressHandlers.add(handler);
       const unlisten: Unlisten = () => progressHandlers.delete(handler) as unknown as void;

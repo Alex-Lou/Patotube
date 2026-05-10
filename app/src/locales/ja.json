@@ -125,5 +125,21 @@
   },
   "a11y": {
     "close": "閉じる"
+  },
+  "files": {
+    "title": "ダウンロード一覧",
+    "refresh": "更新",
+    "empty": "ダウンロードはまだありません。上にURLを貼ってください。",
+    "open": "開く",
+    "share": "共有",
+    "delete": "削除",
+    "more": "その他",
+    "deleted": "削除しました",
+    "deleteFailed": "ファイルを削除できませんでした",
+    "shareUnavailable": "このデバイスでは共有できません",
+    "loadFailed": "ダウンロードを読み込めませんでした",
+    "playerLoading": "読み込み中…",
+    "shareFailed": "共有メニューを開けませんでした",
+    "playerLoadFailed": "このファイルを再生できませんでした"
   }
 }

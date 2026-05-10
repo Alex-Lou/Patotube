@@ -125,5 +125,21 @@
   },
   "a11y": {
     "close": "닫기"
+  },
+  "files": {
+    "title": "내 다운로드",
+    "refresh": "새로 고침",
+    "empty": "다운로드가 없습니다. 위에 URL을 붙여넣으세요.",
+    "open": "열기",
+    "share": "공유",
+    "delete": "삭제",
+    "more": "더보기",
+    "deleted": "삭제됨",
+    "deleteFailed": "파일을 삭제할 수 없습니다",
+    "shareUnavailable": "이 기기에서는 공유할 수 없습니다",
+    "loadFailed": "다운로드를 불러올 수 없습니다",
+    "playerLoading": "로드 중…",
+    "shareFailed": "공유 메뉴를 열 수 없습니다",
+    "playerLoadFailed": "이 파일을 재생할 수 없습니다"
   }
 }

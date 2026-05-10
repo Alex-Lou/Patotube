@@ -125,5 +125,21 @@
   },
   "a11y": {
     "close": "Fermer"
+  },
+  "files": {
+    "title": "Mes téléchargements",
+    "refresh": "Actualiser",
+    "empty": "Aucun téléchargement. Colle une URL ci-dessus.",
+    "open": "Ouvrir",
+    "share": "Partager",
+    "delete": "Supprimer",
+    "more": "Plus",
+    "deleted": "Supprimé",
+    "deleteFailed": "Impossible de supprimer le fichier",
+    "shareUnavailable": "Partage non disponible sur cet appareil",
+    "loadFailed": "Impossible de charger les téléchargements",
+    "playerLoading": "Chargement…",
+    "shareFailed": "Impossible d’ouvrir le menu de partage",
+    "playerLoadFailed": "Impossible de lire ce fichier"
   }
 }
