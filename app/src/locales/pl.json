@@ -125,5 +125,21 @@
   },
   "a11y": {
     "close": "Zamknij"
+  },
+  "files": {
+    "title": "Moje pobrane",
+    "refresh": "Odśwież",
+    "empty": "Brak pobranych. Wklej URL powyżej.",
+    "open": "Otwórz",
+    "share": "Udostępnij",
+    "delete": "Usuń",
+    "more": "Więcej",
+    "deleted": "Usunięto",
+    "deleteFailed": "Nie można usunąć pliku",
+    "shareUnavailable": "Udostępnianie niedostępne na tym urządzeniu",
+    "loadFailed": "Nie można załadować pobranych",
+    "playerLoading": "Ładowanie…",
+    "shareFailed": "Nie można otworzyć menu udostępniania",
+    "playerLoadFailed": "Nie można odtworzyć tego pliku"
   }
 }

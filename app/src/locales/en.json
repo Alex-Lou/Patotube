@@ -125,5 +125,21 @@
   },
   "a11y": {
     "close": "Close"
+  },
+  "files": {
+    "title": "My downloads",
+    "refresh": "Refresh",
+    "empty": "No downloads yet. Drop a URL above to get started.",
+    "open": "Open",
+    "share": "Share",
+    "delete": "Delete",
+    "more": "More",
+    "deleted": "Deleted",
+    "deleteFailed": "Could not delete file",
+    "shareUnavailable": "Sharing not available on this device",
+    "loadFailed": "Could not load downloads",
+    "playerLoading": "Loading…",
+    "shareFailed": "Could not open the share sheet",
+    "playerLoadFailed": "Could not play this file"
   }
 }

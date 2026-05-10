@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Settings as SettingsIcon } from 'lucide-react';
+import { Settings as SettingsIcon, Folder } from 'lucide-react';
 import {
   Sheet,
   SheetContent,
@@ -11,10 +11,15 @@ import {
 import { Button } from '@/components/ui/button';
 import { SettingsMenu } from './settings-menu';
 import { LangPicker } from '@/features/i18n/lang-picker';
+import { FilesSheet } from '@/features/files/files-sheet';
+import { isAndroid as isAndroidPlatform } from '@/lib/android/bridge';
+
+const IS_ANDROID = isAndroidPlatform();
 
 export function Header() {
   const { t } = useTranslation();
-  const [open, setOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [filesOpen, setFilesOpen] = useState(false);
 
   return (
     <header className="drag-region flex items-center justify-between border-b border-border/40 bg-background/60 px-4 py-3 backdrop-blur-md">
@@ -33,7 +38,22 @@ export function Header() {
 
       <div className="no-drag-region flex items-center gap-2">
         <LangPicker />
-        <Sheet open={open} onOpenChange={setOpen}>
+        {/* Built-in mini file manager — only visible on Android,
+            where the device may not ship a system file manager.
+            Desktop users have Explorer / Finder / nautilus, no
+            need to duplicate that surface here. */}
+        {IS_ANDROID && (
+          <Button
+            variant="outline"
+            size="icon"
+            aria-label={t('files.title')}
+            className="size-9"
+            onClick={() => setFilesOpen(true)}
+          >
+            <Folder className="size-4" />
+          </Button>
+        )}
+        <Sheet open={settingsOpen} onOpenChange={setSettingsOpen}>
           <SheetTrigger asChild>
             <Button
               variant="outline"
@@ -48,10 +68,12 @@ export function Header() {
             <SheetHeader>
               <SheetTitle>{t('settings.title')}</SheetTitle>
             </SheetHeader>
-            <SettingsMenu onAfterAction={() => setOpen(false)} />
+            <SettingsMenu onAfterAction={() => setSettingsOpen(false)} />
           </SheetContent>
         </Sheet>
       </div>
+
+      <FilesSheet open={filesOpen} onOpenChange={setFilesOpen} />
     </header>
   );
 }
