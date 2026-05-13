@@ -3,7 +3,7 @@
   "name": "Patotube — Send to desktop",
   "short_name": "Patotube",
   "description": "Send the current YouTube / SoundCloud / Bandcamp / Audiomack / Internet Archive page to the Patotube desktop app.",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "author": "Patotube",
   "homepage_url": "https://alex-lou.github.io/Patotube/",
   "icons": {
