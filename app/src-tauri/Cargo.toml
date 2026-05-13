@@ -24,6 +24,10 @@ tauri-plugin-updater = "2"
 tauri-plugin-process = "2"
 tauri-plugin-clipboard-manager = "2"
 tauri-plugin-deep-link = "2"
+# Required by deep-link on desktop: without it, every patotube://
+# click spawns a fresh Patotube process instead of forwarding the
+# URL to the already-open instance.
+tauri-plugin-single-instance = { version = "2", features = ["deep-link"] }
 
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

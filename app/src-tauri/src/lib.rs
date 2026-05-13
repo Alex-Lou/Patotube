@@ -44,7 +44,30 @@ mod archive_kernel;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let mut builder = tauri::Builder::default()
+    let mut builder = tauri::Builder::default();
+
+    // Single-instance MUST be installed BEFORE the deep-link plugin.
+    // When a browser fires `patotube://download?url=…` while
+    // Patotube is already open, Windows / Linux launch a second
+    // process; without single-instance that process owns its own
+    // window and the first instance never sees the URL. With it,
+    // the second process forwards its argv to the first via this
+    // callback and exits, and the `deep-link` feature flag tells
+    // the plugin to also re-emit the URL through the deep-link
+    // plugin's event channel — which is exactly what the React
+    // side already subscribes to.
+    #[cfg(desktop)]
+    {
+        builder = builder.plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
+            use tauri::Manager;
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.unminimize();
+                let _ = window.set_focus();
+            }
+        }));
+    }
+
+    builder = builder
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
