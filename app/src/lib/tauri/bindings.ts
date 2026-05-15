@@ -62,6 +62,7 @@ export interface TauriApi {
   listDownloads(): Promise<DownloadEntry[]>;
   deleteDownload(path: string): Promise<void>;
   searchYoutube(query: string, limit: number): Promise<SearchResult[]>;
+  getYoutubeStreamUrl(videoId: string): Promise<string>;
   onProgress(handler: (e: DownloadProgressEvent) => void): Promise<Unlisten>;
   onStatus(handler: (e: DownloadStatusEvent) => void): Promise<Unlisten>;
 }
@@ -90,6 +91,7 @@ async function realApi(): Promise<TauriApi> {
     listDownloads: () => invoke('list_downloads'),
     deleteDownload: (path) => invoke('delete_download', { path }),
     searchYoutube: (query, limit) => invoke('search_youtube', { query, limit }),
+    getYoutubeStreamUrl: (videoId) => invoke('get_youtube_stream_url', { videoId }),
     onProgress: subscribe<DownloadProgressEvent>('download://progress'),
     onStatus: subscribe<DownloadStatusEvent>('download://status'),
   };

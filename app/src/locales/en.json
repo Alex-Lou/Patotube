@@ -28,7 +28,10 @@
     "viewCount": "{{formatted}} views",
     "play": "Preview",
     "downloadThis": "Download",
-    "openOnYoutube": "Open on YouTube"
+    "openOnYoutube": "Open on YouTube",
+    "playerLoading": "Resolving stream…",
+    "playerFailed": "Could not play this video",
+    "playerLoadFailed": "Playback failed"
   },
   "errors": {
     "empty": "Please enter a URL",
