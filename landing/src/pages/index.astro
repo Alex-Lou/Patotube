@@ -175,7 +175,7 @@ const metaJson = JSON.stringify(LOCALE_META);
         >
           <a
             href="#download"
-            class="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-gradient-duck text-bg font-bold shadow-lg shadow-duck/20 hover:shadow-duck/40 hover:scale-[1.02] transition-all"
+            class="inline-flex items-center gap-2 px-5 sm:px-7 py-3 sm:py-3.5 rounded-xl bg-gradient-duck text-bg font-bold text-sm sm:text-base shadow-lg shadow-duck/20 hover:shadow-duck/40 hover:scale-[1.02] transition-all max-w-full"
             data-i18n="heroCtaPrimary">{en.heroCtaPrimary}</a
           >
         </div>
@@ -189,7 +189,7 @@ const metaJson = JSON.stringify(LOCALE_META);
           data-i18n="downloadsTitle">{en.downloadsTitle}</h2>
         <p class="mt-3 text-center text-fg-muted" data-i18n="downloadsSubtitle">{en.downloadsSubtitle}</p>
         <div
-          class="mt-12 grid grid-cols-3 max-w-2xl mx-auto gap-3 sm:gap-4"
+          class="mt-12 grid grid-cols-1 sm:grid-cols-3 max-w-2xl mx-auto gap-3 sm:gap-4"
         >
           {
             downloads.map((d) => (
