@@ -13,8 +13,8 @@
     "change": "Change language"
   },
   "url": {
-    "label": "Media URL or search",
-    "placeholder": "Paste a URL or type to search YouTube",
+    "label": "URL or keyword",
+    "placeholder": "URL or keyword",
     "fetch": "Fetch",
     "search": "Search",
     "paste": "Paste from clipboard",
@@ -31,7 +31,8 @@
     "openOnYoutube": "Open on YouTube",
     "playerLoading": "Resolving stream…",
     "playerFailed": "Could not play this video",
-    "playerLoadFailed": "Playback failed"
+    "playerLoadFailed": "Playback failed",
+    "starting": "Starting download…"
   },
   "errors": {
     "empty": "Please enter a URL",
