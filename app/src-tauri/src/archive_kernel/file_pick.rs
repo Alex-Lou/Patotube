@@ -1,13 +1,3 @@
-// Picks the best file out of an Internet Archive item's `files[]`
-// list. Items often ship the same content in 3-5 formats (the
-// "derivative" pipeline auto-creates lower-quality copies for
-// streaming). We pick a sensible default per item type:
-//
-//   - audio items → MP3 (universal), then Ogg, then Flac (if the
-//     user wants lossless they should probably grab via the
-//     web UI to choose explicitly).
-//   - video items → MP4 (universal), then OGV, then any other.
-
 #![allow(dead_code)]
 
 use super::types::{ItemFile, ItemMetadata};
@@ -15,13 +5,9 @@ use super::types::{ItemFile, ItemMetadata};
 #[derive(Debug, Clone)]
 pub struct PickedFile {
     pub name: String,
-    /// File extension to save under, derived from `name`.
     pub extension: String,
 }
 
-/// Pick the best downloadable file for an item. The mediatype
-/// drives whether we prefer audio or video formats; "texts" /
-/// "software" / etc. fall through to "any file".
 pub fn pick_best(item: &ItemMetadata) -> Result<PickedFile, String> {
     let mediatype = item.metadata.mediatype.as_deref().unwrap_or("");
     let chosen = match mediatype {
@@ -47,8 +33,6 @@ fn pick_video(files: &[ItemFile]) -> Option<ItemFile> {
     pick_by_extension(files, &["mp4", "m4v", "ogv", "webm", "mkv", "avi", "mpeg"])
 }
 
-/// Return the first file whose extension matches `wanted`, in the
-/// order given (preferred extensions first).
 fn pick_by_extension(files: &[ItemFile], wanted: &[&str]) -> Option<ItemFile> {
     for ext in wanted {
         if let Some(f) = files

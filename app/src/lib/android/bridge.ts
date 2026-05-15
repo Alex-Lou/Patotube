@@ -1,14 +1,6 @@
-// Bridge to native Android Kotlin code. Wired up in MainActivity.kt
-// via WebView.addJavascriptInterface — see PatoMobileBridge.kt.
-//
-// On desktop / browser dev these methods are absent, so every helper
-// returns false (or no-ops) gracefully and callers fall back to the
-// Tauri opener / clipboard paths.
-//
-// Audio post-processing (`remuxAudioOnly`) is async because the
-// Kotlin side runs MediaExtractor / MediaMuxer on a worker thread
-// and reports back via a global callback. See docs/youtube-kernel.md
-// for the full design.
+// Bridge to native Android Kotlin (PatoMobileBridge.kt). Absent on
+// desktop/browser — helpers return false/no-op so callers fall back.
+// remuxAudioOnly is async (Kotlin worker thread + global callback).
 
 interface PatoMobileBridge {
   openFile(path: string): boolean;
@@ -17,18 +9,11 @@ interface PatoMobileBridge {
   deleteFile(path: string): boolean;
   renameFile(srcPath: string, dstPath: string): boolean;
   shareFile(path: string): boolean;
-  /** Read-and-clear the latest external Android intent forwarded
-   *  by MainActivity. Returns a JSON string or null. JSON shapes:
-   *  `{"kind":"download","url":"…"}` or
-   *  `{"kind":"open-file","path":"…"}`. */
+  /** JSON: `{"kind":"download","url":…}` or `{"kind":"open-file","path":…}`. */
   consumePendingIntent(): string | null;
-  /** Read a file into a base64 string. The embedded HTML5 player
-   *  uses this on Android because Tauri's asset:// protocol tends
-   *  to silently fail for arbitrary paths in the system WebView. */
+  /** asset:// protocol tends to silently fail on Android, so we read into base64. */
   readFileBase64(path: string): string | null;
-  // Async — returns void and calls
-  // window.__patotubeFFmpegCallback(callbackId, { error: string })
-  // when the remux finishes. error === "" means success.
+  // Calls window.__patotubeFFmpegCallback(id, { error }) on completion (error === "" on success).
   remuxAudioOnly(srcPath: string, dstPath: string, callbackId: number): void;
 }
 
@@ -36,10 +21,6 @@ interface BridgeCallbackResult {
   error: string;
 }
 
-/** Decoded shape of `consumePendingIntent`. Either a download
- *  request (share-from-app or `patotube://download?url=…`) or an
- *  open-file request ("Open with → Patotube" or
- *  `patotube://open-file?path=…`). */
 export type PendingIntent =
   | { kind: 'download'; url: string }
   | { kind: 'open-file'; path: string };
@@ -47,11 +28,9 @@ export type PendingIntent =
 declare global {
   interface Window {
     PatoMobile?: PatoMobileBridge;
-    // Name kept for historical reasons even though we no longer use
-    // ffmpeg — renaming would force a coordinated bridge update.
+    // Name kept for historical reasons even though we no longer use ffmpeg.
     __patotubeFFmpegCallback?: (id: number, result: BridgeCallbackResult) => void;
-    /** Push hook the Kotlin side calls after parking a fresh
-     *  pending intent — saves the JS side from polling on a timer. */
+    /** Push hook called by Kotlin after parking a fresh pending intent. */
     __patotubeOnIntent?: () => void;
   }
 }
@@ -62,21 +41,15 @@ export const isAndroid = (): boolean =>
 export const hasNativeBridge = (): boolean =>
   typeof window !== 'undefined' && !!window.PatoMobile;
 
-/** True if the bridge advertises the audio post-processing method.
- *  Lets older APKs still get a sensible "skip post-process, deliver
- *  the source file as-is" path if we ever ship a build without the
- *  Kotlin remux for some reason. */
+/** Lets older APKs fall back to "deliver source as-is" if remux is missing. */
 export const hasAudioRemuxBridge = (): boolean =>
   hasNativeBridge() && typeof window.PatoMobile?.remuxAudioOnly === 'function';
 
-/** Try to open a file through Android's default app for its MIME type. */
 export function openFileNative(path: string): boolean {
   return window.PatoMobile?.openFile(path) === true;
 }
 
-/** Bring up the system share sheet for a downloaded file. Returns
- *  false if the bridge is missing or the file no longer exists —
- *  caller can fall back to `navigator.share` or surface a toast. */
+/** Returns false on missing bridge or vanished file — caller can fall back to navigator.share. */
 export function shareFileNative(path: string): boolean {
   try {
     return window.PatoMobile?.shareFile(path) === true;
@@ -85,9 +58,6 @@ export function shareFileNative(path: string): boolean {
   }
 }
 
-/** Read-and-clear the latest external Android intent. Caller
- *  drives the loop: invoke on mount, on visibilitychange, and
- *  whenever `window.__patotubeOnIntent` fires (Kotlin push hook). */
 export function consumePendingIntent(): PendingIntent | null {
   try {
     const raw = window.PatoMobile?.consumePendingIntent();
@@ -102,11 +72,8 @@ export function consumePendingIntent(): PendingIntent | null {
   return null;
 }
 
-/** Read a file's bytes via the native bridge and wrap them in a
- *  Blob URL. Used by the embedded HTML5 player on Android, where
- *  Tauri's asset:// protocol doesn't reliably load arbitrary
- *  paths in the system WebView. Caller must `URL.revokeObjectURL`
- *  the returned URL when the player closes to free the memory. */
+/** Workaround: asset:// protocol tends to silently fail on Android.
+ *  Caller must URL.revokeObjectURL the returned URL. */
 export function readAsBlobUrl(path: string, mime: string): string | null {
   try {
     const base64 = window.PatoMobile?.readFileBase64(path);
@@ -120,14 +87,11 @@ export function readAsBlobUrl(path: string, mime: string): string | null {
   }
 }
 
-/** Open the system Downloads folder in the device's file picker / Files app. */
 export function openDownloadsFolderNative(): boolean {
   return window.PatoMobile?.openDownloadsFolder() === true;
 }
 
-/** Tell Android's MediaScanner about a file we just wrote so it shows
- *  up in the Files / Music / Gallery apps without waiting for the
- *  periodic scan. */
+/** Notify MediaScanner so the file appears immediately in Files/Music/Gallery. */
 export function scanFileNative(path: string): void {
   try {
     window.PatoMobile?.scanFile(path);
@@ -136,8 +100,6 @@ export function scanFileNative(path: string): void {
   }
 }
 
-/** Delete a file via the native bridge. Best-effort; returns true if
- *  the file is gone after the call. */
 export function deleteFileNative(path: string): boolean {
   try {
     return window.PatoMobile?.deleteFile(path) === true;
@@ -146,9 +108,7 @@ export function deleteFileNative(path: string): boolean {
   }
 }
 
-/** Rename a file via the native bridge. Overwrites the destination
- *  if it already exists. Best-effort; returns true if the source
- *  ended up at the destination. */
+/** Overwrites destination if it exists. */
 export function renameFileNative(srcPath: string, dstPath: string): boolean {
   try {
     return window.PatoMobile?.renameFile(srcPath, dstPath) === true;
@@ -162,9 +122,7 @@ export function renameFileNative(srcPath: string, dstPath: string): boolean {
 let nextCallbackId = 1;
 const pendingCallbacks = new Map<number, (err: string) => void>();
 
-// Install the global callback once. Idempotent: re-running the bundle
-// (HMR) shouldn't re-bind, but if the WebView is recreated the new
-// `window` object gets a fresh registration.
+// Idempotent: HMR doesn't re-bind, fresh WebView gets fresh registration.
 function ensureCallbackInstalled(): void {
   if (typeof window === 'undefined') return;
   if (window.__patotubeFFmpegCallback) return;
@@ -178,9 +136,7 @@ function ensureCallbackInstalled(): void {
 }
 
 interface BridgeCallOptions {
-  /** Maximum time to wait for the bridge to finish before giving up.
-   *  The callback is then evicted from the registry; if Kotlin reports
-   *  back later it's silently ignored. Default 5 minutes. */
+  /** Default 5 minutes. Late Kotlin reports are silently ignored. */
   timeoutMs?: number;
 }
 
@@ -221,10 +177,8 @@ function callBridgeAsync(
   });
 }
 
-/** Strip the video track from `srcPath` and write a real audio-only
- *  file to `dstPath`, bit-perfect. Uses Android's built-in
- *  MediaExtractor + MediaMuxer — no third-party transcoder. Resolves
- *  with "" on success or an error message string on failure. */
+/** Bit-perfect strip-video → audio-only via MediaExtractor+MediaMuxer.
+ *  Resolves with "" on success or an error message string. */
 export function remuxAudioOnlyAsync(
   srcPath: string,
   dstPath: string,

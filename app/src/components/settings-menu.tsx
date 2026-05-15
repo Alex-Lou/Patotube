@@ -22,9 +22,9 @@ import { useSettings } from '@/lib/core/settings';
 import { AUDIO_BITRATES, DEFAULT_AUDIO_BITRATE, VIDEO_QUALITIES } from '@/lib/core/formats';
 import type { AudioBitrate, VideoQuality } from '@/lib/core/types';
 import { isAndroid } from '@/lib/android/bridge';
-// onAndroid still drives the "hide download folder picker / hide
-// updates section" gates; the bitrate picker is back to being shown
-// on Android because Phase 1 (ffmpeg-kit) makes it meaningful again.
+
+// Several rows hidden on Android: native extractor writes to /sdcard/Download,
+// no updater plugin, no audio bitrate (MediaExtractor remux).
 
 const REPO_URL = 'https://github.com/Alex-Lou/Patotube';
 const APP_VERSION = '0.2.0';
@@ -98,11 +98,6 @@ export function SettingsMenu(_props: { onAfterAction?: () => void }) {
           />
         </div>
 
-        {/* Quality / bitrate sub-picker. On Android we hide the
-            audio bitrate row because we don't transcode on device
-            (MediaExtractor remux is bit-perfect, see
-            docs/youtube-kernel.md) — offering 128/192/256/320 would
-            just be a lie. */}
         {defaultFormat.kind === 'video' ? (
           <div className="mt-3 grid grid-cols-4 gap-1.5">
             {VIDEO_QUALITIES.map((q) => (
@@ -134,9 +129,6 @@ export function SettingsMenu(_props: { onAfterAction?: () => void }) {
         )}
       </Section>
 
-      {/* Download folder — hidden on Android because the native
-          extractor writes to /sdcard/Download regardless of any custom
-          path, so showing a picker here would just lie. */}
       {!onAndroid && (
         <Section icon={<Folder className="size-4" />} label={t('settings.downloadFolder')}>
           <div className="space-y-2">
@@ -170,9 +162,6 @@ export function SettingsMenu(_props: { onAfterAction?: () => void }) {
         </Section>
       )}
 
-      {/* Updates — Tauri's updater plugin is not loaded on Android
-          (cfg(desktop) gate in lib.rs), so the button would always
-          fail. APK updates are manual on mobile. */}
       {!onAndroid && (
         <Section icon={<RefreshCw className="size-4" />} label={t('update.section', 'Updates')}>
           <Button

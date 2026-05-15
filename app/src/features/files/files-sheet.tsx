@@ -1,11 +1,4 @@
-// Built-in mini file manager — opened from the Header on Android,
-// where the device may not ship a system file manager. Lists every
-// Patotube-shaped file under the candidate download dirs and lets
-// the user open / share / delete from inside the app.
-//
-// On desktop the same component would work, but the Header button
-// is gated to Android only — every desktop OS already has a
-// real file manager and we'd rather send the user there.
+// Built-in mini file manager — Android-only entry from Header.
 
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -78,15 +71,12 @@ export function FilesSheet({ open, onOpenChange }: FilesSheetProps) {
 
   const open_ = useCallback(
     async (entry: DownloadEntry) => {
-      // Android: try the FileProvider intent first; if no app on
-      // the device matches the MIME, fall back to the embedded
-      // HTML5 player.
+      // Android: FileProvider intent, fall back to embedded player.
       if (IS_ANDROID && hasNativeBridge()) {
         if (openFileNative(entry.path)) return;
         play(entry);
         return;
       }
-      // Desktop: shell out to the OS opener.
       try {
         const api = await getTauri();
         await api.openPath(entry.path);
@@ -99,18 +89,12 @@ export function FilesSheet({ open, onOpenChange }: FilesSheetProps) {
 
   const share = useCallback(
     async (entry: DownloadEntry) => {
-      // Android: route through the FileProvider + ACTION_SEND
-      // intent so the share sheet exposes EVERY app that handles
-      // the file's MIME (Telegram, Drive, Bluetooth…) — exactly
-      // what the user expects. The Web Share API isn't a real
-      // option here: it's not exposed to most Android WebViews,
-      // and even when it is it can't share local file URIs.
+      // Android: FileProvider + ACTION_SEND. Web Share API can't share local file URIs in WebView.
       if (IS_ANDROID && hasNativeBridge()) {
         if (shareFileNative(entry.path)) return;
         toast.error(t('files.shareFailed'));
         return;
       }
-      // Desktop: fall back to the Web Share API where available.
       if (typeof navigator !== 'undefined' && navigator.share) {
         try {
           await navigator.share({ title: entry.name, text: entry.name });
@@ -257,10 +241,7 @@ function FileRow({
   );
 }
 
-/** Simple relative-time helper. We intentionally avoid pulling in
- *  `Intl.RelativeTimeFormat` for the typical "5 minutes ago" output
- *  because it doesn't bring much over a one-off formatter and the
- *  bundle saving matters on Android. */
+/** One-off formatter; avoids Intl.RelativeTimeFormat for Android bundle saving. */
 function formatRelativeDate(unixSeconds: number): string {
   const diff = Math.max(0, Math.floor(Date.now() / 1000 - unixSeconds));
   if (diff < 60) return 'now';

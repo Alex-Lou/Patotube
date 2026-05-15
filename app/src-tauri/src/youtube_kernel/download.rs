@@ -1,14 +1,6 @@
-// Streaming GET against a YouTube CDN URL with multi-UA retry.
-// YouTube's CDN tends to 403 plain GETs; sending a Range header plus
-// the right user-agent cooperates. Different CDN nodes happen to
-// 403 on different UAs even within a single video, so we cycle
-// through every UA we know about before giving up.
-//
-// File destination is given as a list of candidates (Android
-// scoped storage may refuse the public Download dir while
-// accepting the app-external one — same shape as the SC/BC/IA
-// pipeline). The streamer commits to the first candidate that
-// accepts File::create and writes the whole download there.
+// Streaming GET against YouTube CDN with multi-UA retry.
+// Different CDN nodes happen to 403 on different UAs even within a
+// single video, so we cycle through every known UA before giving up.
 
 use std::path::PathBuf;
 use std::time::Instant;
@@ -125,9 +117,6 @@ async fn try_download_once(
     Ok(out_path)
 }
 
-/// Try `File::create` on each candidate in order; first success
-/// wins. Mirrors `streamer::open_first_writable` but stays local
-/// so the YouTube path keeps its multi-UA retry isolated.
 async fn open_first_writable(candidates: &[PathBuf]) -> Result<(File, PathBuf), String> {
     let mut last_err: Option<String> = None;
     for candidate in candidates {

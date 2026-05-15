@@ -1,15 +1,6 @@
-// Phase 2 unlock fallback path. When the existing multi-client REST
-// chain (ANDROID_MUSIC → ANDROID → IOS → TVHTML5) all fail to
-// produce a playable audio-only URL — typically because YouTube
-// requires PoToken/n-param unscrambling on those clients today —
-// we fall through to this module: ask the WEB client (which serves
-// `signatureCipher` formats), grab the per-video player.js URL from
-// the watch page, build a `sigcipher::Unlocker` from it on a
-// blocking thread (boa's Context isn't Send), and use the unlocked
-// URL with the existing `download_stream`.
-//
-// All boa work happens inside `spawn_blocking` so the !Send context
-// never crosses an `await` point.
+// Phase 2 unlock fallback: WEB client + sigcipher::Unlocker when the
+// multi-client REST chain fails. boa's Context isn't Send →
+// spawn_blocking keeps it off the await path.
 
 use std::path::PathBuf;
 

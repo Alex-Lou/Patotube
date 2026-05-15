@@ -36,12 +36,7 @@ const year = new Date().getFullYear();
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const en = DICT.en;
 
-// Two routes for the same patotube:// trick: the userscript is the
-// low-friction path (single file, every browser via Tampermonkey),
-// the MV3 extension is the standalone path (no third-party manager
-// required, but Chromium needs developer mode and Firefox needs the
-// signed .xpi). Detailed install flows live in `extension/README.md`;
-// the cards on the landing only carry a one-liner + the install CTA.
+// Two routes for the same patotube:// trick: userscript (Tampermonkey, every browser) vs MV3 extension (standalone, dev mode / signed .xpi). Install flows in `extension/README.md`.
 const companions = [
   {
     key: 'userscript',
@@ -57,8 +52,7 @@ const companions = [
   },
 ] as const;
 
-// Inline-serialize the dictionaries so client JS can swap text without an
-// extra fetch. RTL set serialized as a plain array.
+// Inline-serialize dictionaries so client JS can swap text without an extra fetch.
 const dictJson = JSON.stringify(DICT);
 const rtlJson = JSON.stringify([...RTL]);
 const supportedJson = JSON.stringify(SUPPORTED);
@@ -85,7 +79,6 @@ const metaJson = JSON.stringify(LOCALE_META);
     <title>Patotube — drop a URL, get the file</title>
   </head>
   <body class="min-h-screen flex flex-col">
-    <!-- Header -->
     <header class="sticky top-0 z-50 glass">
       <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
         <a href={base + '/'} class="flex items-center gap-2.5 group shrink-0">
@@ -109,7 +102,6 @@ const metaJson = JSON.stringify(LOCALE_META);
             class="text-fg-muted hover:text-fg transition-colors">GitHub</a
           >
 
-          <!-- Language picker -->
           <div class="relative">
             <button
               id="lang-btn"
@@ -157,7 +149,6 @@ const metaJson = JSON.stringify(LOCALE_META);
       </nav>
     </header>
 
-    <!-- Hero -->
     <section class="relative">
       <div class="max-w-6xl mx-auto px-6 pt-20 pb-12 sm:pt-32 sm:pb-20 text-center">
         <img
@@ -191,7 +182,6 @@ const metaJson = JSON.stringify(LOCALE_META);
       </div>
     </section>
 
-    <!-- Downloads -->
     <section id="download" class="py-16 sm:py-24">
       <div class="max-w-5xl mx-auto px-6">
         <h2
@@ -239,7 +229,6 @@ const metaJson = JSON.stringify(LOCALE_META);
       </div>
     </section>
 
-    <!-- Browser companion -->
     <section id="companion" class="py-16 sm:py-24 border-t border-border">
       <div class="max-w-5xl mx-auto px-6">
         <h2
@@ -300,7 +289,6 @@ const metaJson = JSON.stringify(LOCALE_META);
       </div>
     </section>
 
-    <!-- Features -->
     <section id="features" class="py-16 sm:py-24 border-t border-border">
       <div class="max-w-6xl mx-auto px-6">
         <h2 class="text-3xl sm:text-4xl font-bold text-center tracking-tight" data-i18n="featuresTitle">
@@ -319,11 +307,9 @@ const metaJson = JSON.stringify(LOCALE_META);
       </div>
     </section>
 
-    <!-- Footer -->
     <footer class="mt-auto border-t border-border bg-bg-card/30">
       <div class="max-w-6xl mx-auto px-6 py-12">
         <div class="grid gap-10 sm:grid-cols-3">
-          <!-- Brand block -->
           <div class="space-y-3 sm:col-span-1">
             <div class="flex items-center gap-2.5">
               <img
@@ -341,7 +327,6 @@ const metaJson = JSON.stringify(LOCALE_META);
             </p>
           </div>
 
-          <!-- Project links -->
           <div class="space-y-3 text-sm">
             <h4 class="text-xs font-semibold uppercase tracking-wider text-fg-subtle">
               Project
@@ -369,7 +354,6 @@ const metaJson = JSON.stringify(LOCALE_META);
             </ul>
           </div>
 
-          <!-- Tech / honest -->
           <div class="space-y-3 text-sm">
             <h4 class="text-xs font-semibold uppercase tracking-wider text-fg-subtle">
               Built with
@@ -443,10 +427,8 @@ const metaJson = JSON.stringify(LOCALE_META);
         apply(lang);
       };
 
-      // Apply detected locale immediately
       apply(detectLocale());
 
-      // Wire up the picker
       const btn = document.getElementById('lang-btn');
       const menu = document.getElementById('lang-menu');
       if (btn && menu) {

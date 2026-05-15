@@ -1,17 +1,3 @@
-// Public download hooks for the React side.
-//
-//   `useDownloadEvents`   — mounts the Tauri progress/status listeners
-//                            exactly once per process. Use in ONE place
-//                            at the App root.
-//   `useDownloadActions`  — exposes `enqueue`, `retry`, `showInFolder`,
-//                            `openFile`. Safe to call from any component.
-//
-// Heavy logic lives in sibling modules:
-//   * `actions.ts`       — module-scope enqueue / retry flows
-//   * `toasts.ts`        — sonner show/hide for done/fail
-//   * `post-process.ts`  — Android audio remux orchestration
-//   * `path-utils.ts`    — extension swap helpers (used by post-process)
-
 import { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getTauri } from '@/lib/tauri/bindings';
@@ -26,22 +12,7 @@ import { runAudioPostProcess } from './post-process';
 import { showFailToast, showSuccessToast, type TFunc } from './toasts';
 import { enqueueJob, retryJob } from './actions';
 
-/**
- * Mount-once hook that wires the Tauri progress/status events to the
- * queue store and surfaces toasts on completion / failure. Use it in
- * exactly ONE place (the App root). Other components should use
- * `useDownloadActions`.
- *
- * Lifecycle: each mount registers a fresh listener and the cleanup
- * unsubscribes properly. Sonner toasts are deduplicated by `id`, so
- * a brief StrictMode double-mount in dev doesn't fire two toasts.
- *
- * The previous "register exactly once via a module-level flag"
- * approach broke in dev mode: Vite HMR could leave the flag set
- * while invalidating the underlying listener subscription, and the
- * frontend would silently stop receiving events. Doing it through
- * the standard useEffect lifecycle is robust everywhere.
- */
+/** Mount in ONE place (App root). Wires Tauri progress/status events to the queue store. */
 export function useDownloadEvents() {
   const { t } = useTranslation();
 
@@ -78,8 +49,7 @@ export function useDownloadEvents() {
         }
       });
 
-      // If the effect was torn down between the await above and
-      // the listener install, unsubscribe immediately and bail.
+      // Torn down between await and install: unsubscribe and bail.
       if (cancelled) {
         onProgress();
         onStatus();
@@ -98,21 +68,13 @@ export function useDownloadEvents() {
   }, [t]);
 }
 
-/**
- * Fan-out point for `done` status. On Android with audio format we
- * still have one more step (remux → real audio-only m4a) before the
- * job is truly finished. Everywhere else, `done` from Rust is final.
- */
+/** `done` is final everywhere except Android audio (needs remux). */
 async function handleDoneEvent(jobId: string, t: TFunc): Promise<void> {
   const job = useQueueStore.getState().jobs.find((j) => j.id === jobId);
   if (!job) return;
 
-  // The MediaExtractor remux exists to strip the video track from
-  // a YouTube combined-MP4 fallback. Other extractors (SoundCloud
-  // and any future ones) hand out audio-only files directly —
-  // running them through the remux is wasted work at best and
-  // outright broken at worst (MediaMuxer rejects MP3 codec for the
-  // mp4 container). Gate the post-process to YouTube.
+  // MediaExtractor remux gated to YouTube: strips video from combined-MP4 fallback.
+  // SoundCloud/etc already deliver audio-only, and MediaMuxer rejects MP3 in mp4.
   if (
     job.format.kind === 'audio' &&
     job.filePath &&
@@ -124,9 +86,6 @@ async function handleDoneEvent(jobId: string, t: TFunc): Promise<void> {
     return;
   }
 
-  // Default path: download is truly done. Trigger MediaScanner on
-  // Android so the file appears in Files / Music / Gallery apps
-  // right away, then show the success toast.
   if (job.filePath && isAndroid()) {
     scanFileNative(job.filePath);
   }
@@ -142,11 +101,7 @@ function handleFailedEvent(
   showFailToast(jobId, job?.info.title ?? '', rawError, t);
 }
 
-/**
- * Action-only hook. Safe to call from any component (queue list,
- * etc.) — it doesn't register Tauri listeners, just exposes
- * side-effecting functions that callers trigger from UI.
- */
+/** No listeners — just side-effecting actions, safe anywhere. */
 export function useDownloadActions() {
   const enqueue = useCallback(enqueueJob, []);
   const retry = useCallback(retryJob, []);
@@ -164,7 +119,4 @@ export function useDownloadActions() {
   return { enqueue, retry, showInFolder, openFile };
 }
 
-// Backwards-compatible alias for callers that still expect the
-// combined API. Internally just calls the actions hook; the events
-// hook must be mounted separately at the root.
 export const useDownloads = useDownloadActions;

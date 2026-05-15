@@ -1,14 +1,6 @@
-// Patotube Audiomack extraction kernel.
-//
-// Audiomack ships a clean public API for individual song
-// metadata: GET `audiomack.com/api/music/url/song/<artist>/<slug>`
-// returns JSON with `{ artist, title, url }` — `url` is the
-// streamable mp3.
-//
-// One quirk: some "songs" on Audiomack are actually re-shares of
-// SoundCloud tracks. The yt-dlp extractor delegates those to the
-// SC handler. We don't yet do that — if we hit one we surface a
-// clear error and the user can try the underlying SC URL.
+// Audiomack kernel. GET audiomack.com/api/music/url/song/<artist>/<slug>
+// returns { artist, title, url }. Some "songs" re-share SoundCloud URLs — we
+// detect that and surface an error so the user can paste the SC URL directly.
 
 mod url;
 

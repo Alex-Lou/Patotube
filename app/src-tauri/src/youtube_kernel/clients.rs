@@ -1,13 +1,6 @@
-// Used at runtime only on Android, but compiled everywhere so the
-// pure-Rust submodules (sigcipher etc.) and their tests can build
-// on the desktop host.
+// Compiled everywhere so pure-Rust submodules (sigcipher etc.) build on desktop hosts.
 #![allow(dead_code)]
 
-// YouTube client profiles. Each profile mimics a real YouTube
-// binary's identification headers when calling youtubei/v1/player —
-// the API serves different stream sets and applies different CDN
-// restrictions per client name+version pair.
-//
 // =============================================================
 // SECURITY NOTE — re: GitGuardian / "Google API key" findings
 // =============================================================
@@ -40,27 +33,13 @@ pub struct ClientProfile {
     pub extra_context: Option<&'static str>,
 }
 
-/// Order matters: clients more likely to return playable combined
-/// streams (audio+video in one URL) first. IOS has the cleanest mp4
-/// output today; ANDROID still works for many videos;
-/// TVHTML5_SIMPLY_EMBEDDED_PLAYER is the last-resort fallback for
-/// restricted content (its streams are typically adaptive-only, no
-/// combined mp4).
-///
-/// `ANDROID_MUSIC` is special: it talks to the YouTube Music backend,
-/// which returns audio-only m4a URLs the CDN serves without the
-/// PoToken / n-parameter dance regular YouTube audio now requires.
 pub const ALL_CLIENTS: &[ClientProfile] = &[
-    // The big win: Oculus Quest YouTube VR app. As of 2026 this is
-    // the most permissive client — YouTube's CDN serves it plain
-    // CDN URLs without PoToken, signature decoding, OR an Innertube
-    // API key. The clientVersion is pinned at 1.65.10: anything
-    // newer falls back to SABR streams which require their own
-    // unwrap path (yt-dlp ff459e5fc commit, March 2026).
-    //
-    // Caveat: "Made for kids" videos return UNPLAYABLE on this
-    // client (yt-dlp issue #15780), so it's not a 100% replacement
-    // for the others — we keep them as fallbacks.
+    // ANDROID_VR: most permissive client in 2026 — plain CDN URLs,
+    // no PoToken / signature / API key. Version pinned at 1.65.10:
+    // anything newer triggers SABR-only responses (yt-dlp ff459e5fc
+    // commit, March 2026).
+    // Caveat: "Made for kids" returns UNPLAYABLE (yt-dlp #15780),
+    // hence the fallbacks below.
     ClientProfile {
         name: "ANDROID_VR",
         version: "1.65.10",
@@ -112,11 +91,8 @@ pub const ALL_CLIENTS: &[ClientProfile] = &[
         os_version: "5.0",
         extra_context: None,
     },
-    // Desktop web client. Returns signatureCipher-protected formats
-    // we need to unlock via player.js — see `youtube_kernel/sigcipher`.
-    // Used as a final fallback when the mobile/TV clients refuse a
-    // video; gives access to streams the others won't serve, at the
-    // cost of running the JS decoders.
+    // WEB: returns signatureCipher-protected formats that require
+    // player.js unlock (see `youtube_kernel/sigcipher`).
     ClientProfile {
         name: "WEB",
         version: "2.20240801.00.00",
@@ -130,11 +106,6 @@ pub const ALL_CLIENTS: &[ClientProfile] = &[
     },
 ];
 
-/// Default client probe order. ANDROID_VR leads in 2026 because
-/// it's the only client YouTube still serves plain CDN URLs to
-/// without PoToken / signature decoding. Falls through to the
-/// older clients for "made for kids" content where ANDROID_VR
-/// returns UNPLAYABLE.
 pub fn default_clients() -> Vec<&'static ClientProfile> {
     let preferred = [
         "ANDROID_VR",
@@ -146,11 +117,6 @@ pub fn default_clients() -> Vec<&'static ClientProfile> {
     pick_in_order(&preferred)
 }
 
-/// Audio-first client order: ANDROID_VR leads (no PoToken, no JS,
-/// no API key — the cleanest extraction we've found in 2026).
-/// ANDROID_MUSIC stays as a strong second because YT Music's
-/// backend serves audio URLs the regular CDN won't. IOS / TVHTML5
-/// are the fallbacks of last resort.
 pub fn audio_clients() -> Vec<&'static ClientProfile> {
     let preferred = [
         "ANDROID_VR",
@@ -172,11 +138,6 @@ fn pick_in_order(names: &[&str]) -> Vec<&'static ClientProfile> {
     v
 }
 
-/// Single-element list with just the WEB client. Used by the
-/// signature-unlock fallback path: WEB returns ciphered formats
-/// (`signatureCipher`) that we run through the JS decoders. Other
-/// clients return plain URLs, which is what `audio_clients()` /
-/// `default_clients()` exploit.
 pub fn web_client_only() -> Vec<&'static ClientProfile> {
     let mut v: Vec<&'static ClientProfile> = Vec::new();
     if let Some(c) = ALL_CLIENTS.iter().find(|c| c.name == "WEB") {
@@ -185,7 +146,6 @@ pub fn web_client_only() -> Vec<&'static ClientProfile> {
     v
 }
 
-/// Lookup helper for tests / diagnostics.
 pub fn find_client(name: &str) -> Option<&'static ClientProfile> {
     ALL_CLIENTS.iter().find(|c| c.name == name)
 }
@@ -205,16 +165,12 @@ mod tests {
 
     #[test]
     fn audio_clients_does_not_include_web() {
-        // The audio fast-path explicitly avoids WEB so we don't pay
-        // for JS decoding when a mobile client can serve plain URLs.
         let names: Vec<&str> = audio_clients().iter().map(|c| c.name).collect();
         assert!(!names.contains(&"WEB"), "audio_clients should not include WEB");
     }
 
     #[test]
     fn audio_clients_lead_with_android_vr() {
-        // ANDROID_VR is the only client in 2026 that doesn't need
-        // PoToken or JS evaluation, so it must be the first probe.
         let v = audio_clients();
         assert!(!v.is_empty());
         assert_eq!(v[0].name, "ANDROID_VR");
@@ -229,14 +185,10 @@ mod tests {
 
     #[test]
     fn android_vr_carries_no_api_key() {
-        // The Quest VR client uses the un-keyed Innertube endpoint;
-        // call_player_api keys off `api_key.is_empty()` to pick the
-        // right URL.
+        // ANDROID_VR uses the un-keyed Innertube endpoint;
+        // call_player_api keys off `api_key.is_empty()`.
         let vr = find_client("ANDROID_VR").expect("ANDROID_VR present");
         assert!(vr.api_key.is_empty(), "ANDROID_VR must carry an empty key");
-        // And critically: the version is pinned to 1.65.10 because
-        // anything newer triggers SABR-only responses we can't
-        // currently unwrap.
         assert_eq!(vr.version, "1.65.10");
     }
 
