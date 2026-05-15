@@ -32,7 +32,8 @@
     "playerLoading": "Получение потока…",
     "playerFailed": "Не удалось воспроизвести это видео",
     "playerLoadFailed": "Воспроизведение не удалось",
-    "starting": "Запуск загрузки…"
+    "starting": "Запуск загрузки…",
+    "openingYoutube": "Открытие YouTube…"
   },
   "errors": {
     "empty": "Введите URL",

@@ -32,7 +32,8 @@
     "playerLoading": "स्ट्रीम लोड हो रहा है…",
     "playerFailed": "यह वीडियो नहीं चला सकते",
     "playerLoadFailed": "प्लेबैक विफल",
-    "starting": "डाउनलोड शुरू हो रहा है…"
+    "starting": "डाउनलोड शुरू हो रहा है…",
+    "openingYoutube": "YouTube खोल रहे हैं…"
   },
   "errors": {
     "empty": "कृपया URL दर्ज करें",

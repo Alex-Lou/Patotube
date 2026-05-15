@@ -32,7 +32,8 @@
     "playerLoading": "스트림 가져오는 중…",
     "playerFailed": "이 비디오를 재생할 수 없습니다",
     "playerLoadFailed": "재생 실패",
-    "starting": "다운로드 시작 중…"
+    "starting": "다운로드 시작 중…",
+    "openingYoutube": "YouTube를 여는 중…"
   },
   "errors": {
     "empty": "URL을 입력하세요",

@@ -32,7 +32,8 @@
     "playerLoading": "جارٍ تحميل البث…",
     "playerFailed": "تعذر تشغيل هذا الفيديو",
     "playerLoadFailed": "فشل التشغيل",
-    "starting": "بدء التحميل…"
+    "starting": "بدء التحميل…",
+    "openingYoutube": "جارٍ فتح YouTube…"
   },
   "errors": {
     "empty": "أدخل رابطًا من فضلك",

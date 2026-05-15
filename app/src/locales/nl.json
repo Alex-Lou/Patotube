@@ -32,7 +32,8 @@
     "playerLoading": "Stream laden…",
     "playerFailed": "Kan deze video niet afspelen",
     "playerLoadFailed": "Afspelen mislukt",
-    "starting": "Download starten…"
+    "starting": "Download starten…",
+    "openingYoutube": "YouTube openen…"
   },
   "errors": {
     "empty": "Voer een URL in",

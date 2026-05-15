@@ -32,7 +32,8 @@
     "playerLoading": "ストリームを取得中…",
     "playerFailed": "この動画は再生できません",
     "playerLoadFailed": "再生失敗",
-    "starting": "ダウンロード開始中…"
+    "starting": "ダウンロード開始中…",
+    "openingYoutube": "YouTubeを開いています…"
   },
   "errors": {
     "empty": "URLを入力してください",

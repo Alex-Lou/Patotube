@@ -32,7 +32,8 @@
     "playerLoading": "Akış çözümleniyor…",
     "playerFailed": "Bu video oynatılamadı",
     "playerLoadFailed": "Oynatma başarısız",
-    "starting": "İndirme başlatılıyor…"
+    "starting": "İndirme başlatılıyor…",
+    "openingYoutube": "YouTube açılıyor…"
   },
   "errors": {
     "empty": "Lütfen bir URL girin",
