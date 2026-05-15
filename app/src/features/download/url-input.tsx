@@ -21,12 +21,11 @@ export function UrlInput({ onResolved }: UrlInputProps) {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  // Detect platform on the URL embedded in the input — the raw
-  // value may be a share-sheet message wrapping the URL.
+  // Raw value may be share-sheet text wrapping the URL.
   const platform = value.trim() ? detectPlatform(extractFirstUrl(value)) : null;
 
   const handlePaste = async () => {
-    // Browser API first (works on desktop dev, sometimes on Android Chrome).
+    // Browser API first, fallback to Tauri (WebView restrictions on Android).
     try {
       const text = await navigator.clipboard.readText();
       if (text) {
@@ -34,9 +33,8 @@ export function UrlInput({ onResolved }: UrlInputProps) {
         return;
       }
     } catch {
-      /* fall through to Tauri plugin */
+      /* fall through */
     }
-    // Tauri clipboard plugin — bypasses WebView restrictions on Android.
     try {
       const { readText } = await import('@tauri-apps/plugin-clipboard-manager');
       const text = await readText();
@@ -47,10 +45,7 @@ export function UrlInput({ onResolved }: UrlInputProps) {
     }
   };
 
-  /** Native paste (Ctrl+V, long-press → Coller, etc.). We intercept
-   *  to extract a URL from share-sheet text on the way in — that
-   *  way the field shows ONLY the URL, not the surrounding prose,
-   *  which is what the user expects to see after pasting. */
+  /** Strip share-sheet prose on Ctrl+V / long-press paste. */
   const handleNativePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     const text = e.clipboardData.getData('text');
     if (!text) return;
@@ -86,11 +81,9 @@ export function UrlInput({ onResolved }: UrlInputProps) {
       setValue('');
     } catch (err) {
       const raw = err instanceof Error ? err.message : String(err);
-      // Surface the first line inline (compact), the rest in a toast so
-      // the user gets the whole story without it crowding the input.
+      // First line inline (compact), full story in a toast.
       const lines = raw.split('\n').filter((l) => l.trim().length > 0);
       const headline = lines[0] ?? t('errors.fetchFailed');
-      const detail = lines.slice(1).join('\n');
       setError(headline);
       toast.error(t('errors.fetchFailed'), {
         description: raw.length > 0 ? raw : undefined,
@@ -98,9 +91,6 @@ export function UrlInput({ onResolved }: UrlInputProps) {
       });
       // eslint-disable-next-line no-console
       console.error('[patotube] fetchMediaInfo failed:', raw);
-      // Keep linter happy — `detail` is available if we later want to
-      // render it in an expandable inline panel.
-      void detail;
     } finally {
       setBusy(false);
     }
