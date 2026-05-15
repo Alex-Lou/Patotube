@@ -17,6 +17,27 @@ import { PlayerDownloadDialog } from '@/features/search/player-download-dialog';
 const SEARCH_DEBOUNCE_MS = 400;
 const SEARCH_MIN_LENGTH = 3;
 const SEARCH_LIMIT = 8;
+// Survives across app restart + Android background→foreground (which
+// kills the WebView under memory pressure). User picks up exactly
+// where they left off, e.g. after a YouTube detour from the kebab.
+const VALUE_STORAGE_KEY = 'patotube.url-input.value';
+
+function readStoredValue(): string {
+  try {
+    return localStorage.getItem(VALUE_STORAGE_KEY) ?? '';
+  } catch {
+    return '';
+  }
+}
+
+function persistValue(v: string): void {
+  try {
+    if (v) localStorage.setItem(VALUE_STORAGE_KEY, v);
+    else localStorage.removeItem(VALUE_STORAGE_KEY);
+  } catch {
+    /* private mode etc — silent */
+  }
+}
 
 interface UrlInputProps {
   onResolved: (info: MediaInfo) => void;
@@ -24,7 +45,11 @@ interface UrlInputProps {
 
 export function UrlInput({ onResolved }: UrlInputProps) {
   const { t } = useTranslation();
-  const [value, setValue] = useState('');
+  const [value, setValueState] = useState(readStoredValue);
+  const setValue = (v: string) => {
+    setValueState(v);
+    persistValue(v);
+  };
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [results, setResults] = useState<SearchResult[]>([]);

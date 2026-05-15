@@ -75,16 +75,40 @@ export function SearchResults({ results, loading, error, onPick, onPlay }: Searc
 
   const openYoutube = async (r: SearchResult) => {
     const url = `https://www.youtube.com/watch?v=${r.videoId}`;
-    if (isTauri()) {
-      try {
+    // Discreet duck-spinner toast while the OS warms up the YouTube
+    // app / browser. Auto-dismisses; we also dismiss explicitly on
+    // success so quick launches don't leave it lingering.
+    const toastId = toast.loading(t('search.openingYoutube'), {
+      icon: (
+        <span className="relative inline-block size-5">
+          <span
+            aria-hidden
+            className="absolute inset-0 rounded-full border-2 border-transparent border-t-duck border-r-duck/60 animate-spin"
+          />
+          <img
+            src="/patotube.png"
+            alt=""
+            className="absolute inset-0.5 size-4 object-contain"
+            draggable={false}
+          />
+        </span>
+      ),
+      duration: 4000,
+    });
+    try {
+      if (isTauri()) {
         const api = await getTauri();
         await api.openPath(url);
-        return;
-      } catch {
-        /* fall through */
+      } else {
+        window.open(url, '_blank', 'noopener,noreferrer');
       }
+    } catch {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } finally {
+      // Tiny grace period so the user clearly sees the toast appear,
+      // even when the OS handler launches instantly.
+      setTimeout(() => toast.dismiss(toastId), 800);
     }
-    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   return (

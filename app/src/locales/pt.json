@@ -32,7 +32,8 @@
     "playerLoading": "Carregando fluxo…",
     "playerFailed": "Não foi possível reproduzir este vídeo",
     "playerLoadFailed": "Falha na reprodução",
-    "starting": "Iniciando download…"
+    "starting": "Iniciando download…",
+    "openingYoutube": "Abrindo YouTube…"
   },
   "errors": {
     "empty": "Por favor, insira uma URL",

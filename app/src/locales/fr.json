@@ -32,7 +32,8 @@
     "playerLoading": "Récupération du flux…",
     "playerFailed": "Lecture impossible",
     "playerLoadFailed": "Échec de la lecture",
-    "starting": "Lancement du téléchargement…"
+    "starting": "Lancement du téléchargement…",
+    "openingYoutube": "Ouverture de YouTube…"
   },
   "errors": {
     "empty": "Entre une URL",
