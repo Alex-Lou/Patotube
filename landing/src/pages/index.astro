@@ -80,7 +80,7 @@ const metaJson = JSON.stringify(LOCALE_META);
   </head>
   <body class="min-h-screen flex flex-col">
     <header class="sticky top-0 z-50 glass">
-      <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
+      <nav class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-2 sm:gap-4">
         <a href={base + '/'} class="flex items-center gap-2.5 group shrink-0">
           <img
             src={`${base}/patotube.png`}
@@ -91,7 +91,7 @@ const metaJson = JSON.stringify(LOCALE_META);
           />
           <span class="font-bold text-lg tracking-tight">Patotube</span>
         </a>
-        <div class="flex items-center gap-3 text-sm">
+        <div class="flex items-center gap-2 sm:gap-3 text-sm min-w-0">
           <a
             href="#features"
             class="text-fg-muted hover:text-fg transition-colors hidden sm:inline"
@@ -142,7 +142,7 @@ const metaJson = JSON.stringify(LOCALE_META);
 
           <a
             href="#download"
-            class="px-3 py-1.5 rounded-lg bg-duck text-bg font-semibold hover:brightness-110 transition-all"
+            class="px-2.5 sm:px-3 py-1.5 rounded-lg bg-duck text-bg font-semibold text-xs sm:text-sm hover:brightness-110 transition-all whitespace-nowrap"
             data-i18n="navDownload">{en.navDownload}</a
           >
         </div>

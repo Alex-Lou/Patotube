@@ -13,11 +13,26 @@
     "change": "Breyta tungumáli"
   },
   "url": {
-    "label": "Slóð á efni",
-    "placeholder": "Límdu inn slóðina þína",
+    "label": "Slóð eða leitarorð",
+    "placeholder": "Slóð eða leitarorð",
     "fetch": "Sækja",
+    "search": "Leita",
     "paste": "Líma af klippiborði",
     "clear": "Hreinsa"
+  },
+  "search": {
+    "hint": "Leitar á YouTube — smelltu á niðurstöðu til að hlaða niður, smámynd til að forskoða",
+    "searching": "Leita…",
+    "failed": "Leit mistókst",
+    "resultsLabel": "Leitarniðurstöður",
+    "viewCount": "{{formatted}} áhorf",
+    "play": "Forskoða",
+    "downloadThis": "Hlaða niður",
+    "openOnYoutube": "Opna á YouTube",
+    "playerLoading": "Sæki straum…",
+    "playerFailed": "Ekki tókst að spila myndbandið",
+    "playerLoadFailed": "Spilun mistókst",
+    "starting": "Hef niðurhal…"
   },
   "errors": {
     "empty": "Sláðu inn slóð",

@@ -13,11 +13,26 @@
     "change": "भाषा बदलें"
   },
   "url": {
-    "label": "मीडिया URL",
-    "placeholder": "अपना URL पेस्ट करें",
+    "label": "URL या कीवर्ड",
+    "placeholder": "URL या कीवर्ड",
     "fetch": "विश्लेषण करें",
+    "search": "खोजें",
     "paste": "क्लिपबोर्ड से पेस्ट करें",
     "clear": "साफ़ करें"
+  },
+  "search": {
+    "hint": "YouTube पर खोज रहे हैं — डाउनलोड के लिए परिणाम पर क्लिक करें, प्रीव्यू के लिए थंबनेल पर",
+    "searching": "खोज रहे हैं…",
+    "failed": "खोज विफल",
+    "resultsLabel": "खोज परिणाम",
+    "viewCount": "{{formatted}} व्यू",
+    "play": "प्रीव्यू",
+    "downloadThis": "डाउनलोड",
+    "openOnYoutube": "YouTube पर खोलें",
+    "playerLoading": "स्ट्रीम लोड हो रहा है…",
+    "playerFailed": "यह वीडियो नहीं चला सकते",
+    "playerLoadFailed": "प्लेबैक विफल",
+    "starting": "डाउनलोड शुरू हो रहा है…"
   },
   "errors": {
     "empty": "कृपया URL दर्ज करें",

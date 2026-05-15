@@ -22,6 +22,22 @@ async function buildVideoSrc(videoId: string, mockUrl: string): Promise<string> 
   return convertFileSrc(videoId, 'patostream');
 }
 
+/** Open a URL in the OS default handler (YouTube app on Android if
+ *  installed, system browser otherwise). `<a target="_blank">` inside
+ *  a Tauri WebView is a no-op — we have to hop through Rust. */
+async function openExternal(url: string): Promise<void> {
+  if (isTauri()) {
+    try {
+      const api = await getTauri();
+      await api.openPath(url);
+      return;
+    } catch {
+      /* fall through to window.open below */
+    }
+  }
+  window.open(url, '_blank', 'noopener,noreferrer');
+}
+
 interface SearchPlayerDialogProps {
   result: SearchResult | null;
   onClose: () => void;
@@ -125,15 +141,14 @@ export function SearchPlayerDialog({ result, onClose, onDownload }: SearchPlayer
             )}
 
             <div className="flex flex-wrap justify-end gap-2 pt-2">
-              <Button variant="ghost" asChild>
-                <a
-                  href={`https://www.youtube.com/watch?v=${result.videoId}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <ExternalLink className="size-4" />
-                  {t('search.openOnYoutube')}
-                </a>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  void openExternal(`https://www.youtube.com/watch?v=${result.videoId}`);
+                }}
+              >
+                <ExternalLink className="size-4" />
+                {t('search.openOnYoutube')}
               </Button>
               <Button variant="duck" onClick={() => onDownload(result)} className="min-w-32">
                 <Download className="size-4" />

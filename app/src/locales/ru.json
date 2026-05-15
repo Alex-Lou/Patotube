@@ -13,11 +13,26 @@
     "change": "Изменить язык"
   },
   "url": {
-    "label": "URL медиа",
-    "placeholder": "Вставьте ссылку",
+    "label": "URL или ключевое слово",
+    "placeholder": "URL или ключевое слово",
     "fetch": "Проанализировать",
+    "search": "Поиск",
     "paste": "Вставить из буфера обмена",
     "clear": "Очистить"
+  },
+  "search": {
+    "hint": "Поиск в YouTube — щёлкните результат для загрузки, миниатюру для предпросмотра",
+    "searching": "Поиск…",
+    "failed": "Ошибка поиска",
+    "resultsLabel": "Результаты поиска",
+    "viewCount": "{{formatted}} просмотров",
+    "play": "Предпросмотр",
+    "downloadThis": "Скачать",
+    "openOnYoutube": "Открыть на YouTube",
+    "playerLoading": "Получение потока…",
+    "playerFailed": "Не удалось воспроизвести это видео",
+    "playerLoadFailed": "Воспроизведение не удалось",
+    "starting": "Запуск загрузки…"
   },
   "errors": {
     "empty": "Введите URL",

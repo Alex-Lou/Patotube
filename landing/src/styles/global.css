@@ -6,6 +6,9 @@
   html {
     @apply scroll-smooth;
     color-scheme: dark;
+    /* Belt + suspenders: nothing in the page should produce horizontal
+       scroll, even if a child mis-measures on narrow phones. */
+    overflow-x: hidden;
   }
   body {
     @apply bg-bg text-fg font-sans antialiased;
@@ -13,6 +16,7 @@
       radial-gradient(ellipse 80% 50% at 50% -10%, hsl(45 96% 56% / 0.12), transparent),
       radial-gradient(ellipse 60% 40% at 100% 100%, hsl(28 92% 45% / 0.06), transparent);
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
   ::selection {
     @apply bg-duck/30 text-fg;
