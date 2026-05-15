@@ -145,7 +145,13 @@ export function SearchResults({ results, loading, error, onPick, onPlay }: Searc
                   <MoreVertical className="size-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-44">
+              <DropdownMenuContent
+                align="end"
+                side="bottom"
+                sideOffset={12}
+                className="w-44"
+                onCloseAutoFocus={(e) => e.preventDefault()}
+              >
                 <DropdownMenuItem onSelect={() => onPick(r)}>
                   <Download className="size-4" />
                   {t('search.downloadThis')}
