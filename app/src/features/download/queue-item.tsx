@@ -70,11 +70,7 @@ export function QueueItem({
     >
       <Card className="p-3">
         <div className="flex items-start gap-3">
-          {/* Smaller thumbnail on mobile so the action buttons +
-              title don't fight over a ~360 px viewport. We were
-              eating ~250 px in fixed chrome (w-28 thumb + 4×size-8
-              buttons), leaving the title with ~100 px and a
-              "Se fa..." truncation. */}
+          {/* Smaller thumb on mobile so title isn't crushed on ~360px viewports. */}
           <div className="aspect-video w-20 shrink-0 overflow-hidden rounded-md bg-muted sm:w-28 md:w-32">
             {info.thumbnail && (
               <img
@@ -87,12 +83,7 @@ export function QueueItem({
           </div>
 
           <div className="min-w-0 flex-1 space-y-1.5">
-            {/* The title doubles as a "play" hotspot once the
-                download is done — clicking it opens the file in
-                the user's default player. While the job is in
-                flight, it stays a plain non-interactive label
-                so we don't mislead the user with a hand cursor
-                on something they can't yet act on. */}
+            {/* On done: title becomes a "play" hotspot. */}
             {status === 'done' && filePath ? (
               <button
                 type="button"
@@ -123,7 +114,6 @@ export function QueueItem({
               </p>
             )}
 
-            {/* Metadata row: platform · format · quality · duration */}
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
               <PlatformBadge platform={info.platform} />
               <span className="inline-flex items-center gap-1">
@@ -138,17 +128,10 @@ export function QueueItem({
               )}
             </div>
 
-            {/* Status + action row. On mobile we drop the status
-                label onto the same line as the actions to save a
-                full row of vertical space, and we only show the
-                terminal-state actions (open file, retry) — the
-                "copy URL" link icon moves below to avoid a cramped
-                4-icon row competing with the title above. */}
             <div className="flex items-center justify-between gap-2">
               <StatusLabel status={status} />
 
               <div className="flex shrink-0 items-center gap-0.5">
-                {/* Copy source URL — useful at any status. */}
                 <Button
                   variant="ghost"
                   size="icon"
@@ -158,8 +141,7 @@ export function QueueItem({
                       await navigator.clipboard.writeText(info.url);
                       toast.success(t('queue.urlCopied'));
                     } catch {
-                      // Fallback via Tauri clipboard plugin (the
-                      // browser API can be blocked in WebView).
+                      // Fallback: Tauri clipboard (browser API can be blocked in WebView).
                       try {
                         const { writeText } = await import('@tauri-apps/plugin-clipboard-manager');
                         await writeText(info.url);
@@ -232,9 +214,7 @@ export function QueueItem({
                   <Button
                     variant="ghost"
                     size="icon"
-                    // Prominent vs. the neighbouring ghost icons so
-                    // the user spots the recovery affordance on a
-                    // failed row without reading every label.
+                    // Prominent vs ghost neighbours so the retry affordance stands out.
                     className="size-7 bg-primary/15 text-primary hover:bg-primary/25 hover:text-primary"
                     onClick={() => onRetry(job.id)}
                     aria-label={t('queue.retry')}

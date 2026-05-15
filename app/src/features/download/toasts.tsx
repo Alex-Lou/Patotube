@@ -1,11 +1,5 @@
-// Toasts that fire when a download lands in a terminal state.
-// Sonner dedupes on the `id` field so re-emissions of the same
-// status from the Rust side don't multiply the notification.
-//
-// Layout:
-//   * success → title + filename + a single folder-icon button
-//                that opens the containing folder.
-//   * failure → title + friendly error message (no buttons).
+// Terminal-state download toasts. Sonner dedupes by `id` to avoid
+// duplicates when Rust re-emits the same status.
 
 import { Folder, RotateCw } from 'lucide-react';
 import { toast } from 'sonner';
@@ -23,14 +17,8 @@ import { retryJob } from './actions';
 
 export type TFunc = ReturnType<typeof useTranslation>['t'];
 
-/** Show / open the file. On desktop this reveals it in Explorer
- *  / Finder via Tauri's opener plugin. On Android there's no
- *  standard "reveal file in some file manager" intent, so we
- *  open the file itself via FileProvider — the user gets their
- *  music / video player with the track loaded, which is what
- *  they want from a download-completion toast anyway. Falls
- *  back to the system Downloads folder if no app on the device
- *  can handle the file. */
+/** Android has no reveal-in-folder intent, so we open the file via
+ *  FileProvider (falls back to the Downloads folder). */
 function showInFolder(filePath: string): void {
   if (isAndroid() && hasNativeBridge()) {
     if (!openFileNative(filePath)) openDownloadsFolderNative();
@@ -45,9 +33,7 @@ export function showSuccessToast(jobId: string, job: DownloadJob, t: TFunc): voi
     id: `dl-done-${jobId}`,
     description: filename,
     duration: 14000,
-    // Sonner's `action` slot, but we replace the default button
-    // chrome with a ghost icon button via the global Toaster
-    // classNames override (see App.tsx → `actionButton`).
+    // Ghost icon override applied via global classNames (App.tsx → actionButton).
     action: job.filePath
       ? {
           label: (
@@ -62,9 +48,7 @@ export function showSuccessToast(jobId: string, job: DownloadJob, t: TFunc): voi
   });
 }
 
-/** Last path segment, regardless of separator (handles both
- *  POSIX `/sdcard/Download/foo.mp3` and Windows
- *  `C:\Users\...\foo.mp3`). */
+/** Last path segment for both POSIX and Windows separators. */
 function basename(path: string): string {
   const lastSlash = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'));
   return lastSlash >= 0 ? path.slice(lastSlash + 1) : path;
@@ -79,10 +63,7 @@ export function showFailToast(
   toast.error(t('toast.failed', { title }), {
     id: `dl-fail-${jobId}`,
     description: friendlyError(rawError, t),
-    // Most failures here are transient (flaky network, sleeping
-    // server, expired YT cipher). Give the user a one-tap retry
-    // straight from the toast so they don't have to scroll the
-    // queue to find the failed row.
+    // One-tap retry: most failures are transient (network, YT cipher, etc.).
     duration: 14000,
     action: {
       label: <RotateCw className="size-4" aria-label={t('queue.retry')} />,

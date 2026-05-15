@@ -38,10 +38,7 @@ export function Header() {
 
       <div className="no-drag-region flex items-center gap-2">
         <LangPicker />
-        {/* Built-in mini file manager — only visible on Android,
-            where the device may not ship a system file manager.
-            Desktop users have Explorer / Finder / nautilus, no
-            need to duplicate that surface here. */}
+        {/* Mini file manager: Android only. */}
         {IS_ANDROID && (
           <Button
             variant="outline"

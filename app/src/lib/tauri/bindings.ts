@@ -26,14 +26,11 @@ export interface DownloadStatusEvent {
 
 export type Unlisten = () => void;
 
-/** One entry in the FilesSheet listing. Mirrors `files::DownloadEntry`
- *  on the Rust side — keep field names in sync (serde renames to
- *  camelCase). */
+/** Mirrors files::DownloadEntry on the Rust side — keep field names in sync. */
 export interface DownloadEntry {
   name: string;
   path: string;
   size: number;
-  /** Unix epoch seconds, or 0 if the FS didn't expose it. */
   mtime: number;
   mimeKind: 'audio' | 'video';
 }

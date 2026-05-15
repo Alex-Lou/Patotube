@@ -24,17 +24,13 @@ import type {
 } from '@/lib/core/types';
 import { isAndroid } from '@/lib/android/bridge';
 
+// Android = bit-perfect remux, no transcode → no bitrate picker.
 interface FormatPickerProps {
   value: FormatChoice;
   onChange: (next: FormatChoice) => void;
-  /** When true, hide the video radio entirely. Used for
-   *  audio-only platforms like SoundCloud where there's no
-   *  video stream to choose. */
+  /** Hide the video radio (SoundCloud, etc.). */
   audioOnly?: boolean;
-  /** Needed to render the resolved-format info chip for
-   *  audio-only platforms on mobile, where the user can't
-   *  tweak bitrate. Optional so callers that don't pass a
-   *  resolved platform get the existing behaviour. */
+  /** Needed for the mobile resolved-format chip. */
   platform?: PlatformId;
 }
 
@@ -98,17 +94,8 @@ export function FormatPicker({
           </Select>
         </div>
       ) : audioOnly && onAndroid && platform ? (
-        // Audio-only mobile (Bandcamp / SoundCloud / Audiomack):
-        // there's nothing to choose — the kernel hands us the
-        // platform's native encoding — but we still owe the user
-        // a clear "this is what you'll get" line so the section
-        // doesn't render empty under the FORMAT heading.
         <FormatInfoChip label={getResolvedFormatLabel(platform, value, onAndroid, t)} />
       ) : onAndroid ? (
-        // YouTube hands one fixed-bitrate AAC stream per video; on
-        // mobile we don't transcode (MediaExtractor remux is
-        // bit-perfect, no LAME on the device). Showing a 128/192/256/
-        // 320 picker would be a lie. See docs/youtube-kernel.md.
         <FormatInfoChip label={t('format.audioMobileNote')} />
       ) : (
         <div className="space-y-1.5">
@@ -136,8 +123,6 @@ export function FormatPicker({
   );
 }
 
-/** Read-only info row used when there's nothing to pick (audio-only
- *  on mobile, YouTube AAC mobile note). Same chrome both places. */
 function FormatInfoChip({ label }: { label: string }) {
   return (
     <div className="flex items-start gap-2 rounded-lg border border-border/60 bg-muted/40 px-3 py-2.5 text-xs text-muted-foreground">
