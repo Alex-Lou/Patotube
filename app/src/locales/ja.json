@@ -13,11 +13,26 @@
     "change": "言語を変更"
   },
   "url": {
-    "label": "メディアURL",
-    "placeholder": "URLを貼り付け",
+    "label": "URLまたはキーワード",
+    "placeholder": "URLまたはキーワード",
     "fetch": "取得",
+    "search": "検索",
     "paste": "クリップボードから貼り付け",
     "clear": "クリア"
+  },
+  "search": {
+    "hint": "YouTubeを検索中 — ダウンロードは結果をクリック、プレビューはサムネイルをクリック",
+    "searching": "検索中…",
+    "failed": "検索失敗",
+    "resultsLabel": "検索結果",
+    "viewCount": "{{formatted}} 回視聴",
+    "play": "プレビュー",
+    "downloadThis": "ダウンロード",
+    "openOnYoutube": "YouTubeで開く",
+    "playerLoading": "ストリームを取得中…",
+    "playerFailed": "この動画は再生できません",
+    "playerLoadFailed": "再生失敗",
+    "starting": "ダウンロード開始中…"
   },
   "errors": {
     "empty": "URLを入力してください",

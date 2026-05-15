@@ -1,13 +1,23 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Loader2 } from 'lucide-react';
+import { Play, Loader2, MoreVertical, Download, Link, Eye } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import type { SearchResult } from '@/lib/tauri/bindings';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { getTauri, isTauri, type SearchResult } from '@/lib/tauri/bindings';
 
 interface SearchResultsProps {
   results: SearchResult[];
   loading: boolean;
   error: string | null;
+  /** Direct download — opens the small format-picker modal. */
   onPick: (r: SearchResult) => void;
+  /** Open the in-app preview player. */
   onPlay: (r: SearchResult) => void;
 }
 
@@ -29,6 +39,38 @@ export function SearchResults({ results, loading, error, onPick, onPlay }: Searc
 
   if (results.length === 0) return null;
 
+  const handleCopyUrl = async (r: SearchResult) => {
+    const url = `https://www.youtube.com/watch?v=${r.videoId}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success(t('queue.urlCopied'));
+      return;
+    } catch {
+      /* fall through to Tauri clipboard plugin */
+    }
+    try {
+      const { writeText } = await import('@tauri-apps/plugin-clipboard-manager');
+      await writeText(url);
+      toast.success(t('queue.urlCopied'));
+    } catch {
+      toast.error(t('errors.fetchFailed'));
+    }
+  };
+
+  const handleOpenOnYoutube = async (r: SearchResult) => {
+    const url = `https://www.youtube.com/watch?v=${r.videoId}`;
+    if (isTauri()) {
+      try {
+        const api = await getTauri();
+        await api.openPath(url);
+        return;
+      } catch {
+        /* fall through */
+      }
+    }
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <AnimatePresence initial={false}>
       <motion.ul
@@ -41,14 +83,14 @@ export function SearchResults({ results, loading, error, onPick, onPlay }: Searc
         {results.map((r) => (
           <li
             key={r.videoId}
-            className="flex items-stretch gap-3 rounded-lg border border-border/40 bg-card/40 p-2 transition hover:border-border hover:bg-muted/60"
+            className="flex items-stretch gap-2 sm:gap-3 rounded-lg border border-border/40 bg-card/40 p-2 transition hover:border-border hover:bg-muted/60"
           >
             <button
               type="button"
               onClick={() => onPlay(r)}
               aria-label={t('search.play')}
               title={t('search.play')}
-              className="group/play relative aspect-video w-32 shrink-0 overflow-hidden rounded-md bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="group/play relative aspect-video w-28 sm:w-32 shrink-0 overflow-hidden rounded-md bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <img
                 src={r.thumbnailUrl}
@@ -90,6 +132,38 @@ export function SearchResults({ results, loading, error, onPick, onPlay }: Searc
                 )}
               </div>
             </button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8 shrink-0 self-center"
+                  aria-label={t('files.more')}
+                  title={t('files.more')}
+                >
+                  <MoreVertical className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44">
+                <DropdownMenuItem onSelect={() => onPick(r)}>
+                  <Download className="size-4" />
+                  {t('search.downloadThis')}
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => onPlay(r)}>
+                  <Eye className="size-4" />
+                  {t('search.play')}
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => void handleCopyUrl(r)}>
+                  <Link className="size-4" />
+                  {t('queue.copyUrl')}
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => void handleOpenOnYoutube(r)}>
+                  <Eye className="size-4 opacity-60" />
+                  {t('search.openOnYoutube')}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </li>
         ))}
       </motion.ul>

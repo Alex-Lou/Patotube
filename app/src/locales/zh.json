@@ -13,11 +13,26 @@
     "change": "更改语言"
   },
   "url": {
-    "label": "媒体链接",
-    "placeholder": "粘贴你的链接",
+    "label": "URL 或关键词",
+    "placeholder": "URL 或关键词",
     "fetch": "解析",
+    "search": "搜索",
     "paste": "从剪贴板粘贴",
     "clear": "清空"
+  },
+  "search": {
+    "hint": "在 YouTube 上搜索 — 点击结果以下载,点击缩略图以预览",
+    "searching": "搜索中…",
+    "failed": "搜索失败",
+    "resultsLabel": "搜索结果",
+    "viewCount": "{{formatted}} 次观看",
+    "play": "预览",
+    "downloadThis": "下载",
+    "openOnYoutube": "在 YouTube 上打开",
+    "playerLoading": "正在获取流…",
+    "playerFailed": "无法播放此视频",
+    "playerLoadFailed": "播放失败",
+    "starting": "开始下载…"
   },
   "errors": {
     "empty": "请输入链接",

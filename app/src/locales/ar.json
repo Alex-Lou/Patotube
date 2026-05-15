@@ -13,11 +13,26 @@
     "change": "تغيير اللغة"
   },
   "url": {
-    "label": "رابط الوسائط",
-    "placeholder": "ألصِق رابطك",
+    "label": "عنوان URL أو كلمة مفتاحية",
+    "placeholder": "عنوان URL أو كلمة مفتاحية",
     "fetch": "تحليل",
+    "search": "بحث",
     "paste": "لصق من الحافظة",
     "clear": "مسح"
+  },
+  "search": {
+    "hint": "البحث في YouTube — انقر على نتيجة للتحميل، على الصورة المصغرة للمعاينة",
+    "searching": "جارٍ البحث…",
+    "failed": "فشل البحث",
+    "resultsLabel": "نتائج البحث",
+    "viewCount": "{{formatted}} مشاهدة",
+    "play": "معاينة",
+    "downloadThis": "تحميل",
+    "openOnYoutube": "فتح في YouTube",
+    "playerLoading": "جارٍ تحميل البث…",
+    "playerFailed": "تعذر تشغيل هذا الفيديو",
+    "playerLoadFailed": "فشل التشغيل",
+    "starting": "بدء التحميل…"
   },
   "errors": {
     "empty": "أدخل رابطًا من فضلك",
