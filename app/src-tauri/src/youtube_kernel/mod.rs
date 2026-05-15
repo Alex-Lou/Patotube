@@ -1,6 +1,7 @@
 // YouTube extraction kernel. See docs/youtube-kernel.md for the full Phase 1/2 pipeline.
 
 mod clients;
+pub mod search;
 mod sigcipher;
 mod stream_pick;
 mod types;

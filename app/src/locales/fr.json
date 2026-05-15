@@ -13,11 +13,19 @@
     "change": "Changer de langue"
   },
   "url": {
-    "label": "URL du média",
-    "placeholder": "Colle ton URL",
+    "label": "URL du média ou recherche",
+    "placeholder": "Colle une URL ou tape pour chercher sur YouTube",
     "fetch": "Analyser",
+    "search": "Rechercher",
     "paste": "Coller depuis le presse-papiers",
     "clear": "Effacer"
+  },
+  "search": {
+    "hint": "Recherche YouTube — clique un résultat pour télécharger",
+    "searching": "Recherche en cours…",
+    "failed": "Échec de la recherche",
+    "resultsLabel": "Résultats de recherche",
+    "viewCount": "{{formatted}} vues"
   },
   "errors": {
     "empty": "Entre une URL",
