@@ -1,5 +1,14 @@
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Loader2, MoreVertical, Download, Link, Eye } from 'lucide-react';
+import {
+  Play,
+  Loader2,
+  MoreVertical,
+  Download,
+  Link as LinkIcon,
+  Eye,
+  ExternalLink,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -9,6 +18,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
+import { isAndroid } from '@/lib/android/bridge';
 import { getTauri, isTauri, type SearchResult } from '@/lib/tauri/bindings';
 
 interface SearchResultsProps {
@@ -39,7 +55,7 @@ export function SearchResults({ results, loading, error, onPick, onPlay }: Searc
 
   if (results.length === 0) return null;
 
-  const handleCopyUrl = async (r: SearchResult) => {
+  const copyUrl = async (r: SearchResult) => {
     const url = `https://www.youtube.com/watch?v=${r.videoId}`;
     try {
       await navigator.clipboard.writeText(url);
@@ -57,7 +73,7 @@ export function SearchResults({ results, loading, error, onPick, onPlay }: Searc
     }
   };
 
-  const handleOpenOnYoutube = async (r: SearchResult) => {
+  const openYoutube = async (r: SearchResult) => {
     const url = `https://www.youtube.com/watch?v=${r.videoId}`;
     if (isTauri()) {
       try {
@@ -133,47 +149,164 @@ export function SearchResults({ results, loading, error, onPick, onPlay }: Searc
               </div>
             </button>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-8 shrink-0 self-center"
-                  aria-label={t('files.more')}
-                  title={t('files.more')}
-                >
-                  <MoreVertical className="size-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                side="bottom"
-                sideOffset={12}
-                className="w-44"
-                onCloseAutoFocus={(e) => e.preventDefault()}
-              >
-                <DropdownMenuItem onSelect={() => onPick(r)}>
-                  <Download className="size-4" />
-                  {t('search.downloadThis')}
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => onPlay(r)}>
-                  <Eye className="size-4" />
-                  {t('search.play')}
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => void handleCopyUrl(r)}>
-                  <Link className="size-4" />
-                  {t('queue.copyUrl')}
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => void handleOpenOnYoutube(r)}>
-                  <Eye className="size-4 opacity-60" />
-                  {t('search.openOnYoutube')}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <ResultActions
+              result={r}
+              onDownload={() => onPick(r)}
+              onWatch={() => onPlay(r)}
+              onCopyUrl={() => void copyUrl(r)}
+              onOpenYoutube={() => void openYoutube(r)}
+            />
           </li>
         ))}
       </motion.ul>
     </AnimatePresence>
+  );
+}
+
+interface ResultActionsProps {
+  result: SearchResult;
+  onDownload: () => void;
+  onWatch: () => void;
+  onCopyUrl: () => void;
+  onOpenYoutube: () => void;
+}
+
+/** Touch vs desktop: bottom Sheet on Android (idiomatic action sheet,
+ *  no ghost-tap on first item), DropdownMenu on desktop (compact). */
+function ResultActions({
+  result,
+  onDownload,
+  onWatch,
+  onCopyUrl,
+  onOpenYoutube,
+}: ResultActionsProps) {
+  const { t } = useTranslation();
+  const onMobile = isAndroid();
+
+  if (onMobile) {
+    return (
+      <MobileActions
+        title={result.title}
+        onDownload={onDownload}
+        onWatch={onWatch}
+        onCopyUrl={onCopyUrl}
+        onOpenYoutube={onOpenYoutube}
+      />
+    );
+  }
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-8 shrink-0 self-center"
+          aria-label={t('files.more')}
+          title={t('files.more')}
+        >
+          <MoreVertical className="size-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="end"
+        side="bottom"
+        sideOffset={8}
+        className="w-44"
+      >
+        <DropdownMenuItem onSelect={onDownload}>
+          <Download className="size-4" />
+          {t('search.downloadThis')}
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={onWatch}>
+          <Eye className="size-4" />
+          {t('search.play')}
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={onCopyUrl}>
+          <LinkIcon className="size-4" />
+          {t('queue.copyUrl')}
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={onOpenYoutube}>
+          <ExternalLink className="size-4" />
+          {t('search.openOnYoutube')}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+function MobileActions({
+  title,
+  onDownload,
+  onWatch,
+  onCopyUrl,
+  onOpenYoutube,
+}: {
+  title: string;
+  onDownload: () => void;
+  onWatch: () => void;
+  onCopyUrl: () => void;
+  onOpenYoutube: () => void;
+}) {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+
+  const fire = (action: () => void) => () => {
+    setOpen(false);
+    // Run after the close animation kicks in so the action's modal
+    // (if any) doesn't fight the sheet closing.
+    setTimeout(action, 120);
+  };
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-10 shrink-0 self-center"
+          aria-label={t('files.more')}
+          title={t('files.more')}
+        >
+          <MoreVertical className="size-5" />
+        </Button>
+      </SheetTrigger>
+      <SheetContent
+        side="bottom"
+        className="rounded-t-2xl pb-[calc(1.5rem+env(safe-area-inset-bottom))]"
+      >
+        <SheetTitle className="line-clamp-1 pr-8 text-sm font-medium text-muted-foreground">
+          {title}
+        </SheetTitle>
+        <div className="mt-3 flex flex-col gap-1">
+          <ActionRow icon={<Download className="size-5" />} label={t('search.downloadThis')} onClick={fire(onDownload)} />
+          <ActionRow icon={<Eye className="size-5" />} label={t('search.play')} onClick={fire(onWatch)} />
+          <ActionRow icon={<LinkIcon className="size-5" />} label={t('queue.copyUrl')} onClick={fire(onCopyUrl)} />
+          <ActionRow icon={<ExternalLink className="size-5" />} label={t('search.openOnYoutube')} onClick={fire(onOpenYoutube)} />
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
+function ActionRow({
+  icon,
+  label,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm font-medium transition-colors hover:bg-muted active:bg-muted"
+    >
+      <span className="text-muted-foreground">{icon}</span>
+      <span>{label}</span>
+    </button>
   );
 }
 
