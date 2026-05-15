@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Loader2, ClipboardPaste, X, ArrowRight, Search } from 'lucide-react';
+import { Loader2, ClipboardPaste, X, Download, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,7 @@ import type { MediaInfo } from '@/lib/core/types';
 import { PlatformBadge } from './platform-badge';
 import { SearchResults } from '@/features/search/search-results';
 import { SearchPlayerDialog } from '@/features/search/search-player-dialog';
+import { PlayerDownloadDialog } from '@/features/search/player-download-dialog';
 
 const SEARCH_DEBOUNCE_MS = 400;
 const SEARCH_MIN_LENGTH = 3;
@@ -30,6 +31,7 @@ export function UrlInput({ onResolved }: UrlInputProps) {
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [playing, setPlaying] = useState<SearchResult | null>(null);
+  const [downloadFromPlayer, setDownloadFromPlayer] = useState<SearchResult | null>(null);
 
   // Raw value may be share-sheet text wrapping the URL.
   const looksLikeUrl = validateUrl(value).ok;
@@ -173,76 +175,66 @@ export function UrlInput({ onResolved }: UrlInputProps) {
   };
 
   const handlePlay = (r: SearchResult) => setPlaying(r);
-  const handleDownloadFromPlayer = (r: SearchResult) => {
-    setPlaying(null);
-    handlePick(r);
-  };
+  // Player → "Télécharger" : the player stays open behind a small
+  // format-picker modal. Both dismiss together on confirm.
+  const handleDownloadFromPlayer = (r: SearchResult) => setDownloadFromPlayer(r);
+
+  const SubmitIcon = busy ? Loader2 : isSearchMode ? Search : Download;
+  const submitLabel = isSearchMode ? t('url.search') : t('url.fetch');
 
   return (
     <form onSubmit={handleSubmit} className="space-y-2">
-      <div className="relative">
-        <Input
-          autoFocus
-          value={value}
-          onChange={(e) => {
-            setValue(e.target.value);
-            if (error) setError(null);
-          }}
-          onPaste={handleNativePaste}
-          placeholder={t('url.placeholder')}
-          aria-label={t('url.label')}
-          className="h-14 pl-4 pr-32 text-base"
-          spellCheck={false}
-          autoComplete="off"
-        />
-        <div className="absolute inset-y-0 right-2 flex items-center gap-1">
-          {value ? (
+      <div className="flex items-center gap-2">
+        <div className="relative flex-1">
+          <Input
+            autoFocus
+            value={value}
+            onChange={(e) => {
+              setValue(e.target.value);
+              if (error) setError(null);
+            }}
+            onPaste={handleNativePaste}
+            placeholder={t('url.placeholder')}
+            aria-label={t('url.label')}
+            className="h-12 pl-4 pr-10 text-base"
+            spellCheck={false}
+            autoComplete="off"
+          />
+          {value && (
             <Button
               type="button"
               variant="ghost"
               size="icon"
               onClick={() => setValue('')}
               aria-label={t('url.clear')}
-              className="size-8"
+              className="absolute inset-y-0 right-1 my-auto size-8"
             >
               <X className="size-4" />
             </Button>
-          ) : (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={handlePaste}
-              aria-label={t('url.paste')}
-              title={t('url.paste')}
-              className="size-8"
-            >
-              <ClipboardPaste className="size-4" />
-            </Button>
           )}
-          <Button
-            type="submit"
-            variant="duck"
-            size="sm"
-            disabled={busy || !value.trim()}
-            className="ml-1 h-9 px-4"
-            aria-label={isSearchMode ? t('url.search') : t('url.fetch')}
-          >
-            {busy ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : isSearchMode ? (
-              <>
-                {t('url.search')}
-                <Search className="size-4" />
-              </>
-            ) : (
-              <>
-                {t('url.fetch')}
-                <ArrowRight className="size-4" />
-              </>
-            )}
-          </Button>
         </div>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={handlePaste}
+          aria-label={t('url.paste')}
+          title={t('url.paste')}
+          className="size-10 shrink-0"
+        >
+          <ClipboardPaste className="size-4" />
+        </Button>
+        <Button
+          type="submit"
+          variant="duck"
+          size="icon"
+          disabled={busy || !value.trim()}
+          className="size-10 shrink-0"
+          aria-label={submitLabel}
+          title={submitLabel}
+        >
+          <SubmitIcon className={busy ? 'size-4 animate-spin' : 'size-4'} />
+        </Button>
       </div>
 
       <div className="flex min-h-6 items-center justify-between gap-2 px-1">
@@ -296,6 +288,17 @@ export function UrlInput({ onResolved }: UrlInputProps) {
         result={playing}
         onClose={() => setPlaying(null)}
         onDownload={handleDownloadFromPlayer}
+      />
+
+      <PlayerDownloadDialog
+        result={downloadFromPlayer}
+        onClose={() => setDownloadFromPlayer(null)}
+        onConfirmed={() => {
+          setDownloadFromPlayer(null);
+          setPlaying(null);
+          setValue('');
+          setResults([]);
+        }}
       />
     </form>
   );
