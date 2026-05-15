@@ -67,6 +67,13 @@ export function mockTauri(): TauriApi {
       ];
     },
     async deleteDownload() {},
+    async getYoutubeStreamUrl(videoId: string): Promise<string> {
+      await sleep(400);
+      // Public Big Buck Bunny mp4 — browser-preview placeholder so the
+      // <video> tag has something playable when we're not in Tauri.
+      void videoId;
+      return 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+    },
     async searchYoutube(query: string, limit: number) {
       await sleep(350);
       const q = query.trim();

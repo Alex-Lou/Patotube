@@ -1,3 +1,8 @@
+// has_metadata / has_combined_video / has_audio_only are used by
+// the Android-gated downloader path; on desktop only call_player_api
+// is reached (via stream_url.rs).
+#![allow(dead_code)]
+
 use serde_json::{json, Value};
 
 use super::clients::ClientProfile;
