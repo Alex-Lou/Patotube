@@ -1,23 +1,7 @@
-// Pure URL / string helpers for the YouTube path. Lives outside the
-// `youtube_kernel/` directory (which is cfg-gated to Android) so the
-// helpers can be unit-tested on the desktop host without an emulator.
-//
-// On non-Android targets these functions are unused at runtime — the
-// `dead_code` allow keeps the cargo output quiet there while letting
-// `cargo test --lib` exercise them on any host.
-
 #![cfg_attr(not(target_os = "android"), allow(dead_code))]
 
-/// Extract a video ID from any of the URL shapes YouTube serves:
-///   https://www.youtube.com/watch?v=ID
-///   https://youtu.be/ID
-///   https://youtube.com/shorts/ID
-///   https://www.youtube.com/embed/ID
-///   https://m.youtube.com/v/ID
-/// Returns `None` if the input doesn't look like a YouTube URL or the
-/// ID portion is missing. The caller decides whether the trimmed ID
-/// has the expected 11-char shape — we keep this layer permissive so
-/// future ID changes don't silently break extraction.
+/// Extract a video ID from watch/youtu.be/shorts/embed/v URLs.
+/// Permissive: caller validates the ID shape if needed.
 pub fn extract_youtube_id(url: &str) -> Option<String> {
     let trimmed = url.trim();
     if let Some(rest) = trimmed
@@ -54,10 +38,7 @@ fn non_empty(s: &str) -> Option<String> {
     }
 }
 
-/// Replace characters that confuse Windows/Android filesystems with
-/// underscores, trim leading/trailing dots and whitespace, and cap to
-/// 140 chars so the path stays under typical PATH_MAX. Pure; safe to
-/// reuse from any platform.
+/// Sanitize for Windows/Android FS, trim leading/trailing dots+spaces, cap at 140 chars (PATH_MAX safety).
 pub fn sanitize_filename(name: &str) -> String {
     let cleaned: String = name
         .chars()

@@ -1,20 +1,5 @@
-// Patotube Bandcamp extraction kernel.
-//
-// Public surface (cross-platform):
-//   - `fetch_info(url)` — resolves a track page to MediaInfo.
-//   - `start(app, registry, input)` — downloads the streamable
-//     mp3-128 file the page exposes.
-//
-// Bandcamp embeds all the metadata we need in a `data-tralbum`
-// attribute on the track page, so the protocol is just:
-//
-//   GET https://<artist>.bandcamp.com/track/<slug>
-//   regex out data-tralbum="…" → JSON parse
-//   stream the trackinfo[0].file["mp3-128"] URL straight to disk
-//
-// No API key, no auth, no signature dance. Free preview only —
-// FLAC and MP3-V0 require a buyer-authenticated download page
-// flow we don't ship.
+// Bandcamp kernel. Page scrape of `data-tralbum` → trackinfo[0].file[mp3-128],
+// streamed to disk. Free preview only — FLAC/MP3-V0 require buyer auth we don't ship.
 
 mod extract;
 mod url;
@@ -65,9 +50,7 @@ pub async fn fetch_info(track_url: &str) -> Result<MediaInfo, String> {
     let tralbum = extract::extract_tralbum(&page)?;
     let title = extract::pick_title(&tralbum);
     let duration_sec = tralbum.trackinfo.first().and_then(|t| t.duration);
-    // Bandcamp embeds the album-art ID; build the canonical
-    // thumbnail URL from it. Format `_10` is the 1200×1200
-    // jpeg, biggest the CDN serves.
+    // `_10` suffix is the 1200x1200 jpeg, biggest size the CDN serves.
     let thumbnail = tralbum
         .art_id
         .map(|id| format!("https://f4.bcbits.com/img/a{id}_10.jpg"));

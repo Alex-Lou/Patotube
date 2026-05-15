@@ -1,26 +1,8 @@
-// Patotube SoundCloud extraction kernel.
-//
-// Public surface (cross-platform):
-//   - `fetch_info(url)` — resolves a track URL to MediaInfo
-//     (title, uploader, duration, artwork) without downloading.
-//   - `start(app, registry, input)` — spawns a background task
-//     that downloads the track to disk, emitting progress + status
-//     events via `crate::events`.
-//
-// Pipeline:
-//   resolve track url
-//      → api::resolve_track  (api-v2.soundcloud.com/resolve)
-//   pick a progressive transcoding (mp3 preferred)
-//      → transcoding::pick_progressive
-//   fetch the streamable CDN URL
-//      → api::fetch_stream_url  (per-format hop SC requires)
-//   stream to disk
-//      → streamer::stream_to_disk
-//
-// On desktop this kernel runs INSTEAD of the yt-dlp sidecar for
-// SoundCloud URLs — yt-dlp's resolve step takes 3-5 s of process
-// startup + page parsing for SC tracks, vs. ~500 ms here. On
-// Android there's no yt-dlp anyway.
+// SoundCloud kernel. Pipeline:
+//   api::resolve_track (api-v2/resolve)
+//     → transcoding::pick_progressive (mp3 preferred)
+//     → api::fetch_stream_url (per-format hop, retries once on 401)
+//     → streamer::stream_to_disk
 
 mod api;
 mod client_id;

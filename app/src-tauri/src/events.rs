@@ -1,9 +1,5 @@
 #![allow(dead_code)]
 
-// Tauri event payloads + emit helpers. The frontend listens for
-// `download://progress` and `download://status`; everything in this
-// module exists to keep that contract in one place.
-
 use serde::Serialize;
 use tauri::{AppHandle, Emitter};
 
