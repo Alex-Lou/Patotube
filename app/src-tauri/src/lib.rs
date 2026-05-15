@@ -66,6 +66,7 @@ pub fn run() {
             commands::default_download_dir,
             commands::open_path,
             commands::show_in_folder,
+            commands::search_youtube,
             files::list_downloads,
             files::delete_download,
         ])

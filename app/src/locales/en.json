@@ -13,11 +13,19 @@
     "change": "Change language"
   },
   "url": {
-    "label": "Media URL",
-    "placeholder": "Paste your URL",
+    "label": "Media URL or search",
+    "placeholder": "Paste a URL or type to search YouTube",
     "fetch": "Fetch",
+    "search": "Search",
     "paste": "Paste from clipboard",
     "clear": "Clear"
+  },
+  "search": {
+    "hint": "Searching YouTube — click a result to download",
+    "searching": "Searching…",
+    "failed": "Search failed",
+    "resultsLabel": "Search results",
+    "viewCount": "{{formatted}} views"
   },
   "errors": {
     "empty": "Please enter a URL",
