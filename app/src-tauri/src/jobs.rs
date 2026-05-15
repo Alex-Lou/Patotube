@@ -1,8 +1,4 @@
-// Tracks subprocess handles per job_id so the frontend's "cancel"
-// button can SIGKILL the child. Only the desktop yt-dlp orchestrator
-// (`downloader.rs`) spawns subprocess children; the Android kernels
-// stream over plain HTTP and have nothing to kill, so on Android
-// this whole registry collapses to a no-op stub.
+// Tracks yt-dlp children per job_id for cancel(). No-op on Android (no subprocess).
 
 use dashmap::DashMap;
 use std::sync::Arc;
@@ -19,7 +15,6 @@ pub struct JobRegistry {
 
 #[cfg(not(target_os = "android"))]
 impl JobRegistry {
-    /// Track a yt-dlp child so cancel/remove can find it later.
     pub fn register(&self, job_id: String, child: CommandChild) {
         self.inner.insert(job_id, Arc::new(Mutex::new(Some(child))));
     }
@@ -39,9 +34,6 @@ impl JobRegistry {
     }
 }
 
-/// Android stub: no subprocess machinery, every method is a no-op.
-/// Kept so `commands.rs` and the kernels don't need to cfg-gate
-/// every call site.
 #[cfg(target_os = "android")]
 #[derive(Default, Clone)]
 pub struct JobRegistry;

@@ -1,9 +1,3 @@
-// Shared `MediaInfo` payload returned to the frontend. Lives in
-// its own module so every kernel (YouTube / SoundCloud / Bandcamp /
-// Audiomack / Internet Archive / yt-dlp) can import the same type
-// without dragging in the desktop-only yt-dlp orchestration code
-// (which would otherwise compile on Android, where it's unused).
-
 use serde::Serialize;
 
 #[derive(Debug, Serialize, Clone)]
