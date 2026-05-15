@@ -35,6 +35,17 @@ export interface DownloadEntry {
   mimeKind: 'audio' | 'video';
 }
 
+/** Mirrors youtube_kernel::search::SearchResult — keep field names in sync. */
+export interface SearchResult {
+  videoId: string;
+  title: string;
+  channel: string;
+  durationSeconds: number | null;
+  thumbnailUrl: string;
+  viewCount: number | null;
+  published: string | null;
+}
+
 export interface TauriApi {
   fetchMediaInfo(url: string): Promise<MediaInfo>;
   startDownload(input: {
@@ -50,6 +61,8 @@ export interface TauriApi {
   showInFolder(path: string): Promise<void>;
   listDownloads(): Promise<DownloadEntry[]>;
   deleteDownload(path: string): Promise<void>;
+  searchYoutube(query: string, limit: number): Promise<SearchResult[]>;
+  getYoutubeStreamUrl(videoId: string): Promise<string>;
   onProgress(handler: (e: DownloadProgressEvent) => void): Promise<Unlisten>;
   onStatus(handler: (e: DownloadStatusEvent) => void): Promise<Unlisten>;
 }
@@ -77,6 +90,8 @@ async function realApi(): Promise<TauriApi> {
     showInFolder: (path) => invoke('show_in_folder', { path }),
     listDownloads: () => invoke('list_downloads'),
     deleteDownload: (path) => invoke('delete_download', { path }),
+    searchYoutube: (query, limit) => invoke('search_youtube', { query, limit }),
+    getYoutubeStreamUrl: (videoId) => invoke('get_youtube_stream_url', { videoId }),
     onProgress: subscribe<DownloadProgressEvent>('download://progress'),
     onStatus: subscribe<DownloadStatusEvent>('download://status'),
   };

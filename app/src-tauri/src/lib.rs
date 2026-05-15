@@ -1,6 +1,7 @@
 mod commands;
 mod files;
 mod media_info;
+mod stream_proxy;
 #[cfg(not(target_os = "android"))]
 mod downloader;
 mod events;
@@ -47,6 +48,18 @@ pub fn run() {
             .plugin(tauri_plugin_deep_link::init());
     }
 
+    // Custom scheme that proxies the in-app preview player through
+    // Rust — see stream_proxy.rs for the why (User-Agent + CORS).
+    builder = builder.register_asynchronous_uri_scheme_protocol(
+        "patostream",
+        |_ctx, request, responder| {
+            tauri::async_runtime::spawn(async move {
+                let response = stream_proxy::handle(request).await;
+                responder.respond(response);
+            });
+        },
+    );
+
     builder
         .setup(|_app| {
             // Linux/dev: register the patotube:// scheme at runtime (production Windows installers do it themselves).
@@ -66,6 +79,8 @@ pub fn run() {
             commands::default_download_dir,
             commands::open_path,
             commands::show_in_folder,
+            commands::search_youtube,
+            commands::get_youtube_stream_url,
             files::list_downloads,
             files::delete_download,
         ])

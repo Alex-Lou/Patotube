@@ -144,3 +144,17 @@ pub fn show_in_folder(app: AppHandle, path: String) -> Result<(), String> {
         .reveal_item_in_dir(path)
         .map_err(|e| e.to_string())
 }
+
+#[tauri::command]
+pub async fn search_youtube(
+    query: String,
+    limit: u32,
+) -> Result<Vec<crate::youtube_kernel::search::SearchResult>, String> {
+    let n = limit.clamp(1, 50) as usize;
+    crate::youtube_kernel::search::search(&query, n).await
+}
+
+#[tauri::command]
+pub async fn get_youtube_stream_url(video_id: String) -> Result<String, String> {
+    crate::youtube_kernel::stream_url::fetch_combined_stream(&video_id).await
+}

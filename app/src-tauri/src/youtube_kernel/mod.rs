@@ -1,14 +1,15 @@
 // YouTube extraction kernel. See docs/youtube-kernel.md for the full Phase 1/2 pipeline.
 
 mod clients;
+mod player_api;
+pub mod search;
 mod sigcipher;
+pub mod stream_url;
 mod stream_pick;
 mod types;
 
 #[cfg(target_os = "android")]
 mod download;
-#[cfg(target_os = "android")]
-mod player_api;
 #[cfg(target_os = "android")]
 mod unlock_pipeline;
 

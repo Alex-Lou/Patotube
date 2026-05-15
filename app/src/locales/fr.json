@@ -13,11 +13,26 @@
     "change": "Changer de langue"
   },
   "url": {
-    "label": "URL du média",
-    "placeholder": "Colle ton URL",
+    "label": "URL ou mot-clé",
+    "placeholder": "URL ou mot-clé",
     "fetch": "Analyser",
+    "search": "Rechercher",
     "paste": "Coller depuis le presse-papiers",
     "clear": "Effacer"
+  },
+  "search": {
+    "hint": "Recherche YouTube — clique un résultat pour télécharger, ou la miniature pour prévisualiser",
+    "searching": "Recherche en cours…",
+    "failed": "Échec de la recherche",
+    "resultsLabel": "Résultats de recherche",
+    "viewCount": "{{formatted}} vues",
+    "play": "Prévisualiser",
+    "downloadThis": "Télécharger",
+    "openOnYoutube": "Ouvrir sur YouTube",
+    "playerLoading": "Récupération du flux…",
+    "playerFailed": "Lecture impossible",
+    "playerLoadFailed": "Échec de la lecture",
+    "starting": "Lancement du téléchargement…"
   },
   "errors": {
     "empty": "Entre une URL",

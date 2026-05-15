@@ -67,6 +67,27 @@ export function mockTauri(): TauriApi {
       ];
     },
     async deleteDownload() {},
+    async getYoutubeStreamUrl(videoId: string): Promise<string> {
+      await sleep(400);
+      // Public Big Buck Bunny mp4 — browser-preview placeholder so the
+      // <video> tag has something playable when we're not in Tauri.
+      void videoId;
+      return 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+    },
+    async searchYoutube(query: string, limit: number) {
+      await sleep(350);
+      const q = query.trim();
+      if (!q) return [];
+      return Array.from({ length: Math.min(limit, 8) }, (_, i) => ({
+        videoId: `mock${i.toString().padStart(2, '0')}`,
+        title: `${q} — mock result #${i + 1}`,
+        channel: `Mock channel ${i + 1}`,
+        durationSeconds: 60 + i * 47,
+        thumbnailUrl: `https://picsum.photos/seed/${q}-${i}/320/180`,
+        viewCount: Math.floor(1000 * Math.pow(10, i % 5)),
+        published: `${i + 1} day${i === 0 ? '' : 's'} ago`,
+      }));
+    },
     async onProgress(handler) {
       progressHandlers.add(handler);
       const unlisten: Unlisten = () => progressHandlers.delete(handler) as unknown as void;
