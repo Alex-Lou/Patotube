@@ -1,23 +1,10 @@
 #![allow(dead_code)]
 
-// Extract YouTube's n-parameter scrambler from player.js. Without
-// this YouTube CDN throttles streams to ~30 KB/s, which translates
-// to a 5 min audio download taking ~30 min.
-//
-// The n-decoder is a much fattier function than the signature one
-// (~100-200 lines of obfuscated logic), with deeply nested braces
-// from try/catch blocks and inline helper closures. Pure regex
-// can't reliably bracket-match nested `}`s, so we do it in two
-// phases:
-//
-//   1. Regex finds the START of the function expression (the
-//      `function(a){var b=a.split(...)` shape we recognise).
-//   2. A byte-walk over the JS counts `{` / `}` up and down to find
-//      the matching outer `}`, returning the full source slice.
-//
-// We also anchor on the `enhanced_except_` literal that's been
-// YouTube's bot-detection sentinel for years — it's a stable signal
-// that we're looking at the n-fn rather than something else.
+// n-parameter scrambler extraction. Without it, YouTube CDN throttles
+// streams to ~30 KB/s. The n-fn is too nested for pure regex, so we
+// do it in two phases: regex finds the function start (split-shape),
+// then a byte-walk brace-matches the outer `}`. Anchored on the
+// stable `enhanced_except_` bot-detection sentinel.
 
 use regex::Regex;
 
@@ -35,14 +22,11 @@ impl NParamDecoder {
         Ok(Self { js })
     }
 
-    /// Decode an n-parameter value.
     pub fn decode(&mut self, encoded: &str) -> Result<String, String> {
         self.js.apply(encoded)
     }
 }
 
-/// Pull the n-decoder function source out of a player.js blob.
-/// Returns the full `function(...) { ... }` expression.
 fn extract_n_function(player_js: &str) -> Result<String, String> {
     let start = locate_n_function_start(player_js)
         .ok_or_else(|| "n-parameter decoder function not found in player.js".to_string())?;
@@ -51,17 +35,9 @@ fn extract_n_function(player_js: &str) -> Result<String, String> {
     Ok(player_js[start..=end].to_string())
 }
 
-/// Find the byte offset of `function` in `function(a){var b=a.split(...)`
-/// for the n-function. We scan for the canonical shape:
-/// `function(X){var Y=Z.split(` and then bracket-match the body.
-/// A candidate is the n-function iff its body contains the
-/// `enhanced_except_` bot-detection sentinel YouTube has shipped
-/// for years.
-///
-/// (Rust's `regex` crate doesn't support backreferences, so we
-/// can't insist that `Z == X` directly in the pattern. The
-/// `enhanced_except_` check is a strong enough discriminator that
-/// false matches are virtually impossible.)
+// Rust's `regex` crate has no backreferences, so we can't tie
+// `Z == X` in the pattern. The `enhanced_except_` check on the
+// matched body is the discriminator.
 fn locate_n_function_start(player_js: &str) -> Option<usize> {
     let re = Regex::new(
         r"function\s*\(\s*[a-zA-Z0-9_$]+\s*\)\s*\{\s*var\s+[a-zA-Z0-9_$]+\s*=\s*[a-zA-Z0-9_$]+\.split\(",
@@ -80,19 +56,9 @@ fn locate_n_function_start(player_js: &str) -> Option<usize> {
     None
 }
 
-/// Given a position pointing at `function`, walk forward to find
-/// the matching outer `}`. Returns the byte offset of that `}`.
-///
-/// We track:
-///   - brace depth (`{` and `}`)
-///   - whether we're inside a string (single, double, or template)
-///   - whether we're inside a regex literal (`/.../`)
-///   - whether we're inside a comment (line `//` or block `/* */`)
-///
-/// Strings and comments are not perfect — they cover the cases
-/// YouTube's minified player.js actually exhibits (no template
-/// literals, no regex literals, no comments — just minified code
-/// with strings).
+// Walk forward from `function`, tracking brace depth and string
+// state, to find the matching outer `}`. Covers the cases YouTube's
+// minified player.js exhibits (strings only, no template/regex/comments).
 fn match_closing_brace(s: &str, start: usize) -> Option<usize> {
     let bytes = s.as_bytes();
     // Skip ahead to the first `{` — this is the body opener.
@@ -143,9 +109,6 @@ fn match_closing_brace(s: &str, start: usize) -> Option<usize> {
 mod tests {
     use super::*;
 
-    /// Synthetic shape mirroring the real n-decoder. Includes the
-    /// "enhanced_except_" sentinel + try/catch + inline closure
-    /// (so we exercise the brace-counting path, not just regex).
     const SYNTH_N_PLAYER_JS: &str = r#"
         var nXyz = function(a){
             var b = a.split(""), c = [function(d){return d}];
@@ -200,10 +163,6 @@ mod tests {
 
     #[test]
     fn match_closing_brace_handles_strings_with_braces() {
-        // A `}` inside a string literal should not close the block.
-        // Without string-aware tracking, the impl would stop at the
-        // `}` inside `"}{ inside a string }"` and return it as the
-        // outer block close — wrong.
         let src = r#"
             function(a){
                 var b = "}{ inside a string }";

@@ -1,14 +1,6 @@
-// Fetch + cache YouTube's player.js. The JS file changes a few
-// times per week (YouTube ships subtle obfuscation tweaks); each
-// version has a unique URL like
-// `https://www.youtube.com/s/player/abc12345/player_ias.vflset/en_US/base.js`,
-// so a hash of the URL doubles as a cache key for the
-// signature/n-decoder closures we build from it.
-//
-// We deliberately keep the cache small (capacity 4) and clear-on-
-// process-restart. YouTube usually serves the same player.js URL
-// for hours at a time, so even a tiny cache catches every
-// download in a session.
+// player.js fetch + cache. JS changes a few times per week — URL is
+// the natural cache key. Capacity 4 because YouTube serves the same
+// player.js URL for hours, so a tiny cache catches every session DL.
 
 use std::sync::Mutex;
 
@@ -17,19 +9,12 @@ use regex::Regex;
 
 const PLAYER_JS_CACHE_CAPACITY: usize = 4;
 
-/// In-process LRU-ish cache. We don't bother with a real LRU
-/// data structure because capacity is 4 — a `Vec<(key, value)>`
-/// with linear probing is faster than juggling a HashMap+linked-list.
 static PLAYER_JS_CACHE: Lazy<Mutex<Vec<(String, String)>>> =
     Lazy::new(|| Mutex::new(Vec::with_capacity(PLAYER_JS_CACHE_CAPACITY)));
 
 const DESKTOP_UA: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 \
                           (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
-/// Fetch a watch page's HTML. Used to locate the player.js URL for
-/// a specific video; YouTube ships different player.js URLs across
-/// short windows (~hours) so the URL has to be discovered rather
-/// than guessed.
 pub async fn fetch_watch_page_html(video_id: &str) -> Result<String, String> {
     let client = reqwest::Client::builder()
         .user_agent(DESKTOP_UA)
@@ -55,9 +40,6 @@ pub async fn fetch_watch_page_html(video_id: &str) -> Result<String, String> {
         .map_err(|e| format!("could not read watch page body: {e}"))
 }
 
-/// Convenience: fetch the watch page for `video_id`, pull the
-/// `jsUrl` field out of the embedded player config, and follow it to
-/// fetch the player.js source. Returns `(player_js_url, source)`.
 pub async fn fetch_player_js_for_video(video_id: &str) -> Result<(String, String), String> {
     let html = fetch_watch_page_html(video_id).await?;
     let js_url = extract_player_js_url(&html)
@@ -66,11 +48,6 @@ pub async fn fetch_player_js_for_video(video_id: &str) -> Result<(String, String
     Ok((js_url, source))
 }
 
-/// Fetch the JS at `url` (typically a player.js URL extracted from
-/// a watch page), returning the raw source. Hits the cache first;
-/// on miss does an HTTPS GET with a desktop-shaped User-Agent so
-/// YouTube serves the same player.js variant the regex extractors
-/// were tuned against.
 pub async fn fetch_player_js(url: &str) -> Result<String, String> {
     if let Some(hit) = read_cache(url) {
         return Ok(hit);
@@ -98,9 +75,6 @@ pub async fn fetch_player_js(url: &str) -> Result<String, String> {
     Ok(body)
 }
 
-/// Pull the player.js URL out of a YouTube watch-page HTML blob.
-/// The URL appears as `"jsUrl":"/s/player/.../base.js"` in the
-/// initial player config; we promote it to an absolute URL.
 pub fn extract_player_js_url(watch_page_html: &str) -> Option<String> {
     let re = Regex::new(r#""jsUrl"\s*:\s*"(/s/player/[^"]+/base\.js)""#).ok()?;
     let caps = re.captures(watch_page_html)?;

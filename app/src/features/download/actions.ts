@@ -1,8 +1,3 @@
-// Imperative download flows callable from anywhere in the app —
-// hooks, toasts, drag-and-drop handlers — without prop-drilling.
-// They read state via Zustand `getState()` so they can live at
-// module scope and stay React-free.
-
 import { getTauri } from '@/lib/tauri/bindings';
 import { useQueueStore } from '@/lib/core/queue';
 import { useSettings } from '@/lib/core/settings';
@@ -25,10 +20,8 @@ export async function enqueueJob(
   format: FormatChoice,
 ): Promise<void> {
   const job = useQueueStore.getState().add(info, format);
-  // The whole flow needs to be try-wrapped: `resolveOutputDir`
-  // can itself reject (Linux without ~/.config/user-dirs.dirs
-  // makes `app.path().download_dir()` return Err) and we'd leave
-  // the job stuck on `pending` forever otherwise.
+  // try-wrapped: resolveOutputDir can reject (Linux without
+  // ~/.config/user-dirs.dirs), otherwise the job would stick on `pending`.
   try {
     const api = await getTauri();
     const outputDir = await resolveOutputDir();

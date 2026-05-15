@@ -1,8 +1,6 @@
-// Single source of truth for the landing.
-// Bump APP_VERSION on each release; the download URLs and the GitHub
-// API URL the download counter pings are all derived from it.
+// Single source of truth for the landing — bump APP_VERSION on each release (download URLs and GitHub API URL derive from it).
 
-export const APP_VERSION = '0.5.0';
+export const APP_VERSION = '0.5.1';
 
 export const GITHUB_OWNER = 'Alex-Lou';
 export const GITHUB_REPO = 'Patotube';

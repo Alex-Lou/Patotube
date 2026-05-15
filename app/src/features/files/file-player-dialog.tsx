@@ -1,13 +1,6 @@
-// Embedded HTML5 player — fallback when the OS has no app
-// registered for an audio / video MIME type, and the canonical
-// way to play a file once the user picks "Open with → Patotube"
-// from the system chooser.
-//
-// On desktop we let Tauri's asset:// protocol stream the file via
-// `convertFileSrc`. On Android the same path tends to silently
-// fail in the system WebView for arbitrary file locations, so we
-// read the bytes through the PatoMobile bridge and hand the
-// element a Blob URL — slower for big videos, but reliable.
+// Embedded HTML5 player. Desktop streams via Tauri asset:// (convertFileSrc).
+// asset:// silently fails on Android system WebViews, so we read bytes
+// through the PatoMobile bridge and feed a Blob URL instead.
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';

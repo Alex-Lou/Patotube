@@ -1,34 +1,16 @@
 #![allow(dead_code)]
 
-// Picks one stream out of YouTube's `formats` / `adaptiveFormats`
-// arrays. Returns a `PickedFormat` with either a plain CDN URL or
-// the `signatureCipher` blob — the caller is responsible for
-// running ciphered formats through `sigcipher::Unlocker` before
-// streaming.
-
 use super::types::{Format, StreamingData};
 
 #[derive(Debug, Clone)]
 pub struct PickedFormat {
-    /// Plain CDN URL, if the YouTube client served a non-ciphered
-    /// format. Streamable as-is (modulo n-parameter throttling).
     pub direct_url: Option<String>,
-    /// `signatureCipher` query-string blob (`s=…&sp=…&url=…`), if
-    /// the YouTube client served a ciphered format instead. Pass
-    /// to `sigcipher::Unlocker::unlock_url` to produce a
-    /// streamable URL.
     pub signature_cipher: Option<String>,
-    /// Declared content-length, when YouTube provides it. Used to
-    /// compute progress percentages.
     pub content_length: Option<u64>,
-    /// File extension we'll save under: "mp4", "m4a", "webm".
     pub extension: &'static str,
 }
 
 impl PickedFormat {
-    /// Construct a "always succeeds" instance from a Format. Public
-    /// for tests; production code should go through `pick_video` /
-    /// `pick_audio`.
     fn from_format(f: &Format, extension: &'static str) -> Self {
         Self {
             direct_url: f.url.clone(),
@@ -42,14 +24,7 @@ impl PickedFormat {
     }
 }
 
-/// Pick the best playable combined-MP4 stream within the user's
-/// quality cap. We deliberately walk three filters:
-///   1. mp4 + height ≤ cap   (preferred — universal player support)
-///   2. any container + height ≤ cap   (fallback)
-///   3. any url-bearing OR cipher-bearing format   (last resort)
-///
-/// Quality strings are kept in lock-step with the frontend's
-/// `VIDEO_QUALITIES` enum.
+// Quality strings are kept in lock-step with the frontend's `VIDEO_QUALITIES` enum.
 pub fn pick_video(
     streaming: &StreamingData,
     quality: &str,
@@ -82,10 +57,6 @@ pub fn pick_video(
     Ok(PickedFormat::from_format(chosen, "mp4"))
 }
 
-/// Pick the best audio-only stream. We prefer m4a (mp4-container AAC)
-/// because every Android music app reads it without quirks; webm/opus
-/// is the fallback for videos where YouTube only offers Opus
-/// adaptive audio.
 pub fn pick_audio(streaming: &StreamingData) -> Result<PickedFormat, String> {
     let chosen = streaming
         .adaptive_formats
@@ -111,9 +82,6 @@ pub fn pick_audio(streaming: &StreamingData) -> Result<PickedFormat, String> {
     Ok(PickedFormat::from_format(chosen, ext))
 }
 
-/// A format is streamable if it has either a direct URL or an
-/// encoded `signatureCipher` blob. Without one of the two there's
-/// nothing for the downloader to consume.
 fn has_streamable_source(f: &Format) -> bool {
     f.url.is_some() || f.signature_cipher.is_some()
 }
