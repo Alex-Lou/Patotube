@@ -28,7 +28,10 @@
     "viewCount": "{{formatted}} vues",
     "play": "Prévisualiser",
     "downloadThis": "Télécharger",
-    "openOnYoutube": "Ouvrir sur YouTube"
+    "openOnYoutube": "Ouvrir sur YouTube",
+    "playerLoading": "Récupération du flux…",
+    "playerFailed": "Lecture impossible",
+    "playerLoadFailed": "Échec de la lecture"
   },
   "errors": {
     "empty": "Entre une URL",
