@@ -1,23 +1,12 @@
-// REST call to YouTube's internal `youtubei/v1/player` endpoint plus
-// the multi-client resolver. Each call asks one client for the player
-// response; the resolver iterates through a list of clients until one
-// returns something the caller's `accept` predicate is happy with.
-
 use serde_json::{json, Value};
 
 use super::clients::ClientProfile;
 use super::types::PlayerResponse;
 
-/// Endpoint when the client carries its own Innertube API key (older
-/// IOS/ANDROID/MUSIC/TV profiles). YouTube authenticates the request
-/// via the `?key=…` query param.
 const KEYED_PLAYER_ENDPOINT: &str =
     "https://youtubei.googleapis.com/youtubei/v1/player";
 
-/// Endpoint for clients without an explicit API key (notably
-/// ANDROID_VR — the Quest YouTube VR app). The request is still
-/// authenticated via the `X-YouTube-Client-Name` /
-/// `X-YouTube-Client-Version` headers.
+// ANDROID_VR uses the un-keyed endpoint; auth via X-YouTube-Client-* headers.
 const UNKEYED_PLAYER_ENDPOINT: &str =
     "https://www.youtube.com/youtubei/v1/player";
 
@@ -90,10 +79,6 @@ pub async fn call_player_api(
         .map_err(|e| format!("could not parse youtube response: {e}"))
 }
 
-/// Iterates through `clients` and returns the first response that
-/// satisfies `accept`. Used to require combined formats for video DL
-/// or audio-only formats for audio DL — different clients have
-/// different stream sets and different CDN-side restrictions.
 pub async fn resolve_player_with(
     clients: &[&'static ClientProfile],
     video_id: &str,

@@ -19,9 +19,7 @@ import { validateUrl } from '@/lib/core/url';
 import { getTauri } from '@/lib/tauri/bindings';
 import type { MediaInfo } from '@/lib/core/types';
 
-// Time the splash screen stays visible after first paint. Long
-// enough for one duck bounce + a fade-out tail, short enough that
-// the user never feels they're waiting on us.
+// One duck bounce + fade-out tail.
 const SPLASH_DURATION_MS = 900;
 
 export function App() {
@@ -38,11 +36,8 @@ export function App() {
     return () => clearTimeout(id);
   }, []);
 
-  // Single dispatcher for "an external thing handed us an action".
-  // Used by three sources: the desktop Tauri deep-link plugin
-  // (custom-protocol scheme), the Android PatoMobile bridge (share
-  // / open-with intents, mobile-browser `patotube://` taps), and
-  // global drag-and-drop. Splits on `kind`, never on the source.
+  // Unified dispatcher for external actions: Tauri deep-link, Android
+  // intent bridge, drag-and-drop. Splits on `kind`, not on source.
   const dispatchExternalAction = useCallback(
     (intent: { kind: 'download'; url: string } | { kind: 'open-file'; path: string }) => {
       setShowSplash(false);
@@ -67,10 +62,7 @@ export function App() {
     [],
   );
 
-  // Deep-link handler — desktop side via Tauri's plugin, fed by
-  // the OS-registered URL scheme `patotube://`. Cold-start uses
-  // `getCurrent()` because the URL may be delivered before React
-  // has mounted; warm-start uses `onOpenUrl()` for subsequent clicks.
+  // Desktop deep-link (patotube://): getCurrent() for cold-start, onOpenUrl() for warm.
   useEffect(() => {
     if (typeof window === 'undefined' || !('__TAURI_INTERNALS__' in window)) {
       return;
@@ -85,9 +77,7 @@ export function App() {
         return;
       }
       if (parsed.protocol !== 'patotube:') return;
-      // The URL parser sometimes lands the action in `host`,
-      // sometimes in `pathname` depending on the trailing slashes
-      // — handle both.
+      // Action lands in `host` or `pathname` depending on trailing slashes.
       const action = parsed.host || parsed.pathname.replace(/^\/+/, '');
       if (action === 'download') {
         const target = parsed.searchParams.get('url');
@@ -115,14 +105,9 @@ export function App() {
     };
   }, [dispatchExternalAction]);
 
-  // Android intent handler — share-target SEND, "Open with →
-  // Patotube" VIEW, and `patotube://` taps in a mobile browser
-  // all flow through this. The Tauri deep-link plugin doesn't
-  // register schemes on Android, so MainActivity captures the
-  // intent and parks the payload in the PatoMobile bridge; we
-  // drain it here on mount, on every focus return, and via the
-  // Kotlin push hook (`window.__patotubeOnIntent`) for warm-start
-  // intents that arrive while the app is already foregrounded.
+  // Android intents (SEND, VIEW, patotube://) come via the PatoMobile bridge
+  // since the Tauri deep-link plugin doesn't register schemes on Android.
+  // Drained on mount, on visibility change, and via window.__patotubeOnIntent (warm-start push).
   useEffect(() => {
     if (!hasNativeBridge()) return;
 
@@ -232,11 +217,8 @@ export function App() {
 
         <Toaster
           theme={resolvedTheme}
-          // bottom-center is the only position whose mobile rule is
-          // symmetric (left + right + transform:none). bottom-right
-          // anchors with `right: var(...)` AND `left: var(...)` AND
-          // `width: 100%`, which over-constrains the wrapper in LTR
-          // and pushes it past the right edge of a 360 px viewport.
+          // bottom-center: only position with symmetric mobile rule;
+          // bottom-right over-constrains the wrapper on 360px viewports.
           position="bottom-center"
           richColors
           closeButton
@@ -246,9 +228,7 @@ export function App() {
             } as React.CSSProperties
           }
           offset={{ right: 8, bottom: 12, left: 8, top: 12 }}
-          // Push the bottom offset above the Android system nav bar.
-          // index.html has viewport-fit=cover so env() resolves > 0
-          // when the WebView draws edge-to-edge.
+          // env() resolves > 0 because index.html has viewport-fit=cover.
           mobileOffset={{
             right: 8,
             left: 8,
@@ -258,23 +238,12 @@ export function App() {
           toastOptions={{
             classNames: {
               toast: 'border border-border/60 shadow-lg',
-              // [data-content] is a flex item; without min-w-0 it
-              // refuses to shrink below the intrinsic width of long
-              // unbreakable strings, which is what was pushing the
-              // title past the right edge on mobile.
+              // [data-content] is a flex item; min-w-0 lets it shrink below intrinsic width of long unbreakable strings.
               content: 'min-w-0',
-              // No `truncate`: let long titles wrap onto multiple
-              // lines so the toast grows in height instead of in
-              // width. sonner already sets overflow-wrap:anywhere
-              // on the toast so even a wordless 80-char string
-              // breaks correctly.
+              // Wrap long titles instead of truncating; sonner sets overflow-wrap:anywhere.
               title: 'break-words',
               description: 'break-words text-xs opacity-70',
-              // Strip sonner's default action-button chrome so our
-              // icon-only Folder button reads as a discreet
-              // affordance instead of a white pill grafted onto
-              // the toast. `!important` overrides win against
-              // sonner's inline styles.
+              // Strip sonner's default action-button chrome (!important beats inline styles).
               actionButton:
                 '!bg-transparent !text-current !p-1.5 !min-w-0 !h-auto rounded-md hover:!bg-foreground/10 transition-colors',
             },
@@ -308,10 +277,7 @@ export function App() {
 
         <AnimatePresence>{showSplash && <Splash />}</AnimatePresence>
 
-        {/* Embedded media player. Opened from FilesSheet row click
-            when no system app handles the MIME, OR from a
-            `patotube://open-file?path=…` intent (Android "Open
-            with → Patotube" chooser). */}
+        {/* Embedded player: FilesSheet fallback when no system app handles MIME, or via patotube://open-file. */}
         <FilePlayerDialog />
       </div>
     </TooltipProvider>

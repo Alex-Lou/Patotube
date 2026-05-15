@@ -1,12 +1,5 @@
-// Patotube Internet Archive extraction kernel.
-//
-// IA's `/metadata/<identifier>` JSON endpoint returns the full
-// file listing for any item, with no auth required. We pick the
-// best file per mediatype (mp3 for audio items, mp4 for video
-// items) and stream it from `/download/<identifier>/<file>`.
-//
-// IA serves both audio and video items naturally — videos are
-// supported here (unlike SoundCloud which is audio-only).
+// Internet Archive kernel. /metadata/<id> JSON → pick best file (mp3/mp4)
+// → stream from /download/<id>/<file>. Audio + video both supported.
 
 mod file_pick;
 mod types;

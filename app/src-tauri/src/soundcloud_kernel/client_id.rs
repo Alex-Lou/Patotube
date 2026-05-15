@@ -1,19 +1,9 @@
 #![allow(dead_code)]
 
-// SoundCloud requires a `client_id=…` query parameter on every
-// api-v2 call. The official web/mobile players don't ship a
-// stable key — they extract it at runtime from one of the JS
-// bundles SoundCloud's homepage references.
-//
-// We do the same: fetch https://soundcloud.com/, walk the
-// `<script src="…">` tags in REVERSE order (the late ones tend
-// to be the heavy bundles where the key lives), GET each, regex
-// out a 32-character `client_id: "…"` literal. Cached in-process
-// because this dance is slow (~3-5 HTTP fetches) and the key is
-// stable across days.
-//
-// Falls over if SoundCloud rotates the key (rare but does
-// happen) — caller should retry with a fresh fetch on a 401.
+// SC api-v2 needs a `client_id`. Extract at runtime: fetch homepage,
+// walk <script src=…> tags in REVERSE (late bundles hold the key),
+// regex out a 32-char `client_id: "…"` literal. In-process cache;
+// caller refreshes on 401 (occasional SC key rotation).
 
 use std::sync::Mutex;
 
@@ -27,8 +17,6 @@ const DESKTOP_UA: &str =
 
 static CACHED_CLIENT_ID: Lazy<Mutex<Option<String>>> = Lazy::new(|| Mutex::new(None));
 
-/// Returns a usable `client_id`, fetching + extracting it on
-/// first call. Subsequent calls return the cached value.
 pub async fn get_client_id() -> Result<String, String> {
     if let Some(cached) = read_cache() {
         return Ok(cached);
@@ -38,8 +26,6 @@ pub async fn get_client_id() -> Result<String, String> {
     Ok(fresh)
 }
 
-/// Force a re-extract — used when a request 401s, signalling
-/// SoundCloud rotated the key while we were running.
 pub async fn refresh_client_id() -> Result<String, String> {
     let fresh = extract_fresh_client_id().await?;
     write_cache(&fresh);
@@ -83,8 +69,6 @@ async fn extract_fresh_client_id() -> Result<String, String> {
     Err("client_id not found in any SC script bundle".into())
 }
 
-/// Pure helper: pulls every `<script src="…">` URL out of a
-/// SoundCloud homepage HTML blob.
 pub fn extract_script_urls(html: &str) -> Vec<String> {
     let re = match Regex::new(r#"<script[^>]+src="([^"]+)""#) {
         Ok(r) => r,
@@ -95,8 +79,6 @@ pub fn extract_script_urls(html: &str) -> Vec<String> {
         .collect()
 }
 
-/// Pure helper: locate the canonical `client_id: "…32 chars…"`
-/// literal in a JS source blob.
 pub fn find_client_id(js: &str) -> Option<String> {
     let re = Regex::new(r#"client_id\s*:\s*"([0-9a-zA-Z]{32})""#).ok()?;
     re.captures(js)

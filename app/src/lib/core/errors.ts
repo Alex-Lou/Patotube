@@ -1,7 +1,5 @@
-// Map raw Rust/CDN/YouTube error strings into translatable friendly
-// messages for toasts and queue items. The Android extractor surfaces
-// playabilityStatus reasons verbatim ("Sign in to confirm your age"
-// etc.) — we'd rather show users a clear sentence in their language.
+// Map raw Rust/CDN errors to translatable messages. Android surfaces
+// playabilityStatus reasons verbatim ("Sign in to confirm your age").
 
 export function friendlyError(
   raw: string | null | undefined,

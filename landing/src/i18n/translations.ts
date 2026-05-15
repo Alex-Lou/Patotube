@@ -1,5 +1,4 @@
-// Translations for the static landing. Kept inline so the page works
-// without any extra fetch. Mirrors a subset of the desktop app's keys.
+// Translations for the static landing — inlined, mirrors a subset of the desktop app's keys.
 
 export const SUPPORTED = [
   'en',

@@ -1,21 +1,4 @@
-// Patotube YouTube extraction kernel.
-//
-// Public surface (Android only):
-//   - `fetch_info(url)` — resolves a URL to MediaInfo (title, duration,
-//     thumbnail, ...) without committing to a download.
-//   - `start(app, registry, input)` — spawns a background task that
-//     downloads to disk, emitting progress + status events along the
-//     way.
-//
-// The HTTP layer (`download.rs`, `player_api.rs`) and the
-// orchestration entry points are gated to Android because they
-// depend on `reqwest` from the Android-only dep table. The pure
-// modules (`clients`, `types`, `stream_pick`, `sigcipher`,
-// `progress`, `output_path`) compile everywhere so unit tests run
-// on the desktop host.
-//
-// See `docs/youtube-kernel.md` for the full architecture, including
-// why we don't use yt-dlp / NewPipe / ffmpeg-kit on Android.
+// YouTube extraction kernel. See docs/youtube-kernel.md for the full Phase 1/2 pipeline.
 
 mod clients;
 mod sigcipher;
@@ -159,20 +142,8 @@ pub async fn start(
     Ok(())
 }
 
-/// Picks the right resolution + download strategy for this job.
-///
-/// Audio strategy (most → least preferred):
-///   1. Plain audio-only via mobile/TV clients (`try_audio_only`).
-///      No JS, no n-decoder, fastest path. Works for ~most videos.
-///   2. Audio-only via WEB client + signature/n-param unlock
-///      (`try_audio_via_unlock`). Pays the boa-compile cost (~50ms)
-///      but unlocks streams the mobile clients refuse.
-///   3. Combined MP4 saved as .m4a, then frontend MediaExtractor
-///      strips the video track. Largest download but the universal
-///      fallback when YouTube refuses both audio paths above.
-///
-/// See `docs/youtube-kernel.md` ("Phase 1" + "Phase 2") for the full
-/// pipeline.
+/// Audio strategy: 1) audio-only via mobile/TV clients, 2) audio-only via WEB + sig/n unlock,
+/// 3) combined MP4 saved as .m4a (frontend strips video). See docs/youtube-kernel.md.
 #[cfg(target_os = "android")]
 async fn run_download(
     app: &AppHandle,

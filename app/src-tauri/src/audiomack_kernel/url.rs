@@ -1,13 +1,9 @@
-// Audiomack URL helpers. Modern URLs are
-// `audiomack.com/<artist>/song/<track-slug>`; the API endpoint
-// expects the slug pair WITHOUT the `/song/` separator (it uses
-// `<artist>/<track-slug>` as the path component).
+// API endpoint expects `<artist>/<track-slug>` WITHOUT the `/song/` separator.
 
 #![cfg_attr(not(target_os = "android"), allow(dead_code))]
 
 const HOSTS: &[&str] = &["audiomack.com", "www.audiomack.com"];
 
-/// True if `url` looks like an Audiomack track / song URL.
 pub fn is_audiomack_url(url: &str) -> bool {
     let lower = url.trim().to_lowercase();
     HOSTS
@@ -15,29 +11,21 @@ pub fn is_audiomack_url(url: &str) -> bool {
         .any(|h| lower.contains(&format!("://{h}/")) || lower.contains(&format!("://{h}?")))
 }
 
-/// True if `url` specifically references a single song (vs an
-/// album, profile, playlist).
 pub fn is_audiomack_song_url(url: &str) -> bool {
     is_audiomack_url(url) && url.to_lowercase().contains("/song/")
 }
 
-/// Extract the API path the metadata endpoint wants:
-/// `<artist>/<track-slug>` (no `/song/` infix). Returns None
-/// when the URL doesn't look like a song page.
 pub fn extract_api_path(url: &str) -> Option<String> {
     let trimmed = url.trim();
     if !is_audiomack_song_url(trimmed) {
         return None;
     }
-    // Locate the host then peel the path.
     let after_host = trimmed
         .splitn(2, "audiomack.com/")
         .nth(1)?
         .trim_start_matches("www.");
     let path_only = after_host.split(['?', '#']).next()?;
-    // Drop the `/song/` infix; we end up with `<artist>/<slug>`.
     let cleaned = path_only.replacen("/song/", "/", 1);
-    // Trim any trailing slashes.
     let cleaned = cleaned.trim_end_matches('/').to_string();
     if cleaned.is_empty() {
         None

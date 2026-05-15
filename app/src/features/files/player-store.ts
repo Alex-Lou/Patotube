@@ -1,20 +1,10 @@
-// Tiny zustand store for the embedded file player.
-//
-// Lives at the App root so the player can be opened from anywhere:
-// the FilesSheet row click, the deep-link handler when an
-// `Open with → Patotube` intent arrives, or any future entry
-// point. We avoid prop-drilling and the sheet doesn't need to be
-// open for the player to show.
-
 import { create } from 'zustand';
 import type { DownloadEntry } from '@/lib/tauri/bindings';
 
 interface PlayerState {
   active: DownloadEntry | null;
   play: (entry: DownloadEntry) => void;
-  /** Open the player from a bare file path. Synthesizes a minimal
-   *  DownloadEntry (size/mtime unknown, mime guessed from extension).
-   *  Used by the `patotube://open-file?path=…` deep-link path. */
+  /** Used by patotube://open-file deep-link; synthesizes a minimal DownloadEntry. */
   playPath: (path: string) => void;
   close: () => void;
 }

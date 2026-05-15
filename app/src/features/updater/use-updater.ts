@@ -13,11 +13,7 @@ interface UpdaterState {
 const SILENT_CHECK_KEY = 'patotube-last-update-check';
 const CHECK_COOLDOWN_MS = 6 * 60 * 60 * 1000; // 6h
 
-/**
- * Wraps tauri-plugin-updater. The plugin is desktop-only (Android does not
- * support self-updates in Tauri 2 yet); on mobile and in browser preview
- * everything no-ops.
- */
+/** Desktop-only (no Android updater plugin). No-ops on mobile/browser. */
 export function useUpdater() {
   const { t } = useTranslation();
   const [state, setState] = useState<UpdaterState>({
@@ -28,8 +24,6 @@ export function useUpdater() {
 
   const check = useCallback(
     async ({ silent = false }: { silent?: boolean } = {}) => {
-      // The updater plugin is not registered on Android (cfg(desktop)
-      // in lib.rs), so we'd just throw "plugin not found". Bail early.
       if (!isTauri() || isAndroid()) {
         if (!silent) toast.info(t('update.notInDesktop', 'Updates are checked from the desktop app.'));
         return;
@@ -82,8 +76,7 @@ export function useUpdater() {
     [t],
   );
 
-  // One silent auto-check on app start (with a 6h cooldown so we don't ping
-  // GitHub on every relaunch). Skipped on Android — see check() comment.
+  // Silent auto-check on start; 6h cooldown so we don't ping GitHub on every relaunch.
   useEffect(() => {
     if (ranAutoCheck.current) return;
     ranAutoCheck.current = true;

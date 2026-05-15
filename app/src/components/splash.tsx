@@ -1,14 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 
-/**
- * Cold-start overlay shown above the app shell while React mounts
- * and the i18n / queue stores hydrate. Auto-dismissed by the parent
- * after a short timeout — there's no async readiness signal worth
- * waiting on (i18n is bundled, the queue store rehydrates from
- * localStorage synchronously) so we just give the duck enough time
- * to bounce once before fading out.
- */
+/** Cold-start overlay; parent dismisses on timeout (no async readiness signal). */
 export function Splash() {
   const { t } = useTranslation();
 
@@ -38,11 +31,7 @@ export function Splash() {
   );
 }
 
-/**
- * Indeterminate progress bar. Pure CSS so it paints on the very
- * first frame instead of waiting for framer-motion to wire up its
- * animation loop.
- */
+/** Pure-CSS indeterminate bar; paints on the first frame (no framer-motion). */
 function SplashBar() {
   return (
     <div className="h-1 w-40 overflow-hidden rounded-full bg-border/60">

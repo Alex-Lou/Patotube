@@ -1,14 +1,4 @@
-// Generic streaming HTTPS GET helper, shared by every kernel that
-// hits a "plain" CDN (one URL, no Range games, no auth header
-// dance): SoundCloud, Bandcamp, Audiomack, Internet Archive.
-//
-// YouTube has its own, beefier downloader under
-// `youtube_kernel/download.rs` because its CDN demands per-request
-// gymnastics (multi-UA retry, Range, Origin/Referer). For every
-// other kernel, this 50-line helper is enough.
-//
-// Reuses the central `events::ProgressPayload` so the frontend
-// only needs one listener.
+// Shared plain-CDN streamer (SoundCloud/Bandcamp/Audiomack/Archive). YouTube has its own downloader.
 
 use std::path::PathBuf;
 use std::time::Instant;
@@ -25,14 +15,6 @@ const DESKTOP_UA: &str =
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 \
      (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
-/// Stream `url` to the first writable path in `candidates`. Tries
-/// each in order: opens the file, on EACCES (or any File::create
-/// error) moves to the next candidate. The first candidate that
-/// accepts the create wins; we then commit to that path for the
-/// whole download.
-///
-/// Returns the path that was actually used, so the caller can
-/// surface it back to the frontend.
 pub async fn stream_to_disk(
     app: &AppHandle,
     job_id: &str,
@@ -60,10 +42,6 @@ pub async fn stream_to_disk(
 
     let bytes_total = response.content_length();
 
-    // Pick a writable destination by attempting File::create on
-    // each candidate. On Android scoped storage often blocks the
-    // public Download dir but accepts the app-external one — the
-    // candidate list reflects that fallback order.
     let (mut file, out_path) = open_first_writable(candidates).await?;
     eprintln!(
         "[patotube] streamer: writing to {} (content-length: {:?})",
@@ -109,9 +87,6 @@ pub async fn stream_to_disk(
     Ok(out_path)
 }
 
-/// Try `File::create` on each candidate in order, returning the
-/// first that succeeds with both the open file and the path
-/// chosen. Surfaces the LAST error if every candidate fails.
 async fn open_first_writable(
     candidates: &[PathBuf],
 ) -> Result<(File, PathBuf), String> {
