@@ -1,12 +1,9 @@
-// Popup logic — same supported-URL filter as the content script.
-// Reads the active tab via the `activeTab` permission, falls back
-// to a manual paste textarea when the tab isn't on a media page.
+// Popup logic — same supported-URL filter as the content script; reads active tab, falls back to manual paste.
 
 (function () {
   'use strict';
 
-  // Cross-browser polyfill: Firefox exposes `browser`, Chromium
-  // exposes `chrome` (with the same MV3 surface for the bits we use).
+  // Cross-browser polyfill: Firefox exposes `browser`, Chromium exposes `chrome`.
   const ext = typeof browser !== 'undefined' ? browser : chrome;
 
   function isSupported(href) {
@@ -49,8 +46,6 @@
 
   function fire(url) {
     if (!url) return;
-    // Custom-protocol navigation: route through the OS handler that
-    // the desktop installer / AppImage runtime registered.
     window.location.href = 'patotube://download?url=' + encodeURIComponent(url);
     // Tiny grace period so the OS gets the URL before we close.
     setTimeout(() => window.close(), 150);
@@ -69,7 +64,6 @@
     fire(pasted || activeUrl);
   });
 
-  // Pull the current tab's URL via activeTab.
   ext.tabs
     .query({ active: true, currentWindow: true })
     .then((tabs) => {
