@@ -32,7 +32,8 @@
     "playerLoading": "Resolving stream…",
     "playerFailed": "Could not play this video",
     "playerLoadFailed": "Playback failed",
-    "starting": "Starting download…"
+    "starting": "Starting download…",
+    "openingYoutube": "Opening YouTube…"
   },
   "errors": {
     "empty": "Please enter a URL",

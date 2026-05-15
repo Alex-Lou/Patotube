@@ -32,7 +32,8 @@
     "playerLoading": "Sæki straum…",
     "playerFailed": "Ekki tókst að spila myndbandið",
     "playerLoadFailed": "Spilun mistókst",
-    "starting": "Hef niðurhal…"
+    "starting": "Hef niðurhal…",
+    "openingYoutube": "Opna YouTube…"
   },
   "errors": {
     "empty": "Sláðu inn slóð",

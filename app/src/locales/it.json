@@ -32,7 +32,8 @@
     "playerLoading": "Caricamento flusso…",
     "playerFailed": "Impossibile riprodurre questo video",
     "playerLoadFailed": "Riproduzione fallita",
-    "starting": "Avvio download…"
+    "starting": "Avvio download…",
+    "openingYoutube": "Apertura di YouTube…"
   },
   "errors": {
     "empty": "Inserisci un URL",

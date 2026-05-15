@@ -32,7 +32,8 @@
     "playerLoading": "Stream wird geladen…",
     "playerFailed": "Video kann nicht abgespielt werden",
     "playerLoadFailed": "Wiedergabe fehlgeschlagen",
-    "starting": "Download wird gestartet…"
+    "starting": "Download wird gestartet…",
+    "openingYoutube": "YouTube wird geöffnet…"
   },
   "errors": {
     "empty": "Bitte URL eingeben",

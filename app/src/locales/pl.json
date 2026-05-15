@@ -32,7 +32,8 @@
     "playerLoading": "Pobieranie strumienia…",
     "playerFailed": "Nie można odtworzyć tego wideo",
     "playerLoadFailed": "Odtwarzanie nieudane",
-    "starting": "Rozpoczynanie pobierania…"
+    "starting": "Rozpoczynanie pobierania…",
+    "openingYoutube": "Otwieranie YouTube…"
   },
   "errors": {
     "empty": "Wprowadź URL",
