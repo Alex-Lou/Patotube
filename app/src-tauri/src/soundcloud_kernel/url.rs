@@ -1,7 +1,3 @@
-// Pure URL helpers for the SoundCloud path. Lives outside the
-// Android-cfg-gated parts so it can be unit-tested on the
-// desktop host without an emulator.
-
 #![cfg_attr(not(target_os = "android"), allow(dead_code))]
 
 const KNOWN_HOSTS: &[&str] = &[
@@ -11,8 +7,6 @@ const KNOWN_HOSTS: &[&str] = &[
     "on.soundcloud.com",
 ];
 
-/// True if `url` looks like a SoundCloud track URL we should
-/// route through the SC kernel rather than YouTube.
 pub fn is_soundcloud_url(url: &str) -> bool {
     let lower = url.trim().to_lowercase();
     KNOWN_HOSTS
@@ -20,22 +14,12 @@ pub fn is_soundcloud_url(url: &str) -> bool {
         .any(|h| lower.contains(&format!("://{h}/")) || lower.contains(&format!("://{h}?")))
 }
 
-/// True if `url` is a SoundCloud short-link served by
-/// `on.soundcloud.com/<token>`. These are produced by the mobile
-/// SC app's share sheet and have to be expanded via an HTTP
-/// redirect before the resolve API will accept them.
 pub fn is_short_url(url: &str) -> bool {
     url.trim()
         .to_lowercase()
         .contains("://on.soundcloud.com/")
 }
 
-/// Normalises a user-supplied URL into the canonical form SC's
-/// resolve API expects. We strip query strings + fragments
-/// because they confuse the resolver, and replace `m.` /
-/// `www.` with the bare host.
-///
-/// Returns `None` if the URL doesn't look like SoundCloud at all.
 pub fn canonicalise(url: &str) -> Option<String> {
     let trimmed = url.trim();
     if !is_soundcloud_url(trimmed) {

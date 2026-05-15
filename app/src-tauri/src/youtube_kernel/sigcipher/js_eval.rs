@@ -1,15 +1,6 @@
 #![allow(dead_code)]
 
-// Tiny wrapper around boa_engine. We use it to evaluate the small
-// signature / n-parameter decoder functions we lift out of YouTube's
-// player.js. Boa is a pure-Rust JS interpreter — slower than V8 or
-// QuickJS but the two functions we run are <5 KB each and execute
-// once per video, so the difference is unmeasurable.
-//
-// The "compiled function" here is just a `Context` with the function
-// definition already evaluated, plus the function name to call.
-// `apply` looks the function up on the global object and calls it
-// with one string argument, returning the result as a Rust `String`.
+// Tiny boa_engine wrapper for the sigcipher / n-param decoders.
 
 use boa_engine::{js_string, Context, JsValue, Source};
 
@@ -19,9 +10,6 @@ pub struct CompiledJs {
 }
 
 impl CompiledJs {
-    /// Compile a JS source blob containing a function definition.
-    /// `source` should declare the function with the given `fn_name`
-    /// at the top level so it lands on the global object.
     pub fn compile(source: &str, fn_name: &str) -> Result<Self, String> {
         let mut ctx = Context::default();
         ctx.eval(Source::from_bytes(source))
@@ -32,9 +20,6 @@ impl CompiledJs {
         })
     }
 
-    /// Call the compiled function with a single string argument and
-    /// return its result coerced to a Rust string. Used to apply
-    /// signature / n-parameter decoders.
     pub fn apply(&mut self, arg: &str) -> Result<String, String> {
         let global = self.ctx.global_object();
         let func_val = global
@@ -70,7 +55,6 @@ mod tests {
         "#;
         let mut compiled = CompiledJs::compile(src, "decode").unwrap();
         assert_eq!(compiled.apply("hello").unwrap(), "olleh");
-        // Reusable: the context is kept alive between calls.
         assert_eq!(compiled.apply("world").unwrap(), "dlrow");
     }
 
