@@ -13,11 +13,26 @@
     "change": "Taal wijzigen"
   },
   "url": {
-    "label": "Media-URL",
-    "placeholder": "Plak je URL",
+    "label": "URL of zoekterm",
+    "placeholder": "URL of zoekterm",
     "fetch": "Analyseren",
+    "search": "Zoeken",
     "paste": "Plakken vanaf klembord",
     "clear": "Wissen"
+  },
+  "search": {
+    "hint": "Zoeken op YouTube — klik een resultaat om te downloaden, de miniatuur voor voorbeeld",
+    "searching": "Zoeken…",
+    "failed": "Zoeken mislukt",
+    "resultsLabel": "Zoekresultaten",
+    "viewCount": "{{formatted}} weergaven",
+    "play": "Voorbeeld",
+    "downloadThis": "Downloaden",
+    "openOnYoutube": "Open op YouTube",
+    "playerLoading": "Stream laden…",
+    "playerFailed": "Kan deze video niet afspelen",
+    "playerLoadFailed": "Afspelen mislukt",
+    "starting": "Download starten…"
   },
   "errors": {
     "empty": "Voer een URL in",

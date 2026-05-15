@@ -13,11 +13,26 @@
     "change": "언어 변경"
   },
   "url": {
-    "label": "미디어 URL",
-    "placeholder": "URL 붙여넣기",
+    "label": "URL 또는 키워드",
+    "placeholder": "URL 또는 키워드",
     "fetch": "분석",
+    "search": "검색",
     "paste": "클립보드에서 붙여넣기",
     "clear": "지우기"
+  },
+  "search": {
+    "hint": "YouTube 검색 중 — 결과를 클릭하여 다운로드, 썸네일을 클릭하여 미리보기",
+    "searching": "검색 중…",
+    "failed": "검색 실패",
+    "resultsLabel": "검색 결과",
+    "viewCount": "조회수 {{formatted}}회",
+    "play": "미리보기",
+    "downloadThis": "다운로드",
+    "openOnYoutube": "YouTube에서 열기",
+    "playerLoading": "스트림 가져오는 중…",
+    "playerFailed": "이 비디오를 재생할 수 없습니다",
+    "playerLoadFailed": "재생 실패",
+    "starting": "다운로드 시작 중…"
   },
   "errors": {
     "empty": "URL을 입력하세요",

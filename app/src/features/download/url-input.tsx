@@ -170,10 +170,11 @@ export function UrlInput({ onResolved }: UrlInputProps) {
     }
   };
 
-  const handlePick = (r: SearchResult) => {
-    void resolveUrl(`https://www.youtube.com/watch?v=${r.videoId}`);
-  };
-
+  // Search row → "Télécharger" (click on title or kebab menu). We
+  // already have title / channel / duration / thumbnail from the
+  // search renderer — no extra fetchMediaInfo round-trip needed.
+  // Goes straight to the small format-picker modal.
+  const handlePick = (r: SearchResult) => setDownloadFromPlayer(r);
   const handlePlay = (r: SearchResult) => setPlaying(r);
   // Player → "Télécharger" : the player stays open behind a small
   // format-picker modal. Both dismiss together on confirm.

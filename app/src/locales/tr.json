@@ -13,11 +13,26 @@
     "change": "Dili değiştir"
   },
   "url": {
-    "label": "Medya URL'si",
-    "placeholder": "URL'ni yapıştır",
+    "label": "URL veya anahtar kelime",
+    "placeholder": "URL veya anahtar kelime",
     "fetch": "Çözümle",
+    "search": "Ara",
     "paste": "Panodan yapıştır",
     "clear": "Temizle"
+  },
+  "search": {
+    "hint": "YouTube'da arıyorum — indirmek için bir sonuca, önizlemek için küçük resme tıkla",
+    "searching": "Aranıyor…",
+    "failed": "Arama başarısız",
+    "resultsLabel": "Arama sonuçları",
+    "viewCount": "{{formatted}} izlenme",
+    "play": "Önizleme",
+    "downloadThis": "İndir",
+    "openOnYoutube": "YouTube'da aç",
+    "playerLoading": "Akış çözümleniyor…",
+    "playerFailed": "Bu video oynatılamadı",
+    "playerLoadFailed": "Oynatma başarısız",
+    "starting": "İndirme başlatılıyor…"
   },
   "errors": {
     "empty": "Lütfen bir URL girin",
