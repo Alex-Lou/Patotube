@@ -1,10 +1,5 @@
-// HTTP layer for SoundCloud's api-v2 backend. All calls are
-// authenticated via a `client_id=…` query string; we obtain that
-// via `client_id::get_client_id()` and pass it on every request.
-//
-// On 401 we refresh the cached client_id and retry once — SC
-// rotates the published key occasionally and we don't want a
-// cold cache to brick downloads for the rest of the process.
+// SC api-v2 HTTP layer. On 401, refresh client_id + retry once
+// to absorb SC's occasional key rotation.
 
 use serde_json::Value;
 
@@ -17,14 +12,10 @@ const DESKTOP_UA: &str =
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 \
      (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
-/// Resolve a track URL to its full metadata, including the
-/// `media.transcodings` list a downloader picks from.
 pub async fn resolve_track(track_url: &str) -> Result<Track, String> {
-    // SC's `on.soundcloud.com/<token>` short links 404 against
-    // the resolve API directly — they have to be expanded via an
-    // HTTP redirect first. The mobile share sheet emits these by
-    // default, so without expansion the SC kernel was unusable
-    // for anyone copying from the official app.
+    // on.soundcloud.com/<token> short links 404 against resolve;
+    // must be expanded via HTTP redirect first (mobile share sheet
+    // emits these by default).
     let canonical_url = if is_short_url(track_url) {
         expand_short_url(track_url).await?
     } else {
@@ -46,10 +37,6 @@ pub async fn resolve_track(track_url: &str) -> Result<Track, String> {
     })
     .await?;
 
-    // The resolve endpoint returns either a Track JSON object
-    // (kind="track") or, for playlist/user URLs, a different
-    // shape we don't handle yet. Fail informatively when we
-    // get something unexpected.
     let kind = body
         .get("kind")
         .and_then(|k| k.as_str())
@@ -64,10 +51,7 @@ pub async fn resolve_track(track_url: &str) -> Result<Track, String> {
         .map_err(|e| format!("could not parse SC track JSON: {e}"))
 }
 
-/// Hit a transcoding's resolver URL to get the actual streamable
-/// CDN URL. This is a separate per-format call (yes, two HTTP
-/// hops total per download) — SC time-bombs the CDN URL so it
-/// can't be cached upstream.
+// SC time-bombs the CDN URL → fresh per-download fetch, no upstream caching.
 pub async fn fetch_stream_url(transcoding_url: &str) -> Result<String, String> {
     let body: StreamRedirect = call_with_retry(|client_id| {
         let url = transcoding_url.to_string();
@@ -86,10 +70,6 @@ pub async fn fetch_stream_url(transcoding_url: &str) -> Result<String, String> {
     Ok(body.url)
 }
 
-/// Wraps a one-shot SC API call with the retry-on-401 contract:
-///   1. Fetch with the cached client_id.
-///   2. On 401, refresh and try once more.
-///   3. Otherwise, return the parsed JSON or the HTTP error.
 async fn call_with_retry<T, F, Fut>(make_request: F) -> Result<T, String>
 where
     T: serde::de::DeserializeOwned,
@@ -127,10 +107,6 @@ fn build_http() -> Result<reqwest::Client, String> {
         .map_err(|e| format!("could not build http client: {e}"))
 }
 
-/// Follow a SoundCloud short link (`on.soundcloud.com/<token>`)
-/// to its canonical `soundcloud.com/<user>/<track>` URL via HTTP
-/// redirects. reqwest follows up to 10 redirects automatically;
-/// we read `response.url()` to get the final landing page.
 async fn expand_short_url(short_url: &str) -> Result<String, String> {
     let http = build_http()?;
     let response = http
@@ -147,14 +123,12 @@ async fn expand_short_url(short_url: &str) -> Result<String, String> {
     }
 
     let final_url = response.url().to_string();
-    // Sanity check: the expansion must have actually moved off of
-    // on.soundcloud.com (otherwise we'd just resolve the same 404
-    // again on the next hop).
+    // Sanity check: expansion must have moved off on.soundcloud.com,
+    // else we'd just 404 again on the next hop.
     if final_url.contains("://on.soundcloud.com/") {
         return Err("SoundCloud short URL did not redirect to a canonical track URL".into());
     }
-    // Strip query string + fragment — SC tags shorts with tracking
-    // params (`utm_source=…`) the resolver doesn't want.
+    // Strip tracking params (utm_source=…) the resolver doesn't want.
     let no_frag = final_url
         .split_once('#')
         .map(|(a, _)| a)

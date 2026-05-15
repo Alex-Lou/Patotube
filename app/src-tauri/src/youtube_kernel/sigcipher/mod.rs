@@ -1,39 +1,14 @@
 #![allow(dead_code)]
 
-// Patotube signature/n-parameter unlock pipeline.
-//
-// YouTube protects audio CDN URLs with two scrambling layers:
-//
-//   1. signatureCipher: an `s=...` value that has to be passed
-//      through a JS-defined decoder before being attached to the URL
-//      under a `sp=...`-named query parameter. Used on most adaptive
-//      audio streams (DASH/Opus/m4a).
-//
-//   2. n parameter: a `n=...` query string already on the URL whose
-//      value has to be passed through a different JS decoder; YouTube
-//      throttles the CDN response to ~30 KB/s if the n value is left
-//      un-scrambled.
-//
-// Both decoders live inside the player.js the watch page references.
-// We fetch player.js, extract the two function bodies via regex,
-// and run them through `boa_engine` (a pure-Rust JS interpreter).
-//
-// Public surface:
-//
-//   - `Unlocker::from_player_js(src)` — build both decoders.
-//   - `unlocker.unlock_url(url, signature_cipher)` — produce a
-//     downloadable URL from a Format's url/cipher fields.
-//
-// See `docs/youtube-kernel.md` ("Phase 2") for the broader plan.
+// Two decoders (signatureCipher + n-parameter) extracted from player.js
+// and run via `boa_engine`. See `docs/youtube-kernel.md` ("Phase 2").
+// boa's Context is !Send — callers must keep Unlocker off the await path.
 
 mod js_eval;
 mod nparam;
 mod signature;
 
-// Player.js fetching uses reqwest, which is in the Android-only dep
-// table. The HTML-parsing helper (`extract_player_js_url`) is pure
-// and would be useful to test on desktop, but we keep the file
-// together rather than splitting it for one function.
+// player_js uses reqwest (Android-only dep).
 #[cfg(target_os = "android")]
 mod player_js;
 
@@ -48,9 +23,6 @@ pub use player_js::{
 use self::nparam::NParamDecoder;
 use self::signature::SignatureDecoder;
 
-/// Combined signature + n-parameter decoder for one player.js.
-/// Hold onto one of these per player.js URL (cached at the call site)
-/// and run every URL through `unlock_url`.
 pub struct Unlocker {
     sig: SignatureDecoder,
     n: NParamDecoder,
@@ -65,14 +37,6 @@ impl Unlocker {
         Ok(Self { sig, n })
     }
 
-    /// Take the values from a Format entry and produce a downloadable
-    /// URL with the n-parameter unscrambled and (if applicable) the
-    /// signature decoded and attached.
-    ///
-    /// `direct_url` is the format's `url` field, used directly when
-    /// present. `signature_cipher` is the format's `signatureCipher`
-    /// field, parsed for the encoded `s`/`url`/`sp` fields when the
-    /// direct URL is absent.
     pub fn unlock_url(
         &mut self,
         direct_url: Option<&str>,
@@ -89,9 +53,6 @@ impl Unlocker {
         self.unscramble_n_parameter(&raw)
     }
 
-    /// Parse a `signatureCipher` blob (a query-string of `s=…&sp=…&url=…`),
-    /// decode the `s` value, and attach it to the underlying url under
-    /// the `sp`-named parameter (defaulting to "signature").
     fn url_from_signature_cipher(&mut self, cipher: &str) -> Result<String, String> {
         let parsed = parse_query_string(cipher);
         let s = parsed
@@ -109,10 +70,6 @@ impl Unlocker {
         Ok(append_query_param(underlying, sp, &decoded))
     }
 
-    /// Find the `n=…` parameter in the URL, decode it through the JS
-    /// decoder, and return the URL with the new `n` value swapped in.
-    /// If the URL has no `n` parameter we return it unchanged — some
-    /// older formats don't use one.
     fn unscramble_n_parameter(&mut self, url: &str) -> Result<String, String> {
         let Some((before_n, n_value, after_n)) = split_at_query_param(url, "n") else {
             return Ok(url.to_string());
@@ -124,9 +81,6 @@ impl Unlocker {
 
 // --- query-string helpers (no full URL parser dep) ----------------
 
-/// Parse a `key=value&key=value` blob with URL-decoding. Stops at the
-/// first invalid pair rather than erroring — YouTube sometimes adds
-/// non-standard fields we don't care about.
 fn parse_query_string(qs: &str) -> HashMap<String, String> {
     let mut out = HashMap::new();
     for pair in qs.split('&') {
@@ -139,19 +93,13 @@ fn parse_query_string(qs: &str) -> HashMap<String, String> {
     out
 }
 
-/// Append `?key=value` (or `&key=value`) to a URL. The caller is
-/// responsible for url-encoding the value if it contains reserved
-/// characters; we leave it unencoded so signatures pass through
-/// unchanged (YouTube's signature output is already safe).
+// value is left unencoded so signatures pass through unchanged
+// (YouTube's signature output is already safe).
 fn append_query_param(url: &str, key: &str, value: &str) -> String {
     let sep = if url.contains('?') { '&' } else { '?' };
     format!("{url}{sep}{key}={value}")
 }
 
-/// Locate `key=value` inside a URL's query string. Returns
-/// `(prefix_up_to_and_including_key=, value, suffix_starting_with_&_or_empty)`.
-/// Used by `unscramble_n_parameter` so we can swap the value
-/// in-place without re-serialising the full query.
 fn split_at_query_param(url: &str, key: &str) -> Option<(String, String, String)> {
     let needle = format!("{key}=");
     // Look for `?key=` or `&key=` to avoid matching inside a path.
@@ -174,9 +122,6 @@ fn split_at_query_param(url: &str, key: &str) -> Option<(String, String, String)
     Some((before, value, suffix))
 }
 
-/// Tiny percent-decode. We only need to handle `%XX` and `+`-as-space
-/// because YouTube's signatureCipher payloads are simple. Falls back
-/// to leaving an undecodable sequence in place.
 fn url_decode(s: &str) -> String {
     let bytes = s.as_bytes();
     let mut out = Vec::with_capacity(bytes.len());
@@ -276,9 +221,6 @@ mod tests {
         assert!(split_at_query_param("https://x.com/a?b=1", "n").is_none());
     }
 
-    /// End-to-end test: synthetic player.js with both decoders +
-    /// a fake signatureCipher / URL with an `n` parameter.
-    /// Verifies the whole unlock pipeline runs together.
     const SYNTH_PLAYER_JS: &str = r#"
         var Hh={
             r:function(a){a.reverse()},
@@ -330,16 +272,9 @@ mod tests {
         }
     }
 
-    /// Manual validation against a real captured player.js. Skipped
-    /// by default (ignored) because the fixture isn't committed —
-    /// it's a 2-3 MB file YouTube reships every few weeks. To run:
-    ///
-    ///   1. Capture: download a fresh watch page, extract `jsUrl`,
-    ///      fetch the JS to `tests/fixtures/player_real.js`.
-    ///   2. `cargo test --lib -- --ignored real_player_js`
-    ///
-    /// On a fresh clone with no fixture, the test prints a hint and
-    /// passes vacuously rather than failing the build.
+    // Manual: requires tests/fixtures/player_real.js (2-3 MB, reshipped
+    // every few weeks). Capture watch page → jsUrl → fetch → save, then
+    // `cargo test --lib -- --ignored real_player_js`.
     #[test]
     #[ignore = "manual: requires tests/fixtures/player_real.js (see test body)"]
     fn real_player_js_builds_an_unlocker() {

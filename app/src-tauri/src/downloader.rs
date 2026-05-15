@@ -1,8 +1,3 @@
-// Desktop-only: drives the bundled yt-dlp + ffmpeg sidecars for
-// platforms we don't have a native kernel for (today: YouTube on
-// desktop). Android uses native kernels for every supported
-// platform, so this whole file is cfg-gated out there.
-
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter};
 use tauri_plugin_shell::{process::CommandEvent, ShellExt};
@@ -135,13 +130,8 @@ pub async fn start(
         "%(title)s.%(ext)s".into(),
     ];
 
-    // Tell yt-dlp where to find the ffmpeg sidecar. Without this,
-    // yt-dlp searches PATH — which on a sideloaded Tauri install
-    // doesn't include our `binaries/` folder, so audio extraction
-    // (`-x --audio-format mp3`) silently falls back to leaving the
-    // raw .webm/.m4a on disk and the user sees a "file not found"
-    // error in their player. Pointing at the sidecar location makes
-    // it deterministic.
+    // Without --ffmpeg-location, audio extraction silently leaves the
+    // raw .webm/.m4a on disk on sideloaded installs (binaries/ not on PATH).
     if let Some(ffmpeg_dir) = ffmpeg_sidecar_dir() {
         args.push("--ffmpeg-location".into());
         args.push(ffmpeg_dir);
@@ -251,15 +241,7 @@ pub async fn start(
     Ok(())
 }
 
-/// Locate the directory holding our `ffmpeg` sidecar so yt-dlp
-/// can be pointed at it via `--ffmpeg-location`. Tauri copies the
-/// platform-suffixed binaries into `target/<profile>/`, dropping
-/// the suffix; we ship from the same dir as the running exe.
-///
-/// Returns `None` if the current exe path can't be resolved (we
-/// then let yt-dlp fall back to its own PATH search). This is a
-/// defensive helper: missing ffmpeg only matters for audio
-/// extraction, not for raw video downloads.
+// Sidecar dir for `--ffmpeg-location`; same dir as running exe.
 fn ffmpeg_sidecar_dir() -> Option<String> {
     let exe = std::env::current_exe().ok()?;
     let dir = exe.parent()?;
@@ -307,10 +289,7 @@ fn parse_extract_audio_dest(line: &str) -> Option<String> {
         .map(|s| s.to_string())
 }
 
-/// Make yt-dlp's noisy stderr something a user can actually act on.
-/// We always include the original stderr at the end so power users keep
-/// the full message, but a one-line summary up front explains what's
-/// going on for the common cases.
+// User-facing summary + raw stderr tail.
 fn friendly_error(stderr: &str, exit_code: Option<i32>) -> String {
     if stderr.is_empty() {
         return format!("yt-dlp exited with code {:?}", exit_code);
