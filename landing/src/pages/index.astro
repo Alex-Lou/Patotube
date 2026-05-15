@@ -189,25 +189,25 @@ const metaJson = JSON.stringify(LOCALE_META);
           data-i18n="downloadsTitle">{en.downloadsTitle}</h2>
         <p class="mt-3 text-center text-fg-muted" data-i18n="downloadsSubtitle">{en.downloadsSubtitle}</p>
         <div
-          class="mt-12 grid grid-cols-1 sm:grid-cols-3 max-w-2xl mx-auto gap-3 sm:gap-4"
+          class="mt-12 grid grid-cols-3 max-w-2xl mx-auto gap-2 sm:gap-4"
         >
           {
             downloads.map((d) => (
               <a
                 href={d.href}
                 class:list={[
-                  'group relative rounded-2xl p-5 sm:p-6 border transition-all',
+                  'group relative rounded-2xl p-3 sm:p-6 border transition-all min-w-0',
                   d.primary
                     ? 'bg-bg-card border-border hover:border-duck/60 hover:bg-bg-soft hover:-translate-y-0.5 hover:shadow-xl hover:shadow-duck/10'
                     : 'bg-bg-card/50 border-border/50 cursor-not-allowed opacity-60',
                 ]}
                 aria-disabled={!d.primary}
               >
-                <div class="text-3xl sm:text-4xl mb-3">{d.icon}</div>
-                <div class="font-bold" data-i18n={`${d.key}Label`}>
+                <div class="text-2xl sm:text-4xl mb-2 sm:mb-3">{d.icon}</div>
+                <div class="font-bold text-sm sm:text-base truncate" data-i18n={`${d.key}Label`}>
                   {(en as any)[`${d.key}Label`]}
                 </div>
-                <div class="text-xs text-fg-muted mt-0.5" data-i18n={`${d.key}Sub`}>
+                <div class="text-[10px] sm:text-xs text-fg-muted mt-0.5 truncate" data-i18n={`${d.key}Sub`}>
                   {(en as any)[`${d.key}Sub`]}
                 </div>
                 {d.primary && (
