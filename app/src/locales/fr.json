@@ -21,11 +21,14 @@
     "clear": "Effacer"
   },
   "search": {
-    "hint": "Recherche YouTube — clique un résultat pour télécharger",
+    "hint": "Recherche YouTube — clique un résultat pour télécharger, ou la miniature pour prévisualiser",
     "searching": "Recherche en cours…",
     "failed": "Échec de la recherche",
     "resultsLabel": "Résultats de recherche",
-    "viewCount": "{{formatted}} vues"
+    "viewCount": "{{formatted}} vues",
+    "play": "Prévisualiser",
+    "downloadThis": "Télécharger",
+    "openOnYoutube": "Ouvrir sur YouTube"
   },
   "errors": {
     "empty": "Entre une URL",

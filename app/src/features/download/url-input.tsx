@@ -11,6 +11,7 @@ import { getTauri, type SearchResult } from '@/lib/tauri/bindings';
 import type { MediaInfo } from '@/lib/core/types';
 import { PlatformBadge } from './platform-badge';
 import { SearchResults } from '@/features/search/search-results';
+import { SearchPlayerDialog } from '@/features/search/search-player-dialog';
 
 const SEARCH_DEBOUNCE_MS = 400;
 const SEARCH_MIN_LENGTH = 3;
@@ -28,6 +29,7 @@ export function UrlInput({ onResolved }: UrlInputProps) {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const [playing, setPlaying] = useState<SearchResult | null>(null);
 
   // Raw value may be share-sheet text wrapping the URL.
   const looksLikeUrl = validateUrl(value).ok;
@@ -170,6 +172,12 @@ export function UrlInput({ onResolved }: UrlInputProps) {
     void resolveUrl(`https://www.youtube.com/watch?v=${r.videoId}`);
   };
 
+  const handlePlay = (r: SearchResult) => setPlaying(r);
+  const handleDownloadFromPlayer = (r: SearchResult) => {
+    setPlaying(null);
+    handlePick(r);
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-2">
       <div className="relative">
@@ -280,8 +288,15 @@ export function UrlInput({ onResolved }: UrlInputProps) {
           loading={searching}
           error={searchError}
           onPick={handlePick}
+          onPlay={handlePlay}
         />
       )}
+
+      <SearchPlayerDialog
+        result={playing}
+        onClose={() => setPlaying(null)}
+        onDownload={handleDownloadFromPlayer}
+      />
     </form>
   );
 }

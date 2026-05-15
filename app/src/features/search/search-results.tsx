@@ -8,9 +8,10 @@ interface SearchResultsProps {
   loading: boolean;
   error: string | null;
   onPick: (r: SearchResult) => void;
+  onPlay: (r: SearchResult) => void;
 }
 
-export function SearchResults({ results, loading, error, onPick }: SearchResultsProps) {
+export function SearchResults({ results, loading, error, onPick, onPlay }: SearchResultsProps) {
   const { t } = useTranslation();
 
   if (loading) {
@@ -38,48 +39,55 @@ export function SearchResults({ results, loading, error, onPick }: SearchResults
         aria-label={t('search.resultsLabel')}
       >
         {results.map((r) => (
-          <li key={r.videoId}>
+          <li
+            key={r.videoId}
+            className="flex items-stretch gap-3 rounded-lg border border-border/40 bg-card/40 p-2 transition hover:border-border hover:bg-muted/60"
+          >
+            <button
+              type="button"
+              onClick={() => onPlay(r)}
+              aria-label={t('search.play')}
+              title={t('search.play')}
+              className="group/play relative aspect-video w-32 shrink-0 overflow-hidden rounded-md bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <img
+                src={r.thumbnailUrl}
+                alt=""
+                loading="lazy"
+                className="size-full object-cover"
+              />
+              {r.durationSeconds != null && (
+                <span className="absolute bottom-1 right-1 rounded bg-black/75 px-1 py-0.5 text-[10px] font-medium tabular-nums text-white">
+                  {formatDuration(r.durationSeconds)}
+                </span>
+              )}
+              <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition group-hover/play:bg-black/40 group-hover/play:opacity-100">
+                <Play className="size-7 text-white drop-shadow" fill="currentColor" />
+              </div>
+            </button>
+
             <button
               type="button"
               onClick={() => onPick(r)}
-              className="group flex w-full items-stretch gap-3 rounded-lg border border-border/40 bg-card/40 p-2 text-left transition hover:border-border hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              aria-label={t('search.downloadThis')}
+              title={t('search.downloadThis')}
+              className="flex min-w-0 flex-1 flex-col justify-between py-0.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
             >
-              <div className="relative aspect-video w-32 shrink-0 overflow-hidden rounded-md bg-muted">
-                <img
-                  src={r.thumbnailUrl}
-                  alt=""
-                  loading="lazy"
-                  className="size-full object-cover"
-                />
-                {r.durationSeconds != null && (
-                  <span className="absolute bottom-1 right-1 rounded bg-black/75 px-1 py-0.5 text-[10px] font-medium tabular-nums text-white">
-                    {formatDuration(r.durationSeconds)}
+              <div className="line-clamp-2 text-sm font-medium leading-snug">{r.title}</div>
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+                {r.channel && <span className="truncate">{r.channel}</span>}
+                {(r.viewCount != null || r.published) && <span aria-hidden>·</span>}
+                {r.viewCount != null && (
+                  <span className="tabular-nums">
+                    {t('search.viewCount', { count: r.viewCount, formatted: formatCount(r.viewCount) })}
                   </span>
                 )}
-                <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition group-hover:bg-black/30 group-hover:opacity-100">
-                  <Play className="size-6 text-white drop-shadow" />
-                </div>
-              </div>
-
-              <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
-                <div className="line-clamp-2 text-sm font-medium leading-snug">
-                  {r.title}
-                </div>
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
-                  {r.channel && <span className="truncate">{r.channel}</span>}
-                  {(r.viewCount != null || r.published) && <span aria-hidden>·</span>}
-                  {r.viewCount != null && (
-                    <span className="tabular-nums">
-                      {t('search.viewCount', { count: r.viewCount, formatted: formatCount(r.viewCount) })}
-                    </span>
-                  )}
-                  {r.published && (
-                    <>
-                      {r.viewCount != null && <span aria-hidden>·</span>}
-                      <span>{r.published}</span>
-                    </>
-                  )}
-                </div>
+                {r.published && (
+                  <>
+                    {r.viewCount != null && <span aria-hidden>·</span>}
+                    <span>{r.published}</span>
+                  </>
+                )}
               </div>
             </button>
           </li>
