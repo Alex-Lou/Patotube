@@ -141,13 +141,26 @@ export function UrlInput({ onResolved }: UrlInputProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (isSearchMode) {
-      // Force-fire the search immediately, bypassing debounce.
-      searchSeq.current++;
-      void runSearchNow(value.trim());
+    // Defensive: always clear stale errors at submit start. Avoids
+    // "URL invalide" lingering after a URL DL when the user pivots
+    // back to keyword search.
+    setError(null);
+    setSearchError(null);
+
+    const trimmed = value.trim();
+    if (!trimmed) {
+      setError(t('errors.empty'));
       return;
     }
-    void resolveUrl(value);
+    // URL path: hand off to the resolve+preview flow.
+    if (validateUrl(value).ok) {
+      void resolveUrl(value);
+      return;
+    }
+    // Keyword path: too-short query is a no-op, not an error.
+    if (trimmed.length < SEARCH_MIN_LENGTH) return;
+    searchSeq.current++;
+    void runSearchNow(trimmed);
   };
 
   const runSearchNow = async (q: string) => {
@@ -193,6 +206,7 @@ export function UrlInput({ onResolved }: UrlInputProps) {
             onChange={(e) => {
               setValue(e.target.value);
               if (error) setError(null);
+              if (searchError) setSearchError(null);
             }}
             onPaste={handleNativePaste}
             placeholder={t('url.placeholder')}
