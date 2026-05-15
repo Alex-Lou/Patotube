@@ -1,30 +1,14 @@
 #![allow(dead_code)]
 
-// Picks one transcoding out of SoundCloud's `media.transcodings`
-// array. We only ship the `progressive` HTTP path on mobile
-// because it gives a single GETable file we can stream straight
-// to disk — no HLS muxing, no ffmpeg required.
-
 use super::types::{Track, Transcoding};
 
 #[derive(Debug, Clone)]
 pub struct PickedTranscoding {
     pub url: String,
-    /// File extension to save the download under, derived from
-    /// the transcoding's mime type. Almost always "mp3" because
-    /// SC's progressive presets are encoded with libmp3lame.
     pub extension: &'static str,
 }
 
-/// Pick the best progressive transcoding. Order of preference:
-///   1. progressive MP3 with `quality: "hq"` (paying-tier upload)
-///   2. progressive MP3 (standard 128 kbps, free tier)
-///   3. any other progressive audio (rare; usually opus/aac)
-///
-/// Returns Err if the track exposes no progressive transcoding
-/// at all, which means SC has decided HLS-only — currently we
-/// don't have an HLS player on mobile, so the caller should
-/// surface this clearly.
+// HLS-only → caller surfaces clear error (no HLS player on mobile).
 pub fn pick_progressive(track: &Track) -> Result<PickedTranscoding, String> {
     let mp3s: Vec<&Transcoding> = track
         .media
@@ -169,10 +153,6 @@ mod tests {
 
     #[test]
     fn prefers_hq_mp3_when_user_has_go_plus() {
-        // SC tags paying-tier uploads with quality:"hq". When both
-        // standard and hq MP3 are available, we must pick the hq
-        // one even though both come back as `audio/mpeg` /
-        // `progressive`.
         let track = track_with(vec![
             t(Some("mp3_1_0"), "progressive", "audio/mpeg", "standard.mp3"),
             t_hq(Some("mp3_0_0"), "progressive", "audio/mpeg", "hq.mp3"),

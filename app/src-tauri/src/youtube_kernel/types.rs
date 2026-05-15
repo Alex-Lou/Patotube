@@ -1,9 +1,5 @@
 #![allow(dead_code)]
 
-// Serde shapes for the youtubei/v1/player JSON response. These cover
-// only the fields we actually read; YouTube returns dozens more we
-// happily ignore via Serde's default skip-unknown behaviour.
-
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
@@ -43,25 +39,19 @@ pub struct Thumbnail {
 
 #[derive(Debug, Deserialize)]
 pub struct StreamingData {
-    /// Combined audio+video formats (legacy `formats` field). Always
-    /// have a direct `url` we can stream from.
     #[serde(default)]
     pub formats: Vec<Format>,
-    /// DASH-style separate audio / video streams. Where most of the
-    /// per-codec, per-bitrate options live.
     #[serde(rename = "adaptiveFormats", default)]
     pub adaptive_formats: Vec<Format>,
 }
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct Format {
-    /// The plain CDN URL — present when the client we asked
-    /// (ANDROID_MUSIC, ANDROID, IOS, TVHTML5) returns un-ciphered
-    /// formats. Stream this directly.
+    /// Plain CDN URL — present from un-ciphered clients (ANDROID_MUSIC,
+    /// ANDROID, IOS, TVHTML5). Stream directly.
     pub url: Option<String>,
-    /// The encoded `s=…&sp=…&url=…` blob — present (instead of
-    /// `url`) when the client (typically WEB) returns ciphered
-    /// formats. Run through `sigcipher::Unlocker` first.
+    /// Encoded `s=…&sp=…&url=…` blob — present instead of `url` for
+    /// ciphered clients (typically WEB). Run through `sigcipher::Unlocker`.
     #[serde(rename = "signatureCipher")]
     pub signature_cipher: Option<String>,
     #[serde(rename = "mimeType")]

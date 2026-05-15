@@ -1,14 +1,7 @@
-// Internet Archive URL helpers. The site's URL space is wide
-// (collections, search results, full-text browser) but for our
-// purposes only `/details/<identifier>` pages are downloadable
-// items.
-
 #![cfg_attr(not(target_os = "android"), allow(dead_code))]
 
 const IA_HOSTS: &[&str] = &["archive.org", "www.archive.org"];
 
-/// True if `url` is an `archive.org/...` link, regardless of
-/// whether it's a `/details/`, `/download/`, or other sub-path.
 pub fn is_archive_url(url: &str) -> bool {
     let lower = url.trim().to_lowercase();
     IA_HOSTS
@@ -16,9 +9,6 @@ pub fn is_archive_url(url: &str) -> bool {
         .any(|h| lower.contains(&format!("://{h}/")) || lower.contains(&format!("://{h}?")))
 }
 
-/// Pull the IA item identifier out of an `/details/<id>` or
-/// `/download/<id>/...` URL. Returns the identifier with no
-/// trailing slash or query string.
 pub fn extract_identifier(url: &str) -> Option<String> {
     let trimmed = url.trim();
     if !is_archive_url(trimmed) {

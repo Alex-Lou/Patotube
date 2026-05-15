@@ -1,49 +1,26 @@
 #![allow(dead_code)]
 
-// Extract YouTube's signature decoder function from a player.js
-// blob. Regex patterns mirror yt-dlp's `_youtube/_video.py` —
-// they've held stable across multiple YouTube changes because the
-// function shape (split → mutations → join) is structural and hasn't
-// shifted in years.
-//
-// The signature cipher protects "older" stream URLs: the response's
-// `signatureCipher` field carries an encoded signature `s`, an
-// encoded URL, and the query-string parameter name `sp` to attach
-// the decoded signature under. We extract the decoder from
-// player.js, run the encoded `s` through it, then attach the
-// result.
-//
-// See docs/youtube-kernel.md ("Phase 2") for context.
+// Signature decoder extraction; regex patterns mirror yt-dlp's
+// `_youtube/_video.py`. Structural split→mutate→join shape.
 
 use regex::Regex;
 
 use super::js_eval::CompiledJs;
 
-/// A signature decoder built from a single player.js source. Hold on
-/// to one of these per player.js (cached by hash) and call
-/// `decode_signature(s)` for every cipher you encounter.
 pub struct SignatureDecoder {
     js: CompiledJs,
     fn_name: String,
 }
 
 impl SignatureDecoder {
-    /// Try to build a signature decoder from a player.js blob.
-    /// Returns `Err` if either the entry function or its helper
-    /// object is missing — likely because YouTube tweaked player.js
-    /// in a way that breaks our regex (rare but does happen 1-2x
-    /// per year).
     pub fn from_player_js(player_js: &str) -> Result<Self, String> {
         let entry = extract_entry_function(player_js)?;
         let helper_obj_name = extract_helper_obj_name(&entry.body)
             .ok_or_else(|| "could not locate helper object name".to_string())?;
         let helper_obj_src = extract_helper_object(player_js, &helper_obj_name)?;
 
-        // Compose a tiny self-contained JS program: the helper
-        // object definition + the entry function. We always rename
-        // the entry to a known symbol (`__patotubeSig`) so the
-        // js_eval wrapper doesn't need to track YouTube's
-        // ever-changing variable names.
+        // Rename entry to `__patotubeSig` so js_eval doesn't need to
+        // track YouTube's ever-changing variable names.
         let composed = format!(
             "{helper_obj_src}\nvar __patotubeSig = {body};",
             helper_obj_src = helper_obj_src,
@@ -56,34 +33,22 @@ impl SignatureDecoder {
         })
     }
 
-    /// Decode an encoded signature value.
     pub fn decode(&mut self, encoded: &str) -> Result<String, String> {
         self.js.apply(encoded)
     }
 
-    /// Function name we registered into the JS context. Useful for
-    /// diagnostics; callers shouldn't need it for normal operation.
     pub fn function_name(&self) -> &str {
         &self.fn_name
     }
 }
 
-/// Bag of regex-extracted bits that describe the entry function.
 struct EntryFunction {
-    /// The `function(a){...}` expression, suitable for use as the
-    /// right-hand side of `var X = …;`.
     expression: String,
-    /// The function body alone — what's between the `{ }`. Used to
-    /// hunt for the helper-object name reference.
     body: String,
 }
 
-/// Match: `Tn=function(a){a=a.split("");Yn.helper1(a,33);...return a.join("")};`
-/// (or a `var Tn = function(...){...};` form). Captures the whole
-/// function expression.
 fn extract_entry_function(player_js: &str) -> Result<EntryFunction, String> {
-    // yt-dlp's pattern. Anchored on the split→join shape, which is
-    // the load-bearing structural invariant of the decoder.
+    // yt-dlp pattern, anchored on the split→join structural invariant.
     let re = Regex::new(
         r#"(?xs)
         (?:
@@ -121,28 +86,14 @@ fn extract_entry_function(player_js: &str) -> Result<EntryFunction, String> {
     })
 }
 
-/// The entry function's body always references a helper object
-/// holding the actual mutation primitives (reverse, slice, swap):
-/// `Yn.helper1(a, 33)`. This grabs the helper's variable name.
-///
-/// We require ≥2 chars for the captured name to skip over the
-/// `.split(`/`.join(` calls on the array variable itself, which
-/// minified code spells with a single-char identifier (`a.split`).
-/// YouTube has consistently named helper objects with 2-3 chars
-/// (`Hh`, `Yn`, `Tn`, ...) for years.
+// ≥2 chars on the captured name skips over `.split(`/`.join(` calls
+// on the array variable itself (single-char minified ident `a`).
+// YouTube helper objects have stayed at 2-3 chars (Hh, Yn, Tn) for years.
 fn extract_helper_obj_name(body: &str) -> Option<String> {
     let re = Regex::new(r"([a-zA-Z0-9_$]{2,})\.[a-zA-Z0-9_$]+\(").ok()?;
     re.captures(body).and_then(|c| c.get(1).map(|m| m.as_str().to_string()))
 }
 
-/// Match: `var Yn={r:function(a){...},s:function(a,b){...}};`
-///
-/// We use a non-greedy body (`.*?`) so it stops at the FIRST `};`
-/// closer rather than gobbling up subsequent statements. YouTube's
-/// helper objects don't contain nested braces in their function
-/// bodies (just simple array mutations like `.reverse()`,
-/// `.splice()`, swap), so a flat `.*?` is sufficient and far less
-/// fragile than a structural pattern.
 fn extract_helper_object(player_js: &str, name: &str) -> Result<String, String> {
     let escaped = regex::escape(name);
     let pattern = format!(
@@ -165,10 +116,6 @@ fn extract_helper_object(player_js: &str, name: &str) -> Result<String, String> 
 mod tests {
     use super::*;
 
-    /// A minimal synthetic player.js with the same shape as the real
-    /// one — entry function that splits, calls a helper object's
-    /// methods, then joins. Lets us test extraction + execution
-    /// without shipping a 2 MB fixture.
     const SYNTH_PLAYER_JS: &str = r#"
         // ... lots of YouTube code we don't care about ...
         var Hh={
