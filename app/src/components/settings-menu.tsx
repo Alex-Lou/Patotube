@@ -22,12 +22,16 @@ import { useSettings } from '@/lib/core/settings';
 import { AUDIO_BITRATES, DEFAULT_AUDIO_BITRATE, VIDEO_QUALITIES } from '@/lib/core/formats';
 import type { AudioBitrate, VideoQuality } from '@/lib/core/types';
 import { isAndroid } from '@/lib/android/bridge';
+import pkg from '../../package.json';
 
 // Several rows hidden on Android: native extractor writes to /sdcard/Download,
 // no updater plugin, no audio bitrate (MediaExtractor remux).
 
 const REPO_URL = 'https://github.com/Alex-Lou/Patotube';
-const APP_VERSION = '0.2.0';
+// Sourced from package.json so we never desync the displayed
+// version from what's actually shipping. Vite resolves JSON
+// imports natively.
+const APP_VERSION = pkg.version;
 
 export function SettingsMenu(_props: { onAfterAction?: () => void }) {
   const { t } = useTranslation();

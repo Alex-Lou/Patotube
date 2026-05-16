@@ -47,6 +47,9 @@ release-assets/
 # (The public key lives in tauri.conf.json instead.)
 .keys/
 **/.keys/
+**/.tauri/
+**/updater.key
+**/updater.key.pub
 
 # Test coverage
 coverage/
