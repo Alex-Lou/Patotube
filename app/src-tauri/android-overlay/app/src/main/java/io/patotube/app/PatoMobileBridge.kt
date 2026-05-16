@@ -25,6 +25,7 @@
 package io.patotube.app
 
 import android.content.Context
+import android.os.PowerManager
 import android.util.Log
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
@@ -70,10 +71,44 @@ class PatoMobileBridge(
 
     /** Called by JS on every `<video>` play/pause/ended event. Lets
      *  the Kotlin side know whether to keep the WebView alive in
-     *  background and whether to enter PiP on home-press. */
+     *  background and whether to enter PiP on home-press. Also
+     *  holds a PARTIAL_WAKE_LOCK while playing so the CPU stays
+     *  awake when the screen turns off (otherwise Android suspends
+     *  the WebView render thread and audio cuts mid-track). */
     @JavascriptInterface
     fun setMediaPlaying(playing: Boolean) {
         isMediaPlaying = playing
+        if (playing) acquireWakeLock() else releaseWakeLock()
+    }
+
+    private var wakeLock: PowerManager.WakeLock? = null
+
+    private fun acquireWakeLock() {
+        if (wakeLock?.isHeld == true) return
+        try {
+            val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+            wakeLock = pm.newWakeLock(
+                PowerManager.PARTIAL_WAKE_LOCK,
+                "Patotube:MediaPlayback",
+            ).apply {
+                setReferenceCounted(false)
+                // 4h safety cap — release on its own if JS forgets to
+                // call setMediaPlaying(false), e.g. page reload mid-play.
+                acquire(4L * 60L * 60L * 1000L)
+            }
+        } catch (t: Throwable) {
+            Log.w(TAG, "wake lock acquire failed", t)
+        }
+    }
+
+    private fun releaseWakeLock() {
+        val wl = wakeLock ?: return
+        try {
+            if (wl.isHeld) wl.release()
+        } catch (t: Throwable) {
+            Log.w(TAG, "wake lock release failed", t)
+        }
+        wakeLock = null
     }
 
     @JavascriptInterface

@@ -36,7 +36,21 @@ class MainActivity : TauriActivity() {
    */
   override fun onPause() {
     super.onPause()
-    liveWebView?.onResume()
+    if (PatoMobileBridge.isMediaPlaying) liveWebView?.onResume()
+  }
+
+  /**
+   * Mirrors onPause for the "screen turned off" case. Android fires
+   * onStop after onPause when the activity is no longer visible —
+   * which is exactly what happens when the user locks the phone
+   * with PiP active or the app in background. The PARTIAL_WAKE_LOCK
+   * (held by PatoMobileBridge while playing) keeps the CPU awake;
+   * webView.onResume here keeps the render thread + audio decoder
+   * actually pumping.
+   */
+  override fun onStop() {
+    super.onStop()
+    if (PatoMobileBridge.isMediaPlaying) liveWebView?.onResume()
   }
 
   /**
