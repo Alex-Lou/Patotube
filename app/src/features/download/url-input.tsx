@@ -58,10 +58,26 @@ export function UrlInput({ onResolved }: UrlInputProps) {
   const [playing, setPlaying] = useState<SearchResult | null>(null);
   const [downloadFromPlayer, setDownloadFromPlayer] = useState<SearchResult | null>(null);
 
-  // Raw value may be share-sheet text wrapping the URL.
-  const looksLikeUrl = validateUrl(value).ok;
-  const platform = value.trim() && looksLikeUrl ? detectPlatform(extractFirstUrl(value)) : null;
-  const isSearchMode = value.trim().length >= SEARCH_MIN_LENGTH && !looksLikeUrl;
+  // Strict URL detection: the whole trimmed value must parse as an
+  // http(s) URL. We deliberately DON'T use validateUrl() here — it
+  // calls extractFirstUrl() which fishes a URL out of surrounding
+  // prose, and that wrecks the search/URL switch: typing "metal"
+  // in front of a pasted URL would still register as URL mode and
+  // skip the keyword search. The paste handler already strips the
+  // prose for us, so by the time `value` holds an URL it's already
+  // clean.
+  const trimmed = value.trim();
+  const looksLikeUrl = (() => {
+    if (!trimmed) return false;
+    try {
+      const u = new URL(trimmed);
+      return u.protocol === 'http:' || u.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  })();
+  const platform = trimmed && looksLikeUrl ? detectPlatform(trimmed) : null;
+  const isSearchMode = trimmed.length >= SEARCH_MIN_LENGTH && !looksLikeUrl;
 
   // Bumped on every keystroke; the in-flight search compares its
   // captured id to the current ref to drop stale responses.
