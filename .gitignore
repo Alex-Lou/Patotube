@@ -57,3 +57,4 @@ coverage/
 # Temp
 *.tmp
 .cache/
+release-final/
