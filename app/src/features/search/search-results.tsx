@@ -143,8 +143,13 @@ export function SearchResults({ results, loading, error, onPick, onPlay }: Searc
                   {formatDuration(r.durationSeconds)}
                 </span>
               )}
-              <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition group-hover/play:bg-black/40 group-hover/play:opacity-100">
-                <Play className="size-7 text-white drop-shadow" fill="currentColor" />
+              {/* Always-visible play hint — tells the user the thumbnail
+                  is the preview affordance (rest of the row = download).
+                  Brightens on hover for desktop feedback. */}
+              <div className="absolute inset-0 flex items-center justify-center bg-black/15 transition group-hover/play:bg-black/40">
+                <span className="flex size-9 items-center justify-center rounded-full bg-black/55 backdrop-blur-sm transition group-hover/play:bg-black/70 group-hover/play:scale-110">
+                  <Play className="size-4 text-white drop-shadow translate-x-px" fill="currentColor" />
+                </span>
               </div>
             </button>
 
