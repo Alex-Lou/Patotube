@@ -69,16 +69,23 @@ class PatoMobileBridge(
         return current
     }
 
-    /** Called by JS on every `<video>` play/pause/ended event. Lets
-     *  the Kotlin side know whether to keep the WebView alive in
-     *  background and whether to enter PiP on home-press. Also
-     *  holds a PARTIAL_WAKE_LOCK while playing so the CPU stays
-     *  awake when the screen turns off (otherwise Android suspends
-     *  the WebView render thread and audio cuts mid-track). */
+    /** Called by JS on every `<video>` play/pause/ended event. Three
+     *  things on the Kotlin side keep playback alive in background:
+     *    1. PARTIAL_WAKE_LOCK so the CPU doesn't sleep
+     *    2. MediaPlaybackService (foreground with notification) so
+     *       Android keeps the WebView alive when the screen is off
+     *    3. The `isMediaPlaying` flag is read by MainActivity for
+     *       Picture-in-Picture decisions and onPause/onStop logic. */
     @JavascriptInterface
     fun setMediaPlaying(playing: Boolean) {
         isMediaPlaying = playing
-        if (playing) acquireWakeLock() else releaseWakeLock()
+        if (playing) {
+            acquireWakeLock()
+            MediaPlaybackService.start(context)
+        } else {
+            releaseWakeLock()
+            MediaPlaybackService.stop(context)
+        }
     }
 
     private var wakeLock: PowerManager.WakeLock? = null
