@@ -1,8 +1,13 @@
 package io.patotube.app
 
+import android.app.PictureInPictureParams
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.util.Rational
 import android.webkit.WebView
 import androidx.activity.enableEdgeToEdge
 import org.json.JSONObject
@@ -17,6 +22,58 @@ class MainActivity : TauriActivity() {
     super.onCreate(savedInstanceState)
     intent?.let { capturePendingIntent(it) }
   }
+
+  /**
+   * Keep WebView audio + video alive when the user backgrounds the
+   * app while playing something. Without this Tauri / WebView
+   * suspends media playback on home-press / app-switch / split-screen.
+   *
+   * Counter-acting `super.onPause()` is enough because Android's
+   * default behaviour is "pause the WebView render thread"; we call
+   * `onResume()` immediately to reawaken it so the <video> element
+   * keeps decoding and playing. CPU cost is negligible when the page
+   * is idle (no video playing).
+   */
+  override fun onPause() {
+    super.onPause()
+    liveWebView?.onResume()
+  }
+
+  /**
+   * Home-press / multitask while media is playing: slip into
+   * Picture-in-Picture so the player floats above other apps
+   * instead of freezing. Silent no-op on devices that don't support
+   * PiP or when nothing's currently playing.
+   */
+  override fun onUserLeaveHint() {
+    super.onUserLeaveHint()
+    if (!pipSupported() || !PatoMobileBridge.isMediaPlaying) return
+    try {
+      val params = PictureInPictureParams.Builder()
+        .setAspectRatio(Rational(16, 9))
+        .build()
+      enterPictureInPictureMode(params)
+    } catch (_: IllegalStateException) {
+      // Some launchers (Samsung One UI) advertise PiP support then
+      // refuse at runtime. Silent fallback: app just runs in BG.
+    }
+  }
+
+  override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
+    super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+    // Notify the JS layer so the player UI can hide its custom
+    // controls overlay in PiP (system-drawn PiP controls take over).
+    liveWebView?.post {
+      liveWebView?.evaluateJavascript(
+        "window.__patotubeOnPip && window.__patotubeOnPip($isInPictureInPictureMode);",
+        null,
+      )
+    }
+  }
+
+  private fun pipSupported(): Boolean =
+    Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+      packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
 
   override fun onNewIntent(intent: Intent) {
     super.onNewIntent(intent)

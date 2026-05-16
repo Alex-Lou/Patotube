@@ -48,6 +48,13 @@ class PatoMobileBridge(
          *  `{"kind":"open-file","path":"…"}`. */
         @Volatile
         var pendingIntent: String? = null
+
+        /** Tracked from JS via `setMediaPlaying(true/false)`. Read
+         *  by MainActivity.onUserLeaveHint to decide whether to
+         *  slip into Picture-in-Picture when the user backgrounds
+         *  the app. */
+        @Volatile
+        var isMediaPlaying: Boolean = false
     }
 
     /** Read-and-clear access to the cross-thread pending intent.
@@ -59,6 +66,14 @@ class PatoMobileBridge(
         val current = pendingIntent
         pendingIntent = null
         return current
+    }
+
+    /** Called by JS on every `<video>` play/pause/ended event. Lets
+     *  the Kotlin side know whether to keep the WebView alive in
+     *  background and whether to enter PiP on home-press. */
+    @JavascriptInterface
+    fun setMediaPlaying(playing: Boolean) {
+        isMediaPlaying = playing
     }
 
     @JavascriptInterface

@@ -2,7 +2,7 @@
 // asset:// silently fails on Android system WebViews, so we read bytes
 // through the PatoMobile bridge and feed a Blob URL instead.
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import {
@@ -15,6 +15,7 @@ import {
   isAndroid as isAndroidPlatform,
   hasNativeBridge,
   readAsBlobUrl,
+  bindMediaPlaybackNative,
 } from '@/lib/android/bridge';
 import { usePlayerStore } from './player-store';
 
@@ -44,6 +45,10 @@ export function FilePlayerDialog() {
   const close = usePlayerStore((s) => s.close);
   const [src, setSrc] = useState<string>('');
   const [errored, setErrored] = useState(false);
+  const mediaRef = useRef<HTMLVideoElement | HTMLAudioElement | null>(null);
+
+  // Wire native bridge so Android keeps audio/video alive in BG.
+  useEffect(() => bindMediaPlaybackNative(mediaRef.current), [src]);
 
   useEffect(() => {
     if (!entry) {
@@ -108,6 +113,7 @@ export function FilePlayerDialog() {
             ) : src ? (
               entry.mimeKind === 'video' ? (
                 <video
+                  ref={mediaRef as React.RefObject<HTMLVideoElement>}
                   src={src}
                   controls
                   autoPlay
@@ -119,6 +125,7 @@ export function FilePlayerDialog() {
                 />
               ) : (
                 <audio
+                  ref={mediaRef as React.RefObject<HTMLAudioElement>}
                   src={src}
                   controls
                   autoPlay
