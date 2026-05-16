@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Download, ExternalLink, Loader2, AlertTriangle } from 'lucide-react';
 import {
@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { getTauri, isTauri, type SearchResult } from '@/lib/tauri/bindings';
+import { bindMediaPlaybackNative } from '@/lib/android/bridge';
 
 // Build the `<video>` src. In Tauri we go through the custom URI
 // scheme so Rust can replay the matching client User-Agent (the
@@ -52,6 +53,11 @@ type FetchState =
 export function SearchPlayerDialog({ result, onClose, onDownload }: SearchPlayerDialogProps) {
   const { t } = useTranslation();
   const [state, setState] = useState<FetchState>({ kind: 'loading' });
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Hook native bridge so Android keeps audio alive in background
+  // and can slip into Picture-in-Picture on home-press.
+  useEffect(() => bindMediaPlaybackNative(videoRef.current), [state.kind]);
 
   useEffect(() => {
     if (!result) return;
@@ -105,6 +111,7 @@ export function SearchPlayerDialog({ result, onClose, onDownload }: SearchPlayer
               )}
               {state.kind === 'ready' && (
                 <video
+                  ref={videoRef}
                   key={state.src}
                   src={state.src}
                   controls

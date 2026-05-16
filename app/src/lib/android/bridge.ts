@@ -15,6 +15,10 @@ interface PatoMobileBridge {
   readFileBase64(path: string): string | null;
   // Calls window.__patotubeFFmpegCallback(id, { error }) on completion (error === "" on success).
   remuxAudioOnly(srcPath: string, dstPath: string, callbackId: number): void;
+  /** Lets Kotlin know if a <video>/<audio> element is currently
+   *  playing — keeps the WebView alive in background and triggers
+   *  Picture-in-Picture on home-press. */
+  setMediaPlaying(playing: boolean): void;
 }
 
 interface BridgeCallbackResult {
@@ -32,6 +36,10 @@ declare global {
     __patotubeFFmpegCallback?: (id: number, result: BridgeCallbackResult) => void;
     /** Push hook called by Kotlin after parking a fresh pending intent. */
     __patotubeOnIntent?: () => void;
+    /** Called by Kotlin when the activity enters/leaves PiP — players
+     *  can use this to hide their custom overlay controls (the
+     *  system draws its own in PiP). */
+    __patotubeOnPip?: (inPip: boolean) => void;
   }
 }
 
@@ -85,6 +93,40 @@ export function readAsBlobUrl(path: string, mime: string): string | null {
   } catch {
     return null;
   }
+}
+
+/** Notify the Kotlin side that a <video>/<audio> element changed
+ *  playing state. Used to keep the WebView alive in background +
+ *  trigger Picture-in-Picture on home-press. Silent no-op when the
+ *  native bridge isn't present (desktop / browser preview). */
+export function setMediaPlayingNative(playing: boolean): void {
+  try {
+    window.PatoMobile?.setMediaPlaying?.(playing);
+  } catch {
+    /* old APKs without this binding — silent fallback */
+  }
+}
+
+/** Attach play/pause/ended listeners to a <video> so the native
+ *  bridge knows when media is live. Returns a cleanup function
+ *  for the React effect's return value. */
+export function bindMediaPlaybackNative(video: HTMLMediaElement | null): () => void {
+  if (!video || !isAndroid()) return () => {};
+  const onPlay = () => setMediaPlayingNative(true);
+  const onPause = () => setMediaPlayingNative(false);
+  video.addEventListener('play', onPlay);
+  video.addEventListener('playing', onPlay);
+  video.addEventListener('pause', onPause);
+  video.addEventListener('ended', onPause);
+  video.addEventListener('emptied', onPause);
+  return () => {
+    setMediaPlayingNative(false);
+    video.removeEventListener('play', onPlay);
+    video.removeEventListener('playing', onPlay);
+    video.removeEventListener('pause', onPause);
+    video.removeEventListener('ended', onPause);
+    video.removeEventListener('emptied', onPause);
+  };
 }
 
 export function openDownloadsFolderNative(): boolean {
