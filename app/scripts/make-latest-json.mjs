@@ -20,39 +20,53 @@ const pkg = JSON.parse(readFileSync(resolve(repoRoot, 'app', 'package.json'), 'u
 const version = pkg.version;
 
 const tauriBundleDir = resolve(repoRoot, 'app', 'src-tauri', 'target', 'release', 'bundle');
-const setupExe = resolve(tauriBundleDir, 'nsis', `Patotube_${version}_x64-setup.exe`);
-const setupSig = `${setupExe}.sig`;
-
-if (!existsSync(setupExe)) {
-  console.error(`Missing installer: ${setupExe}`);
-  console.error('Run `pnpm tauri build` first.');
-  process.exit(1);
-}
-if (!existsSync(setupSig)) {
-  console.error(`Missing signature: ${setupSig}`);
-  console.error('Make sure TAURI_SIGNING_PRIVATE_KEY was set during the build.');
-  process.exit(1);
-}
-
-const signature = readFileSync(setupSig, 'utf8').trim();
 
 const releaseUrl = (asset) =>
   `https://github.com/Alex-Lou/Patotube/releases/download/v${version}/${asset}`;
+
+// Platform → bundle path under target/release/bundle/.
+const targets = {
+  'windows-x86_64': {
+    bundle: resolve(tauriBundleDir, 'nsis', `Patotube_${version}_x64-setup.exe`),
+    asset: `Patotube_${version}_x64-setup.exe`,
+  },
+  'linux-x86_64': {
+    bundle: resolve(tauriBundleDir, 'appimage', `Patotube_${version}_amd64.AppImage`),
+    asset: `Patotube_${version}_amd64.AppImage`,
+  },
+};
+
+const platforms = {};
+for (const [name, { bundle, asset }] of Object.entries(targets)) {
+  const sig = `${bundle}.sig`;
+  if (!existsSync(bundle)) {
+    console.warn(`> skip ${name}: missing ${bundle}`);
+    continue;
+  }
+  if (!existsSync(sig)) {
+    console.warn(`> skip ${name}: missing ${sig} (run with TAURI_SIGNING_PRIVATE_KEY set)`);
+    continue;
+  }
+  platforms[name] = {
+    signature: readFileSync(sig, 'utf8').trim(),
+    url: releaseUrl(asset),
+  };
+  console.log(`> ${name}: ${asset}`);
+}
+
+if (Object.keys(platforms).length === 0) {
+  console.error('No signed bundles found. Run the build with TAURI_SIGNING_PRIVATE_KEY set.');
+  process.exit(1);
+}
 
 const manifest = {
   version,
   notes: process.env.RELEASE_NOTES ?? `Patotube v${version}`,
   pub_date: new Date().toISOString(),
-  platforms: {
-    'windows-x86_64': {
-      signature,
-      url: releaseUrl(`Patotube_${version}_x64-setup.exe`),
-    },
-  },
+  platforms,
 };
 
 const out = resolve(repoRoot, 'release-assets', 'latest.json');
 writeFileSync(out, JSON.stringify(manifest, null, 2) + '\n');
 console.log(`> wrote ${out}`);
 console.log(`> version: ${version}`);
-console.log(`> sig length: ${signature.length} chars`);
