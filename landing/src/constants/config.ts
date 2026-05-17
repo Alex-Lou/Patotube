@@ -1,6 +1,6 @@
 // Single source of truth for the landing — bump APP_VERSION on each release (download URLs and GitHub API URL derive from it).
 
-export const APP_VERSION = '0.6.5';
+export const APP_VERSION = '0.6.6';
 
 export const GITHUB_OWNER = 'Alex-Lou';
 export const GITHUB_REPO = 'Patotube';
