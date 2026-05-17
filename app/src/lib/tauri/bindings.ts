@@ -102,9 +102,37 @@ async function mockApi(): Promise<TauriApi> {
   return mockTauri();
 }
 
-let cached: Promise<TauriApi> | null = null;
+// CRITICAL: don't snapshot `isTauri()` synchronously the first time
+// getTauri() is called. On Android cold start the WebView may run
+// our scripts before Tauri's `window.__TAURI_INTERNALS__` injection
+// lands — `isTauri()` returns false, mockApi gets cached forever,
+// every fetch / search / startDownload silently goes through the
+// browser-preview mock and the user sees fake results that won't
+// react to interaction (was the "search broken on first launch"
+// bug). We wait up to 3 s for the bridge to appear before falling
+// back to mock, and we only cache the REAL api permanently — mock
+// is returned without caching so a late-arriving bridge can take
+// over on the next call.
+let realCached: Promise<TauriApi> | null = null;
 
-export function getTauri(): Promise<TauriApi> {
-  if (!cached) cached = isTauri() ? realApi() : mockApi();
-  return cached;
+async function waitForTauri(maxMs = 3000): Promise<boolean> {
+  if (isTauri()) return true;
+  const start = Date.now();
+  while (Date.now() - start < maxMs) {
+    await new Promise((r) => setTimeout(r, 30));
+    if (isTauri()) return true;
+  }
+  return false;
+}
+
+export async function getTauri(): Promise<TauriApi> {
+  if (realCached) return realCached;
+  const ready = await waitForTauri();
+  if (ready) {
+    realCached = realApi();
+    return realCached;
+  }
+  // Genuine browser-preview mode (Vite dev, no Tauri). Return mock
+  // but DON'T cache — if Tauri injects later we'll switch over.
+  return mockApi();
 }
