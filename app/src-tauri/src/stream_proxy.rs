@@ -36,6 +36,20 @@ struct CacheEntry {
 
 static CACHE: Lazy<DashMap<String, CacheEntry>> = Lazy::new(DashMap::new);
 
+// Shared HTTP client — connection pooling + DNS cache survive
+// across the chatty Range requests a <video> tag fires.
+static HTTP_CLIENT: Lazy<reqwest::Client> = Lazy::new(|| {
+    reqwest::Client::builder()
+        .pool_idle_timeout(Duration::from_secs(30))
+        .pool_max_idle_per_host(8)
+        // Generous total timeout per request — large chunks on a
+        // slow link can take a while. Connect timeout is shorter.
+        .timeout(Duration::from_secs(20))
+        .connect_timeout(Duration::from_secs(8))
+        .build()
+        .expect("http client")
+});
+
 pub async fn handle(request: Request<Vec<u8>>) -> Response<Vec<u8>> {
     if request.method() == Method::OPTIONS {
         return cors_preflight();
@@ -46,67 +60,92 @@ pub async fn handle(request: Request<Vec<u8>>) -> Response<Vec<u8>> {
         None => return error(StatusCode::BAD_REQUEST, "missing video id"),
     };
 
-    let stream = match get_or_resolve(&video_id).await {
-        Ok(s) => s,
-        Err(e) => return error(StatusCode::BAD_GATEWAY, &format!("resolve: {e}")),
-    };
+    let range_header: Option<String> = request
+        .headers()
+        .get(header::RANGE)
+        .and_then(|v| v.to_str().ok())
+        .map(String::from);
 
-    let client = match reqwest::Client::builder()
-        .user_agent(&stream.user_agent)
-        .build()
-    {
-        Ok(c) => c,
-        Err(e) => return error(StatusCode::INTERNAL_SERVER_ERROR, &format!("client: {e}")),
-    };
-
-    let mut upstream = client.get(&stream.url);
-    if let Some(range) = request.headers().get(header::RANGE) {
-        if let Ok(v) = range.to_str() {
-            upstream = upstream.header(header::RANGE, v);
-        }
-    }
-
-    let resp = match upstream.send().await {
-        Ok(r) => r,
-        Err(e) => {
-            // Force a re-resolve on the next try — the cached URL
-            // may have expired or been invalidated server-side.
+    // Try up to twice: first with whatever's cached, then force a
+    // fresh resolve if the upstream fails (transient drop, expired
+    // signed URL, googlevideo rotated the host, etc.). This is what
+    // a <video> tag bouncing in and out of PiP / background trips
+    // most often — keeps the pipeline error message off the screen.
+    let mut last_error: String = String::from("unreached");
+    for attempt in 0..2 {
+        if attempt == 1 {
+            // Drop the cache so get_or_resolve goes back to the
+            // YouTube player API for a fresh signed URL.
             CACHE.remove(&video_id);
-            return error(StatusCode::BAD_GATEWAY, &format!("upstream: {e}"));
         }
-    };
 
-    let status = resp.status();
-    let mut builder = Response::builder().status(status.as_u16());
+        let stream = match get_or_resolve(&video_id).await {
+            Ok(s) => s,
+            Err(e) => {
+                last_error = format!("resolve: {e}");
+                continue;
+            }
+        };
 
-    for (k, v) in resp.headers() {
-        let name = k.as_str().to_ascii_lowercase();
-        if matches!(
-            name.as_str(),
-            "content-type"
-                | "content-length"
-                | "content-range"
-                | "accept-ranges"
-                | "last-modified"
-                | "etag"
-                | "cache-control"
-        ) {
-            builder = builder.header(k.clone(), v.clone());
+        let mut req = HTTP_CLIENT
+            .get(&stream.url)
+            .header(header::USER_AGENT, &stream.user_agent);
+        if let Some(ref v) = range_header {
+            req = req.header(header::RANGE, v);
         }
+
+        let resp = match req.send().await {
+            Ok(r) => r,
+            Err(e) => {
+                last_error = format!("upstream: {e}");
+                continue;
+            }
+        };
+
+        let status = resp.status();
+        // 403 / 410 / 5xx from googlevideo typically mean the URL
+        // expired or the CDN node rotated. Re-resolve and retry.
+        if status == StatusCode::FORBIDDEN
+            || status == StatusCode::GONE
+            || status.is_server_error()
+        {
+            last_error = format!("upstream status {status}");
+            continue;
+        }
+
+        let mut builder = Response::builder().status(status.as_u16());
+        for (k, v) in resp.headers() {
+            let name = k.as_str().to_ascii_lowercase();
+            if matches!(
+                name.as_str(),
+                "content-type"
+                    | "content-length"
+                    | "content-range"
+                    | "accept-ranges"
+                    | "last-modified"
+                    | "etag"
+                    | "cache-control"
+            ) {
+                builder = builder.header(k.clone(), v.clone());
+            }
+        }
+        builder = builder.header(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*");
+        builder = builder.header(header::ACCESS_CONTROL_ALLOW_HEADERS, "Range");
+
+        let body = match resp.bytes().await {
+            Ok(b) => b.to_vec(),
+            Err(e) => {
+                last_error = format!("body: {e}");
+                continue;
+            }
+        };
+
+        return builder
+            .body(body)
+            .unwrap_or_else(|_| error(StatusCode::INTERNAL_SERVER_ERROR, "build response"));
     }
-    // Same-origin from the WebView's perspective, but some browsers
-    // still gate `<video>` behind a permissive CORS header.
-    builder = builder.header(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*");
-    builder = builder.header(header::ACCESS_CONTROL_ALLOW_HEADERS, "Range");
 
-    let body = match resp.bytes().await {
-        Ok(b) => b.to_vec(),
-        Err(e) => return error(StatusCode::BAD_GATEWAY, &format!("body: {e}")),
-    };
-
-    builder
-        .body(body)
-        .unwrap_or_else(|_| error(StatusCode::INTERNAL_SERVER_ERROR, "build response"))
+    error(StatusCode::BAD_GATEWAY, &last_error)
 }
 
 fn extract_video_id(request: &Request<Vec<u8>>) -> Option<String> {

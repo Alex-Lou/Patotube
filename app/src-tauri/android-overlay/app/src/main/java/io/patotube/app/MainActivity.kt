@@ -24,33 +24,32 @@ class MainActivity : TauriActivity() {
   }
 
   /**
-   * Keep WebView audio + video alive when the user backgrounds the
-   * app while playing something. Without this Tauri / WebView
-   * suspends media playback on home-press / app-switch / split-screen.
-   *
-   * Counter-acting `super.onPause()` is enough because Android's
-   * default behaviour is "pause the WebView render thread"; we call
-   * `onResume()` immediately to reawaken it so the <video> element
-   * keeps decoding and playing. CPU cost is negligible when the page
-   * is idle (no video playing).
+   * Keep WebView alive in background while media is playing. Calling
+   * webView.onResume() right after super pauses it cancels Tauri's
+   * default WebView.onPause(). Idempotent when nothing's playing —
+   * we just leave it in the default paused state.
    */
   override fun onPause() {
     super.onPause()
     if (PatoMobileBridge.isMediaPlaying) liveWebView?.onResume()
   }
 
-  /**
-   * Mirrors onPause for the "screen turned off" case. Android fires
-   * onStop after onPause when the activity is no longer visible —
-   * which is exactly what happens when the user locks the phone
-   * with PiP active or the app in background. The PARTIAL_WAKE_LOCK
-   * (held by PatoMobileBridge while playing) keeps the CPU awake;
-   * webView.onResume here keeps the render thread + audio decoder
-   * actually pumping.
-   */
   override fun onStop() {
     super.onStop()
     if (PatoMobileBridge.isMediaPlaying) liveWebView?.onResume()
+  }
+
+  /**
+   * ALWAYS resume the WebView when the activity returns to the
+   * foreground. Tauri's TauriActivity.onResume doesn't always
+   * un-pause the WebView itself — that's how the search-box would
+   * appear to freeze the next time the app was brought back: the
+   * JS context is still there but the WebView's render thread is
+   * paused, so onChange/onClick events never fire.
+   */
+  override fun onResume() {
+    super.onResume()
+    liveWebView?.onResume()
   }
 
   /**

@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Patotube",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "identifier": "io.patotube.app",
   "build": {
     "frontendDist": "../dist",
