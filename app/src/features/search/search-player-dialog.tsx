@@ -9,7 +9,11 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { getTauri, isTauri, type SearchResult } from '@/lib/tauri/bindings';
-import { bindMediaPlaybackNative, bindVideoBoundsNative } from '@/lib/android/bridge';
+import {
+  bindMediaPlaybackNative,
+  bindVideoBoundsNative,
+  bindBackgroundAudioNative,
+} from '@/lib/android/bridge';
 
 // Build the `<video>` src. In Tauri we go through the custom URI
 // scheme so Rust can replay the matching client User-Agent (the
@@ -61,6 +65,23 @@ export function SearchPlayerDialog({ result, onClose, onDownload }: SearchPlayer
   // Feed real video dimensions + on-screen rect to Kotlin → PiP
   // matches the actual aspect ratio and animates from this spot.
   useEffect(() => bindVideoBoundsNative(videoRef.current), [state.kind]);
+  // Screen-lock hand-off: when the document goes hidden, Kotlin
+  // takes over audio with a native MediaPlayer (the WebView is
+  // suspended by Android no matter what we do). On return → back
+  // to the WebView decoder. This is what makes "play music with
+  // the screen off" actually work — same trick as VLC.
+  useEffect(() => {
+    if (state.kind !== 'ready' || !result) return;
+    return bindBackgroundAudioNative({
+      video: videoRef.current,
+      videoId: result.videoId,
+      title: result.title,
+      getNativeStream: async (videoId) => {
+        const api = await getTauri();
+        return api.getYoutubeNativeStream(videoId);
+      },
+    });
+  }, [state.kind, result]);
 
   useEffect(() => {
     if (!result) return;

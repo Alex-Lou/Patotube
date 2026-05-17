@@ -158,3 +158,23 @@ pub async fn search_youtube(
 pub async fn get_youtube_stream_url(video_id: String) -> Result<String, String> {
     crate::youtube_kernel::stream_url::fetch_combined_stream(&video_id).await
 }
+
+#[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NativeStreamInfo {
+    pub url: String,
+    /// Mandatory: googlevideo signs URLs against the client UA. The
+    /// Android-native MediaPlayer that takes over playback when the
+    /// screen locks MUST replay this exact header, otherwise the CDN
+    /// returns 403 on the very first byte range.
+    pub user_agent: String,
+}
+
+#[tauri::command]
+pub async fn get_youtube_native_stream(video_id: String) -> Result<NativeStreamInfo, String> {
+    let s = crate::youtube_kernel::stream_url::resolve(&video_id).await?;
+    Ok(NativeStreamInfo {
+        url: s.url,
+        user_agent: s.user_agent,
+    })
+}

@@ -113,6 +113,22 @@ class PatoMobileBridge(
         }
     }
 
+    /** Hand off playback from the WebView to a native Android
+     *  MediaPlayer. Triggered by JS on visibilitychange='hidden'
+     *  (screen lock / app fully backgrounded) — the WebView would
+     *  otherwise suspend its audio decoder, taking the sound with
+     *  it. The native player keeps streaming until JS reclaims
+     *  control via stopBackgroundAudio. */
+    @JavascriptInterface
+    fun startBackgroundAudio(url: String, userAgent: String, title: String, positionMs: Int) {
+        MediaPlaybackService.startBackgroundAudio(context, url, userAgent, title, positionMs)
+    }
+
+    @JavascriptInterface
+    fun stopBackgroundAudio() {
+        MediaPlaybackService.stopBackgroundAudio(context)
+    }
+
     private var wakeLock: PowerManager.WakeLock? = null
 
     private fun acquireWakeLock() {

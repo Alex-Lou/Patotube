@@ -81,6 +81,7 @@ pub fn run() {
             commands::show_in_folder,
             commands::search_youtube,
             commands::get_youtube_stream_url,
+            commands::get_youtube_native_stream,
             files::list_downloads,
             files::delete_download,
         ])
