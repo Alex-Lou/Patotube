@@ -30,6 +30,14 @@ interface PatoMobileBridge {
     ratioW: number,
     ratioH: number,
   ): void;
+  /** VLC-style hand-off: when the screen locks the WebView's audio
+   *  decoder is suspended by Android. JS calls this to ask the
+   *  service to keep streaming the same source via a native
+   *  MediaPlayer, seeking to where the WebView left off. The UA
+   *  must match the one Rust used to resolve the URL (googlevideo
+   *  signs URLs against the client UA). */
+  startBackgroundAudio(url: string, userAgent: string, title: string, positionMs: number): void;
+  stopBackgroundAudio(): void;
 }
 
 interface BridgeCallbackResult {
@@ -137,6 +145,65 @@ export function bindMediaPlaybackNative(video: HTMLMediaElement | null): () => v
     video.removeEventListener('pause', onPause);
     video.removeEventListener('ended', onPause);
     video.removeEventListener('emptied', onPause);
+  };
+}
+
+/** Wire up the screen-lock audio hand-off for an HTMLVideoElement.
+ *  When the document goes hidden (lock / app switch / PiP > lock),
+ *  fetch the upstream stream URL + matching UA from the Rust
+ *  kernel and hand it to the native service so Android's
+ *  MediaPlayer keeps the audio going (the WebView's own decoder
+ *  is suspended by Android in that case, no way around it). On
+ *  return to visible, native pauses and the WebView resumes.
+ *
+ *  Returns a cleanup function for React's useEffect. */
+export function bindBackgroundAudioNative(params: {
+  video: HTMLVideoElement | null;
+  videoId: string | null;
+  title: string;
+  getNativeStream: (videoId: string) => Promise<{ url: string; userAgent: string }>;
+}): () => void {
+  const { video, videoId, title, getNativeStream } = params;
+  if (!video || !videoId || !isAndroid()) return () => {};
+
+  let bgActive = false;
+  let originalMuted = video.muted;
+
+  const handoffOut = async () => {
+    if (bgActive) return;
+    // Don't hand off if the user explicitly paused.
+    if (video.paused) return;
+    try {
+      const stream = await getNativeStream(videoId);
+      const posMs = Math.floor(video.currentTime * 1000);
+      window.PatoMobile?.startBackgroundAudio?.(stream.url, stream.userAgent, title, posMs);
+      bgActive = true;
+      originalMuted = video.muted;
+      // Belt-and-suspenders: even though the WebView audio decoder
+      // gets suspended on screen-off, mute the element so we don't
+      // hear a double-track in any transient window.
+      video.muted = true;
+    } catch {
+      /* keep the WebView going as best it can — silent */
+    }
+  };
+
+  const handoffBack = () => {
+    if (!bgActive) return;
+    window.PatoMobile?.stopBackgroundAudio?.();
+    bgActive = false;
+    video.muted = originalMuted;
+  };
+
+  const onVisChange = () => {
+    if (document.visibilityState === 'hidden') void handoffOut();
+    else handoffBack();
+  };
+
+  document.addEventListener('visibilitychange', onVisChange);
+  return () => {
+    document.removeEventListener('visibilitychange', onVisChange);
+    handoffBack();
   };
 }
 

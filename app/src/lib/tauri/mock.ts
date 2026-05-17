@@ -74,6 +74,13 @@ export function mockTauri(): TauriApi {
       void videoId;
       return 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
     },
+    async getYoutubeNativeStream(videoId: string) {
+      void videoId;
+      return {
+        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+        userAgent: 'Mozilla/5.0',
+      };
+    },
     async searchYoutube(query: string, limit: number) {
       await sleep(350);
       const q = query.trim();
