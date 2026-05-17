@@ -80,6 +80,17 @@ class MainActivity : TauriActivity() {
     }
   }
 
+  /** User explicitly clicked "Floating window" in the player UI. */
+  fun enterPipNow() {
+    if (!pipSupported()) return
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && isInPictureInPictureMode) return
+    try {
+      enterPictureInPictureMode(buildPipParams())
+    } catch (_: IllegalStateException) {
+      /* Some launchers refuse runtime PiP — silent fallback. */
+    }
+  }
+
   private fun buildPipParams(): PictureInPictureParams {
     val b = PictureInPictureParams.Builder().setAspectRatio(videoAspect)
     videoBounds?.let { b.setSourceRectHint(it) }

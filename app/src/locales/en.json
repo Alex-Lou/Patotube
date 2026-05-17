@@ -33,7 +33,9 @@
     "playerFailed": "Could not play this video",
     "playerLoadFailed": "Playback failed",
     "starting": "Starting download…",
-    "openingYoutube": "Opening YouTube…"
+    "openingYoutube": "Opening YouTube…",
+    "toPip": "Floating window",
+    "toBackgroundAudio": "Listen in background"
   },
   "errors": {
     "empty": "Please enter a URL",

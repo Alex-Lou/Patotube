@@ -1,6 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Download, ExternalLink, Loader2, AlertTriangle } from 'lucide-react';
+import {
+  Download,
+  ExternalLink,
+  Loader2,
+  AlertTriangle,
+  PictureInPicture,
+  Headphones,
+} from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -12,7 +19,7 @@ import { getTauri, isTauri, type SearchResult } from '@/lib/tauri/bindings';
 import {
   bindMediaPlaybackNative,
   bindVideoBoundsNative,
-  bindBackgroundAudioNative,
+  isAndroid,
 } from '@/lib/android/bridge';
 
 // Build the `<video>` src. In Tauri we go through the custom URI
@@ -58,30 +65,32 @@ export function SearchPlayerDialog({ result, onClose, onDownload }: SearchPlayer
   const { t } = useTranslation();
   const [state, setState] = useState<FetchState>({ kind: 'loading' });
   const videoRef = useRef<HTMLVideoElement>(null);
+  // Bump on visibility=visible to force-remount the <video> after a
+  // screen lock. Chromium's media pipeline gets stuck in a broken
+  // state when the WebView is suspended mid-stream — the symptom
+  // is the dreaded "MEDIA_ERR_NETWORK pipeline error read" on the
+  // next play. A fresh element with a fresh patostream:// request
+  // is the cleanest cure.
+  const [pipelineEpoch, setPipelineEpoch] = useState(0);
+
+  useEffect(() => {
+    if (!isAndroid()) return;
+    const onVis = () => {
+      if (document.visibilityState === 'visible') {
+        setPipelineEpoch((e) => e + 1);
+      }
+    };
+    document.addEventListener('visibilitychange', onVis);
+    return () => document.removeEventListener('visibilitychange', onVis);
+  }, []);
 
   // Hook native bridge so Android keeps audio alive in background
-  // and can slip into Picture-in-Picture on home-press.
-  useEffect(() => bindMediaPlaybackNative(videoRef.current), [state.kind]);
+  // (foreground service + WAKE_LOCK), then tracks media playing
+  // state for PiP decisions.
+  useEffect(() => bindMediaPlaybackNative(videoRef.current), [state.kind, pipelineEpoch]);
   // Feed real video dimensions + on-screen rect to Kotlin → PiP
   // matches the actual aspect ratio and animates from this spot.
-  useEffect(() => bindVideoBoundsNative(videoRef.current), [state.kind]);
-  // Screen-lock hand-off: when the document goes hidden, Kotlin
-  // takes over audio with a native MediaPlayer (the WebView is
-  // suspended by Android no matter what we do). On return → back
-  // to the WebView decoder. This is what makes "play music with
-  // the screen off" actually work — same trick as VLC.
-  useEffect(() => {
-    if (state.kind !== 'ready' || !result) return;
-    return bindBackgroundAudioNative({
-      video: videoRef.current,
-      videoId: result.videoId,
-      title: result.title,
-      getNativeStream: async (videoId) => {
-        const api = await getTauri();
-        return api.getYoutubeNativeStream(videoId);
-      },
-    });
-  }, [state.kind, result]);
+  useEffect(() => bindVideoBoundsNative(videoRef.current), [state.kind, pipelineEpoch]);
 
   useEffect(() => {
     if (!result) return;
@@ -107,6 +116,37 @@ export function SearchPlayerDialog({ result, onClose, onDownload }: SearchPlayer
       cancelled = true;
     };
   }, [result]);
+
+  const onPip = () => {
+    try {
+      window.PatoMobile?.enterPipNow?.();
+    } catch {
+      /* not running on Android or older APK — silent */
+    }
+  };
+
+  const onBackgroundAudio = async () => {
+    if (!result) return;
+    try {
+      const api = await getTauri();
+      const stream = await api.getYoutubeNativeStream(result.videoId);
+      const posMs = Math.floor((videoRef.current?.currentTime ?? 0) * 1000);
+      window.PatoMobile?.startBackgroundAudio?.(
+        stream.url,
+        stream.userAgent,
+        result.title,
+        posMs,
+      );
+      // Close the dialog — the native MediaPlayer is now the source
+      // of audio truth. Survives screen lock, app close, anything
+      // short of a force-stop. User taps the notification to come
+      // back to the app.
+      onClose();
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('[patotube] background audio failed:', err);
+    }
+  };
 
   return (
     <Dialog open={!!result} onOpenChange={(o) => !o && onClose()}>
@@ -136,11 +176,11 @@ export function SearchPlayerDialog({ result, onClose, onDownload }: SearchPlayer
               {state.kind === 'ready' && (
                 <video
                   ref={videoRef}
-                  key={state.src}
+                  // pipelineEpoch in the key forces a remount after
+                  // a screen lock so we don't reuse a stuck pipeline.
+                  key={`${state.src}#${pipelineEpoch}`}
                   src={state.src}
                   controls
-                  // Hide the native "download" button — the real download
-                  // is the dedicated button below, which picks proper quality.
                   controlsList="nodownload noplaybackrate"
                   disablePictureInPicture={false}
                   autoPlay
@@ -172,6 +212,28 @@ export function SearchPlayerDialog({ result, onClose, onDownload }: SearchPlayer
             )}
 
             <div className="flex flex-wrap justify-end gap-2 pt-2">
+              {isAndroid() && (
+                <>
+                  <Button
+                    variant="ghost"
+                    onClick={onPip}
+                    title={t('search.toPip')}
+                    aria-label={t('search.toPip')}
+                  >
+                    <PictureInPicture className="size-4" />
+                    {t('search.toPip')}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => void onBackgroundAudio()}
+                    title={t('search.toBackgroundAudio')}
+                    aria-label={t('search.toBackgroundAudio')}
+                  >
+                    <Headphones className="size-4" />
+                    {t('search.toBackgroundAudio')}
+                  </Button>
+                </>
+              )}
               <Button
                 variant="ghost"
                 onClick={() => {
