@@ -19,6 +19,17 @@ interface PatoMobileBridge {
    *  playing — keeps the WebView alive in background and triggers
    *  Picture-in-Picture on home-press. */
   setMediaPlaying(playing: boolean): void;
+  /** Feeds the PiP aspect ratio + sourceRectHint to the native side
+   *  so the floating window matches the real video and the entry
+   *  animation flies out of the right spot. All values in device px. */
+  setVideoBounds(
+    left: number,
+    top: number,
+    width: number,
+    height: number,
+    ratioW: number,
+    ratioH: number,
+  ): void;
 }
 
 interface BridgeCallbackResult {
@@ -126,6 +137,43 @@ export function bindMediaPlaybackNative(video: HTMLMediaElement | null): () => v
     video.removeEventListener('pause', onPause);
     video.removeEventListener('ended', onPause);
     video.removeEventListener('emptied', onPause);
+  };
+}
+
+/** Feed real <video> dimensions + on-screen position to Kotlin so
+ *  Picture-in-Picture uses the right aspect ratio (no black bars)
+ *  and the entry animation flies out of the actual element instead
+ *  of dropping from somewhere arbitrary. Re-reports on viewport
+ *  resize (orientation change) and on loadedmetadata. Returns a
+ *  cleanup function for React's useEffect. */
+export function bindVideoBoundsNative(video: HTMLVideoElement | null): () => void {
+  if (!video || !isAndroid()) return () => {};
+  const report = () => {
+    const r = video.getBoundingClientRect();
+    // Skip when the video is detached / collapsed (0×0).
+    if (r.width < 4 || r.height < 4) return;
+    const dpr = window.devicePixelRatio || 1;
+    const left = Math.round(r.left * dpr);
+    const top = Math.round(r.top * dpr);
+    const width = Math.round(r.width * dpr);
+    const height = Math.round(r.height * dpr);
+    const ratioW = video.videoWidth || 16;
+    const ratioH = video.videoHeight || 9;
+    try {
+      window.PatoMobile?.setVideoBounds?.(left, top, width, height, ratioW, ratioH);
+    } catch {
+      /* older APK without this method — silent */
+    }
+  };
+  video.addEventListener('loadedmetadata', report);
+  window.addEventListener('resize', report);
+  window.addEventListener('orientationchange', report);
+  // Initial best-effort (real numbers land via loadedmetadata).
+  report();
+  return () => {
+    video.removeEventListener('loadedmetadata', report);
+    window.removeEventListener('resize', report);
+    window.removeEventListener('orientationchange', report);
   };
 }
 

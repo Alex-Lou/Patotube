@@ -82,9 +82,34 @@ class PatoMobileBridge(
         if (playing) {
             acquireWakeLock()
             MediaPlaybackService.start(context)
+            // Arms PiP auto-enter on API 31+; on older the params
+            // are also useful so the legacy onUserLeaveHint path
+            // has the right aspect / source rect already.
+            (context as? MainActivity)?.runOnUiThread {
+                (context).refreshPipParams()
+            }
         } else {
             releaseWakeLock()
             MediaPlaybackService.stop(context)
+        }
+    }
+
+    /** Called from JS whenever the <video> element learns its
+     *  intrinsic dimensions (loadedmetadata) or moves on screen
+     *  (viewport resize, orientation change). All numbers are in
+     *  device pixels (JS multiplies by devicePixelRatio first). */
+    @JavascriptInterface
+    fun setVideoBounds(
+        left: Int,
+        top: Int,
+        width: Int,
+        height: Int,
+        ratioW: Int,
+        ratioH: Int,
+    ) {
+        val activity = context as? MainActivity ?: return
+        activity.runOnUiThread {
+            activity.applyVideoBounds(left, top, width, height, ratioW, ratioH)
         }
     }
 

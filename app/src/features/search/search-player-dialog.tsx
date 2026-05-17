@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { getTauri, isTauri, type SearchResult } from '@/lib/tauri/bindings';
-import { bindMediaPlaybackNative } from '@/lib/android/bridge';
+import { bindMediaPlaybackNative, bindVideoBoundsNative } from '@/lib/android/bridge';
 
 // Build the `<video>` src. In Tauri we go through the custom URI
 // scheme so Rust can replay the matching client User-Agent (the
@@ -58,6 +58,9 @@ export function SearchPlayerDialog({ result, onClose, onDownload }: SearchPlayer
   // Hook native bridge so Android keeps audio alive in background
   // and can slip into Picture-in-Picture on home-press.
   useEffect(() => bindMediaPlaybackNative(videoRef.current), [state.kind]);
+  // Feed real video dimensions + on-screen rect to Kotlin → PiP
+  // matches the actual aspect ratio and animates from this spot.
+  useEffect(() => bindVideoBoundsNative(videoRef.current), [state.kind]);
 
   useEffect(() => {
     if (!result) return;
