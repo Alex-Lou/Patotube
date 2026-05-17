@@ -30,14 +30,17 @@ interface PatoMobileBridge {
     ratioW: number,
     ratioH: number,
   ): void;
-  /** VLC-style hand-off: when the screen locks the WebView's audio
-   *  decoder is suspended by Android. JS calls this to ask the
-   *  service to keep streaming the same source via a native
-   *  MediaPlayer, seeking to where the WebView left off. The UA
+  /** "Listen in background" button: hand audio to a native Android
+   *  MediaPlayer running in the foreground service. Survives screen
+   *  lock, activity death, anything short of a force-stop. The UA
    *  must match the one Rust used to resolve the URL (googlevideo
    *  signs URLs against the client UA). */
   startBackgroundAudio(url: string, userAgent: string, title: string, positionMs: number): void;
   stopBackgroundAudio(): void;
+  /** "Floating window" button: enter Android Picture-in-Picture
+   *  right now (the auto path on home-press is handled separately
+   *  by MainActivity.onUserLeaveHint + autoEnterEnabled). */
+  enterPipNow(): void;
 }
 
 interface BridgeCallbackResult {

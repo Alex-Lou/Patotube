@@ -113,12 +113,12 @@ class PatoMobileBridge(
         }
     }
 
-    /** Hand off playback from the WebView to a native Android
-     *  MediaPlayer. Triggered by JS on visibilitychange='hidden'
-     *  (screen lock / app fully backgrounded) — the WebView would
-     *  otherwise suspend its audio decoder, taking the sound with
-     *  it. The native player keeps streaming until JS reclaims
-     *  control via stopBackgroundAudio. */
+    /** "Listen in background" mode: hand audio to a native Android
+     *  MediaPlayer running in the foreground service so playback
+     *  survives the screen lock, the activity being killed, the
+     *  user closing the dialog — anything short of a force stop.
+     *  Called explicitly from the UI (button click). Use case:
+     *  user wants music without the visible player. */
     @JavascriptInterface
     fun startBackgroundAudio(url: String, userAgent: String, title: String, positionMs: Int) {
         MediaPlaybackService.startBackgroundAudio(context, url, userAgent, title, positionMs)
@@ -127,6 +127,16 @@ class PatoMobileBridge(
     @JavascriptInterface
     fun stopBackgroundAudio() {
         MediaPlaybackService.stopBackgroundAudio(context)
+    }
+
+    /** "Floating window" mode: enter Picture-in-Picture right now.
+     *  Called explicitly from the UI; the auto path on home-press
+     *  is handled separately by MainActivity.onUserLeaveHint /
+     *  autoEnterEnabled. */
+    @JavascriptInterface
+    fun enterPipNow() {
+        val activity = context as? MainActivity ?: return
+        activity.runOnUiThread { activity.enterPipNow() }
     }
 
     private var wakeLock: PowerManager.WakeLock? = null

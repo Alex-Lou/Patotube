@@ -197,8 +197,12 @@ class MediaPlaybackService : Service() {
   }
 
   private fun buildNotification(title: String): Notification {
+    // SINGLE_TOP: just bring the existing MainActivity to the front
+    // instead of clearing whatever is on top of it (CLEAR_TOP was
+    // the culprit behind the "tap notif mutes the audio" bug — it
+    // was nuking the player dialog mid-playback).
     val launchIntent = Intent(this, MainActivity::class.java).apply {
-      flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+      flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
     }
     val pendingFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
       PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
