@@ -10,10 +10,8 @@ export function QueueList() {
   const { t } = useTranslation();
   const jobs = useQueueStore((s) => s.jobs);
   const remove = useQueueStore((s) => s.remove);
-  const clearCompleted = useQueueStore((s) => s.clearCompleted);
+  const clearAll = useQueueStore((s) => s.clearAll);
   const { retry, showInFolder, openFile } = useDownloads();
-
-  const hasCompleted = jobs.some((j) => j.status === 'done');
 
   return (
     <div className="flex h-full flex-col gap-3">
@@ -21,8 +19,8 @@ export function QueueList() {
         <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
           {t('queue.title')}
         </h2>
-        {hasCompleted && (
-          <Button variant="ghost" size="sm" onClick={clearCompleted}>
+        {jobs.length > 0 && (
+          <Button variant="ghost" size="sm" onClick={clearAll}>
             <Trash2 className="size-3.5" />
             {t('queue.clear')}
           </Button>

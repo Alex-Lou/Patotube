@@ -48,7 +48,18 @@ export const useQueueStore = create<QueueState>()(
       remove: (id) => set((s) => ({ jobs: s.jobs.filter((j) => j.id !== id) })),
       clearCompleted: () =>
         set((s) => ({ jobs: s.jobs.filter((j) => j.status !== 'done') })),
-      clearAll: () => set({ jobs: [] }),
+      clearAll: () => {
+        // Wipe the persist cache too. set({jobs:[]}) alone leaves the
+        // {"state":{"jobs":[…]},"version":1} blob in localStorage —
+        // and on Android WebView, that blob has been spotted resurrecting
+        // stale entries through the device's app backup. Belt + suspenders.
+        try {
+          localStorage.removeItem('patotube-history');
+        } catch {
+          /* private mode / unsupported — set() still works */
+        }
+        set({ jobs: [] });
+      },
     }),
     {
       name: 'patotube-history',

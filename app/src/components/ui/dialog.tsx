@@ -38,6 +38,14 @@ export const DialogContent = React.forwardRef<
         ref={ref}
         className={cn(
           'fixed left-1/2 top-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 border border-border/60 bg-card p-6 shadow-xl rounded-lg',
+          // Cap height + scroll AND pad inner content past the Android
+          // status / navigation bars so our close button (top) and CTA
+          // row (bottom) never sit under system chrome. `pt-[max(...)]`
+          // keeps the desktop look (24 px) while reserving the inset on
+          // mobile.
+          'max-h-[calc(100dvh-2rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] overflow-y-auto overscroll-contain',
+          'pt-[max(env(safe-area-inset-top),1.5rem)]',
+          'pb-[max(env(safe-area-inset-bottom),1.5rem)]',
           'data-[state=open]:animate-in data-[state=closed]:animate-out',
           'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
           'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
@@ -46,7 +54,7 @@ export const DialogContent = React.forwardRef<
         {...props}
       >
         {children}
-        <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring">
+        <DialogPrimitive.Close className="absolute right-4 top-[max(env(safe-area-inset-top),1rem)] rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring">
           <X className="size-4" />
           <span className="sr-only">{t('a11y.close')}</span>
         </DialogPrimitive.Close>
