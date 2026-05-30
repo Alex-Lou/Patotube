@@ -35,7 +35,11 @@
     "starting": "Lancement du téléchargement…",
     "openingYoutube": "Ouverture de YouTube…",
     "toPip": "Fenêtre flottante",
-    "toBackgroundAudio": "Écouter en fond"
+    "toBackgroundAudio": "Écouter en fond",
+    "backgroundAudioFailed": "Lecture en fond échouée",
+    "resuming": "Reprise de la lecture…",
+    "slowLoading": "Le chargement traîne…",
+    "switchingPlayer": "Bascule du lecteur…"
   },
   "errors": {
     "empty": "Entre une URL",

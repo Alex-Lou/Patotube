@@ -82,15 +82,16 @@ class PatoMobileBridge(
         if (playing) {
             acquireWakeLock()
             MediaPlaybackService.start(context)
-            // Arms PiP auto-enter on API 31+; on older the params
-            // are also useful so the legacy onUserLeaveHint path
-            // has the right aspect / source rect already.
-            (context as? MainActivity)?.runOnUiThread {
-                (context).refreshPipParams()
-            }
+            // System PiP intentionally not armed — Patotube uses an
+            // in-app floating mini-player (see use-floating-player.ts)
+            // for a custom-chrome experience the OS PiP can't match.
         } else {
             releaseWakeLock()
-            MediaPlaybackService.stop(context)
+            // stopIfIdle, not stop(): a background-audio session
+            // started via the "Listen in background" button must
+            // outlive the WebView <video> being unmounted. The
+            // service decides internally whether it's safe to die.
+            MediaPlaybackService.stopIfIdle(context)
         }
     }
 
@@ -120,8 +121,17 @@ class PatoMobileBridge(
      *  Called explicitly from the UI (button click). Use case:
      *  user wants music without the visible player. */
     @JavascriptInterface
-    fun startBackgroundAudio(url: String, userAgent: String, title: String, positionMs: Int) {
-        MediaPlaybackService.startBackgroundAudio(context, url, userAgent, title, positionMs)
+    fun startBackgroundAudio(
+        url: String,
+        userAgent: String,
+        videoId: String,
+        title: String,
+        thumbnailUrl: String,
+        positionMs: Int,
+    ) {
+        MediaPlaybackService.startBackgroundAudio(
+            context, url, userAgent, videoId, title, thumbnailUrl, positionMs,
+        )
     }
 
     @JavascriptInterface
