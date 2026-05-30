@@ -1,6 +1,6 @@
 [package]
 name = "patotube"
-version = "0.6.9"
+version = "0.6.21"
 description = "Modern lightweight media downloader"
 authors = ["Patotube contributors"]
 edition = "2021"
