@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Play,
@@ -39,6 +39,18 @@ interface SearchResultsProps {
 
 export function SearchResults({ results, loading, error, onPick, onPlay }: SearchResultsProps) {
   const { t } = useTranslation();
+  // Debounce play clicks: a double-tap on a slow-loading thumbnail
+  // would mount two <video> elements in cascade and crash the WebView
+  // before the first one had even resolved its src. 400 ms is short
+  // enough to feel responsive and long enough to absorb the fastest
+  // double-tap any human can produce.
+  const lastPlayAt = useRef(0);
+  const guardedPlay = (r: SearchResult) => {
+    const now = performance.now();
+    if (now - lastPlayAt.current < 400) return;
+    lastPlayAt.current = now;
+    onPlay(r);
+  };
 
   if (loading) {
     return (
@@ -127,7 +139,7 @@ export function SearchResults({ results, loading, error, onPick, onPlay }: Searc
           >
             <button
               type="button"
-              onClick={() => onPlay(r)}
+              onClick={() => guardedPlay(r)}
               aria-label={t('search.play')}
               title={t('search.play')}
               className="group/play relative aspect-video w-28 sm:w-32 shrink-0 overflow-hidden rounded-md bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -181,7 +193,7 @@ export function SearchResults({ results, loading, error, onPick, onPlay }: Searc
             <ResultActions
               result={r}
               onDownload={() => onPick(r)}
-              onWatch={() => onPlay(r)}
+              onWatch={() => guardedPlay(r)}
               onCopyUrl={() => void copyUrl(r)}
               onOpenYoutube={() => void openYoutube(r)}
             />

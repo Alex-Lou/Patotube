@@ -1,14 +1,20 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Toaster } from 'sonner';
+import { Toaster, toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Download } from 'lucide-react';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Splash } from '@/components/splash';
 import { Header } from '@/components/header';
 import { FilePlayerDialog } from '@/features/files/file-player-dialog';
+import { FloatingPlayer } from '@/features/search/floating-player';
+import { GlobalPlayerDialog } from '@/features/search/global-player-dialog';
+import { useFloatingPlayer } from '@/features/search/use-floating-player';
+import { usePlayerDialog } from '@/features/search/use-player-dialog';
+import { convertFileSrc } from '@tauri-apps/api/core';
+import type { SearchResult } from '@/lib/tauri/bindings';
 import { usePlayerStore } from '@/features/files/player-store';
-import { consumePendingIntent, hasNativeBridge } from '@/lib/android/bridge';
+import { consumePendingIntent, hasNativeBridge, type PendingIntent } from '@/lib/android/bridge';
 import { UrlInput } from '@/features/download/url-input';
 import { PreviewDialog } from '@/features/download/preview-dialog';
 import { QueueList } from '@/features/download/queue-list';
@@ -39,7 +45,7 @@ export function App() {
   // Unified dispatcher for external actions: Tauri deep-link, Android
   // intent bridge, drag-and-drop. Splits on `kind`, not on source.
   const dispatchExternalAction = useCallback(
-    (intent: { kind: 'download'; url: string } | { kind: 'open-file'; path: string }) => {
+    (intent: PendingIntent) => {
       setShowSplash(false);
       if (intent.kind === 'download') {
         const v = validateUrl(intent.url);
@@ -57,6 +63,38 @@ export function App() {
         })();
       } else if (intent.kind === 'open-file') {
         usePlayerStore.getState().playPath(intent.path);
+      } else if (intent.kind === 'resume-player') {
+        // Triggered by the Android bg-audio notification's
+        // "App" / "Floating" buttons. The native service has already
+        // stopped its MediaPlayer; we just re-attach the track to the
+        // visible player at the position it was paused at.
+        //
+        // Loading toast covers the ~1-2 s gap between the bg audio
+        // tearing down and the WebView <video> hitting `play()` at
+        // the right offset — without it the user sees an empty UI
+        // and thinks the action did nothing.
+        const tid = toast.loading(t('search.resuming'), { duration: 4000 });
+        const result: SearchResult = {
+          videoId: intent.videoId,
+          title: intent.title,
+          channel: '',
+          durationSeconds: null,
+          thumbnailUrl: intent.thumbnailUrl,
+          viewCount: null,
+          published: null,
+        };
+        if (intent.mode === 'dialog') {
+          usePlayerDialog.getState().open(result, intent.startAt);
+        } else {
+          // Floating wants a `src` URL — derive it from the videoId
+          // exactly like SearchPlayerDialog does (`patostream://`).
+          const src = convertFileSrc(intent.videoId, 'patostream');
+          useFloatingPlayer.getState().open(result, src, intent.startAt);
+        }
+        // Dismiss when the video is actually playing — best effort
+        // via short delay; if playback fails the 4 s auto-dismiss
+        // catches it.
+        setTimeout(() => toast.dismiss(tid), 1500);
       }
     },
     [],
@@ -104,6 +142,42 @@ export function App() {
       unlisten?.();
     };
   }, [dispatchExternalAction]);
+
+  // Native background-audio failures bubble up as a toast. The
+  // foreground service calls window.__patotubeOnBgError(message)
+  // when ExoPlayer refuses the source or the CDN 403s.
+  useEffect(() => {
+    if (!hasNativeBridge()) return;
+    window.__patotubeOnBgError = (message: string) => {
+      toast.error(t('search.backgroundAudioFailed'), {
+        description: message,
+      });
+    };
+    return () => {
+      delete window.__patotubeOnBgError;
+    };
+  }, [t]);
+
+  // Catch unhandled JS errors / promise rejections so a single buggy
+  // listener can't blank the WebView. Surface as a toast in dev,
+  // log to console (adb logcat -s chromium) so we have a trace when
+  // a user reports "the app just froze".
+  useEffect(() => {
+    const onErr = (e: ErrorEvent) => {
+      // eslint-disable-next-line no-console
+      console.error('[patotube] window error:', e.message, e.error?.stack);
+    };
+    const onRej = (e: PromiseRejectionEvent) => {
+      // eslint-disable-next-line no-console
+      console.error('[patotube] unhandled rejection:', e.reason);
+    };
+    window.addEventListener('error', onErr);
+    window.addEventListener('unhandledrejection', onRej);
+    return () => {
+      window.removeEventListener('error', onErr);
+      window.removeEventListener('unhandledrejection', onRej);
+    };
+  }, []);
 
   // Android intents (SEND, VIEW, patotube://) come via the PatoMobile bridge
   // since the Tauri deep-link plugin doesn't register schemes on Android.
@@ -279,6 +353,16 @@ export function App() {
 
         {/* Embedded player: FilesSheet fallback when no system app handles MIME, or via patotube://open-file. */}
         <FilePlayerDialog />
+
+        {/* In-app floating mini-player. Opened from the "Floating window"
+            button in SearchPlayerDialog; lives at App level so it survives
+            the dialog being unmounted. */}
+        <FloatingPlayer />
+
+        {/* Global re-entry point for SearchPlayerDialog — driven by
+            usePlayerDialog. Used by FloatingPlayer's expand button and
+            by the Android notification's "App" action. */}
+        <GlobalPlayerDialog />
       </div>
     </TooltipProvider>
   );

@@ -12,11 +12,28 @@ import android.util.Rational
 import android.webkit.WebView
 import androidx.activity.enableEdgeToEdge
 import org.json.JSONObject
+import java.lang.ref.WeakReference
 
 class MainActivity : TauriActivity() {
   /** Cached so `onNewIntent` can poke the JS layer once a fresh
    *  intent has been parked in the PatoMobileBridge companion. */
   private var liveWebView: WebView? = null
+
+  companion object {
+    /** Weak ref to the live WebView for cross-component JS calls
+     *  (e.g. MediaPlaybackService surfacing playback errors as a
+     *  toast). Updated in onWebViewCreate / cleared in onDestroy. */
+    @Volatile
+    private var webViewRef: WeakReference<WebView>? = null
+
+    /** Post a JS snippet onto the live WebView, no-op if it's gone.
+     *  Used by background components that don't have an Activity
+     *  reference. Caller is responsible for escaping. */
+    fun postJs(js: String) {
+      val wv = webViewRef?.get() ?: return
+      wv.post { wv.evaluateJavascript(js, null) }
+    }
+  }
 
   /** Real aspect ratio of the currently-playing <video>. Updated
    *  by JS via PatoMobile.setVideoBounds when the element fires
@@ -114,19 +131,11 @@ class MainActivity : TauriActivity() {
     refreshPipParams()
   }
 
-  /** Fallback path on pre-API-31 where auto-enter doesn't exist:
-   *  we explicitly enter PiP on the home button. API 31+ ignores
-   *  this — the params we set via refreshPipParams() trigger the
-   *  transition automatically. */
+  /** System PiP intentionally disabled — Patotube uses an in-app
+   *  floating mini-player (FloatingPlayer.tsx). Kept as a no-op so
+   *  TauriActivity's super still gets called on lifecycle events. */
   override fun onUserLeaveHint() {
     super.onUserLeaveHint()
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) return
-    if (!pipSupported() || !PatoMobileBridge.isMediaPlaying) return
-    try {
-      enterPictureInPictureMode(buildPipParams())
-    } catch (_: IllegalStateException) {
-      /* see refreshPipParams — silent */
-    }
   }
 
   override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
@@ -166,9 +175,15 @@ class MainActivity : TauriActivity() {
   override fun onWebViewCreate(webView: WebView) {
     super.onWebViewCreate(webView)
     liveWebView = webView
+    webViewRef = WeakReference(webView)
     // Expose `window.PatoMobile.*` to the React app — see
     // PatoMobileBridge.kt for the full method surface.
     webView.addJavascriptInterface(PatoMobileBridge(this, webView), "PatoMobile")
+  }
+
+  override fun onDestroy() {
+    if (webViewRef?.get() === liveWebView) webViewRef = null
+    super.onDestroy()
   }
 
   /**
@@ -190,6 +205,30 @@ class MainActivity : TauriActivity() {
 
   private fun synthesizePendingIntent(intent: Intent): JSONObject? {
     return when (intent.action) {
+      MediaPlaybackService.ACTION_RESUME_DIALOG,
+      MediaPlaybackService.ACTION_RESUME_FLOATING -> {
+        val mode = if (intent.action == MediaPlaybackService.ACTION_RESUME_DIALOG) "dialog" else "floating"
+        val videoId = intent.getStringExtra("videoId") ?: return null
+        if (videoId.isEmpty()) return null
+        val title = intent.getStringExtra("title") ?: "Patotube"
+        val thumb = intent.getStringExtra("thumbnailUrl") ?: ""
+        // Prefer the live MediaPlayer position over the stale value
+        // baked into the PendingIntent extras 0-2 s earlier. Without
+        // this the player visually "rewinds" 1-2 s on every resume.
+        val staleMs = intent.getIntExtra("positionMs", 0)
+        val liveMs = MediaPlaybackService.currentPositionMs() ?: staleMs
+        // Kill the bg-audio session now that the user wants to resume
+        // with a visible player — otherwise we'd double-play.
+        MediaPlaybackService.stopBackgroundAudio(this)
+        JSONObject().apply {
+          put("kind", "resume-player")
+          put("mode", mode)
+          put("videoId", videoId)
+          put("title", title)
+          put("thumbnailUrl", thumb)
+          put("startAt", liveMs / 1000.0)
+        }
+      }
       Intent.ACTION_SEND -> {
         val text = intent.getStringExtra(Intent.EXTRA_TEXT) ?: return null
         val url = extractFirstUrl(text) ?: return null

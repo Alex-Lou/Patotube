@@ -34,8 +34,18 @@ interface PatoMobileBridge {
    *  MediaPlayer running in the foreground service. Survives screen
    *  lock, activity death, anything short of a force-stop. The UA
    *  must match the one Rust used to resolve the URL (googlevideo
-   *  signs URLs against the client UA). */
-  startBackgroundAudio(url: string, userAgent: string, title: string, positionMs: number): void;
+   *  signs URLs against the client UA). videoId + thumbnailUrl are
+   *  carried so the notif's "App" / "Floating" buttons can hand the
+   *  exact same track back to the UI when the user wants to resume
+   *  with a visible player. */
+  startBackgroundAudio(
+    url: string,
+    userAgent: string,
+    videoId: string,
+    title: string,
+    thumbnailUrl: string,
+    positionMs: number,
+  ): void;
   stopBackgroundAudio(): void;
   /** "Floating window" button: enter Android Picture-in-Picture
    *  right now (the auto path on home-press is handled separately
@@ -49,7 +59,15 @@ interface BridgeCallbackResult {
 
 export type PendingIntent =
   | { kind: 'download'; url: string }
-  | { kind: 'open-file'; path: string };
+  | { kind: 'open-file'; path: string }
+  | {
+      kind: 'resume-player';
+      mode: 'dialog' | 'floating';
+      videoId: string;
+      title: string;
+      thumbnailUrl: string;
+      startAt: number;
+    };
 
 declare global {
   interface Window {
@@ -62,6 +80,10 @@ declare global {
      *  can use this to hide their custom overlay controls (the
      *  system draws its own in PiP). */
     __patotubeOnPip?: (inPip: boolean) => void;
+    /** Called by the native foreground service when background-audio
+     *  playback fails (network 403, codec refused, etc). Lets the UI
+     *  surface a toast instead of dying silently. */
+    __patotubeOnBgError?: (message: string) => void;
   }
 }
 
@@ -148,65 +170,6 @@ export function bindMediaPlaybackNative(video: HTMLMediaElement | null): () => v
     video.removeEventListener('pause', onPause);
     video.removeEventListener('ended', onPause);
     video.removeEventListener('emptied', onPause);
-  };
-}
-
-/** Wire up the screen-lock audio hand-off for an HTMLVideoElement.
- *  When the document goes hidden (lock / app switch / PiP > lock),
- *  fetch the upstream stream URL + matching UA from the Rust
- *  kernel and hand it to the native service so Android's
- *  MediaPlayer keeps the audio going (the WebView's own decoder
- *  is suspended by Android in that case, no way around it). On
- *  return to visible, native pauses and the WebView resumes.
- *
- *  Returns a cleanup function for React's useEffect. */
-export function bindBackgroundAudioNative(params: {
-  video: HTMLVideoElement | null;
-  videoId: string | null;
-  title: string;
-  getNativeStream: (videoId: string) => Promise<{ url: string; userAgent: string }>;
-}): () => void {
-  const { video, videoId, title, getNativeStream } = params;
-  if (!video || !videoId || !isAndroid()) return () => {};
-
-  let bgActive = false;
-  let originalMuted = video.muted;
-
-  const handoffOut = async () => {
-    if (bgActive) return;
-    // Don't hand off if the user explicitly paused.
-    if (video.paused) return;
-    try {
-      const stream = await getNativeStream(videoId);
-      const posMs = Math.floor(video.currentTime * 1000);
-      window.PatoMobile?.startBackgroundAudio?.(stream.url, stream.userAgent, title, posMs);
-      bgActive = true;
-      originalMuted = video.muted;
-      // Belt-and-suspenders: even though the WebView audio decoder
-      // gets suspended on screen-off, mute the element so we don't
-      // hear a double-track in any transient window.
-      video.muted = true;
-    } catch {
-      /* keep the WebView going as best it can — silent */
-    }
-  };
-
-  const handoffBack = () => {
-    if (!bgActive) return;
-    window.PatoMobile?.stopBackgroundAudio?.();
-    bgActive = false;
-    video.muted = originalMuted;
-  };
-
-  const onVisChange = () => {
-    if (document.visibilityState === 'hidden') void handoffOut();
-    else handoffBack();
-  };
-
-  document.addEventListener('visibilitychange', onVisChange);
-  return () => {
-    document.removeEventListener('visibilitychange', onVisChange);
-    handoffBack();
   };
 }
 
