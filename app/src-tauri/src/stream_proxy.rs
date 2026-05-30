@@ -28,6 +28,19 @@ use crate::youtube_kernel::stream_url::{resolve, ResolvedStream};
 // serving a stale signature on the edge of expiry.
 const CACHE_TTL: Duration = Duration::from_secs(60 * 60 * 4);
 
+/// Maximum number of bytes returned per Range response. Without this
+/// the Android WebView issues `Range: bytes=0-` (open-ended) on the
+/// initial fetch, googlevideo happily streams the entire 200-MB file,
+/// and `resp.bytes().await` buffers it ALL in RAM before we can
+/// respond → `java.lang.OutOfMemoryError: Failed to allocate a
+/// 286715944 byte allocation` (caught on a real device).
+///
+/// 4 MiB is a sweet spot: large enough that the WebView usually gets
+/// the MP4 metadata box on the first chunk and can start playing
+/// without further round-trips, small enough that we stay ~50× below
+/// the OOM threshold and don't stall slow-cellular initial loads.
+const MAX_CHUNK_BYTES: u64 = 4 * 1024 * 1024;
+
 #[derive(Clone)]
 struct CacheEntry {
     stream: ResolvedStream,
@@ -66,6 +79,10 @@ pub async fn handle(request: Request<Vec<u8>>) -> Response<Vec<u8>> {
         .and_then(|v| v.to_str().ok())
         .map(String::from);
 
+    // Clamp the upstream Range so each response stays ≤ MAX_CHUNK_BYTES
+    // — see the const docs for the OOM rationale.
+    let clamped_range = clamp_range(range_header.as_deref());
+
     // Try up to twice: first with whatever's cached, then force a
     // fresh resolve if the upstream fails (transient drop, expired
     // signed URL, googlevideo rotated the host, etc.). This is what
@@ -87,12 +104,10 @@ pub async fn handle(request: Request<Vec<u8>>) -> Response<Vec<u8>> {
             }
         };
 
-        let mut req = HTTP_CLIENT
+        let req = HTTP_CLIENT
             .get(&stream.url)
-            .header(header::USER_AGENT, &stream.user_agent);
-        if let Some(ref v) = range_header {
-            req = req.header(header::RANGE, v);
-        }
+            .header(header::USER_AGENT, &stream.user_agent)
+            .header(header::RANGE, &clamped_range);
 
         let resp = match req.send().await {
             Ok(r) => r,
@@ -146,6 +161,33 @@ pub async fn handle(request: Request<Vec<u8>>) -> Response<Vec<u8>> {
     }
 
     error(StatusCode::BAD_GATEWAY, &last_error)
+}
+
+/// Parse `Range: bytes=START-END?` and rewrite the upper bound so the
+/// upstream returns at most MAX_CHUNK_BYTES. Always emits a closed
+/// range so googlevideo replies with `206 Partial Content` instead of
+/// streaming everything.
+fn clamp_range(incoming: Option<&str>) -> String {
+    let default_chunk = format!("bytes=0-{}", MAX_CHUNK_BYTES - 1);
+    let Some(raw) = incoming else { return default_chunk };
+    let Some(spec) = raw.strip_prefix("bytes=") else { return default_chunk };
+    // Only the first range is honoured (multi-range responses are
+    // exotic and the WebView never asks for them).
+    let first = spec.split(',').next().unwrap_or("");
+    let mut parts = first.splitn(2, '-');
+    let start: u64 = parts.next().and_then(|s| s.trim().parse().ok()).unwrap_or(0);
+    let max_end = start.saturating_add(MAX_CHUNK_BYTES).saturating_sub(1);
+    let requested_end: Option<u64> = parts
+        .next()
+        .and_then(|s| {
+            let t = s.trim();
+            if t.is_empty() { None } else { t.parse().ok() }
+        });
+    let end = match requested_end {
+        Some(e) => std::cmp::min(e, max_end),
+        None => max_end,
+    };
+    format!("bytes={start}-{end}")
 }
 
 fn extract_video_id(request: &Request<Vec<u8>>) -> Option<String> {
