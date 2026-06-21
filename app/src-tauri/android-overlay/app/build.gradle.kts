@@ -72,6 +72,19 @@ android {
         disable += "ExpiredTargetSdkVersion"
         abortOnError = false
     }
+
+    // One Patotube.apk on GitHub Releases that installs on every Android
+    // CPU: Tauri builds per-ABI .so files; isUniversalApk packs all four
+    // ABIs into a single fat archive so landing → download → install works
+    // regardless of device architecture.
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
+            isUniversalApk = true
+        }
+    }
 }
 
 rust {
