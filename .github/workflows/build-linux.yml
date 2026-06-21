@@ -57,6 +57,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Fetch sidecars (yt-dlp + ffmpeg for Linux)
+        working-directory: app
+        run: pnpm sidecars
+
       - name: Build AppImage
         working-directory: app
         run: pnpm tauri build --bundles appimage
