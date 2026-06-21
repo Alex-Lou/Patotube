@@ -4,7 +4,6 @@ import { toast } from 'sonner';
 import {
   Download,
   ExternalLink,
-  Loader2,
   AlertTriangle,
   PictureInPicture,
   Headphones,
@@ -272,9 +271,23 @@ export function SearchPlayerDialog({ result, onClose, onDownload, startAt = 0 }:
 
             <div className="relative aspect-video overflow-hidden rounded-md bg-black">
               {state.kind === 'loading' && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-sm text-white/80">
-                  <Loader2 className="size-6 animate-spin" />
-                  {t('search.playerLoading')}
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-4 text-center text-sm text-white/80">
+                  {/* Branded loader: the duck inside a spinning ring so a
+                      slow YouTube resolve reads as "working", not stuck. */}
+                  <span className="relative inline-block size-16">
+                    <span
+                      aria-hidden
+                      className="absolute inset-0 rounded-full border-[3px] border-transparent border-t-duck border-r-duck/50 animate-spin"
+                    />
+                    <img
+                      src="/patotube.png"
+                      alt=""
+                      className="absolute inset-2 object-contain"
+                      draggable={false}
+                    />
+                  </span>
+                  <p className="font-medium">{t('search.playerLoading')}</p>
+                  <p className="text-xs text-white/50">{t('search.fetchingFromYoutube')}</p>
                 </div>
               )}
               {state.kind === 'error' && (
