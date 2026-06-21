@@ -223,6 +223,20 @@ const metaJson = JSON.stringify(LOCALE_META);
         <p class="mt-8 text-xs text-center text-fg-subtle leading-relaxed max-w-2xl mx-auto" data-i18n="downloadsHint">
           {en.downloadsHint}
         </p>
+
+        <div class="mt-10 max-w-2xl mx-auto rounded-xl border border-border/60 bg-bg-card/40 px-5 py-4">
+          <p class="text-xs font-semibold uppercase tracking-wider text-fg-muted" data-i18n="legalTitle">
+            {en.legalTitle}
+          </p>
+          <p class="mt-2 text-xs text-fg-subtle leading-relaxed" data-i18n="legalBody">
+            {en.legalBody}
+          </p>
+        </div>
+
+        <p class="mt-6 text-xs text-center text-fg-muted leading-relaxed max-w-2xl mx-auto" data-i18n="alwaysFree">
+          {en.alwaysFree}
+        </p>
+
         <p class="mt-2 text-[10px] text-center text-fg-subtle font-mono opacity-60">
           v{APP_VERSION}
         </p>
@@ -322,8 +336,8 @@ const metaJson = JSON.stringify(LOCALE_META);
               <span class="font-bold text-base tracking-tight">Patotube</span>
             </div>
             <p class="text-xs text-fg-subtle leading-relaxed max-w-xs">
-              Free, open source, no account, no ads, no telemetry. Just a duck
-              that fetches your files.
+              Free, no account, no ads, no telemetry. Just a duck that fetches
+              your files.
             </p>
           </div>
 
@@ -347,8 +361,8 @@ const metaJson = JSON.stringify(LOCALE_META);
                 <a href={`${GITHUB_BASE}/issues`} class="text-fg-muted hover:text-fg transition-colors" data-i18n="footerIssues">{en.footerIssues}</a>
               </li>
               <li>
-                <a href={`${GITHUB_BASE}/blob/main/LICENSE`} class="text-fg-muted hover:text-fg transition-colors">
-                  MIT License
+                <a href={`${GITHUB_BASE}/blob/main/LICENSE`} class="text-fg-muted hover:text-fg transition-colors" data-i18n="footerLicense">
+                  {en.footerLicense}
                 </a>
               </li>
             </ul>

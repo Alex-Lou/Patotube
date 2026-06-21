@@ -96,6 +96,12 @@ type Dict = {
   footerIssues: string;
   footerReleases: string;
   comingSoon: string;
+  // Optional — EN + FR provide values; other locales fall back to the
+  // inline English text already rendered in the markup.
+  legalTitle?: string;
+  legalBody?: string;
+  alwaysFree?: string;
+  footerLicense?: string;
 };
 
 export const DICT: Record<LandingLocale, Dict> = {
@@ -150,13 +156,19 @@ export const DICT: Record<LandingLocale, Dict> = {
     featureNativeTitle: 'Light, fast, native',
     featureNativeBody:
       'Built on Tauri. Tiny binary, a real OS window, no telemetry, no tracking.',
-    featureOssTitle: 'Open source',
+    featureOssTitle: 'Free & transparent',
     featureOssBody:
-      'MIT licensed. The whole codebase is on GitHub — read it, report bugs, suggest improvements.',
-    footerCopy: 'Patotube · MIT',
+      'The whole codebase is on GitHub — read it, report bugs, suggest improvements.',
+    footerCopy: 'Patotube · © 2026 CybWu',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: 'Coming soon',
+    legalTitle: 'Personal use only',
+    legalBody:
+      'Patotube is a tool — you are responsible for what you download. Only fetch content you own, that is in the public domain, or that the rightsholder has authorised you to keep. Respect each platform’s terms of service. The author accepts no liability for any use of the app.',
+    alwaysFree:
+      'Always free. No ads, no premium, no telemetry — and not for resale: free to use, not to copy or sell.',
+    footerLicense: 'License',
   },
 
   fr: {    navFeatures: 'Fonctionnalités',
@@ -210,13 +222,19 @@ export const DICT: Record<LandingLocale, Dict> = {
     featureNativeTitle: 'Léger, rapide, natif',
     featureNativeBody:
       "Construit sur Tauri. Petit binaire, vraie fenêtre native, aucun tracker, aucune télémétrie.",
-    featureOssTitle: 'Open source',
+    featureOssTitle: 'Libre et transparent',
     featureOssBody:
-      "Sous licence MIT. Tout le code est sur GitHub — lis-le, signale un bug, propose une amélioration.",
-    footerCopy: 'Patotube · MIT',
+      "Tout le code est sur GitHub — lis-le, signale un bug, propose une amélioration.",
+    footerCopy: 'Patotube · © 2026 CybWu',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: 'Bientôt',
+    legalTitle: 'Usage personnel uniquement',
+    legalBody:
+      "Patotube est un outil — tu es responsable de ce que tu télécharges. Ne récupère que du contenu que tu possèdes, qui est dans le domaine public, ou pour lequel l'ayant droit t'a autorisé à garder une copie. Respecte les conditions de chaque plateforme. L'auteur décline toute responsabilité quant à l'usage de l'app.",
+    alwaysFree:
+      "Toujours gratuit. Pas de pub, pas de premium, pas de télémétrie — et pas à vendre : libre d'usage, pas de copie ni de revente.",
+    footerLicense: 'Licence',
   },
 
   es: {    navFeatures: 'Características',
@@ -272,8 +290,8 @@ export const DICT: Record<LandingLocale, Dict> = {
       'Hecho con Tauri. Binario diminuto, ventana nativa real, sin trackers, sin telemetría.',
     featureOssTitle: 'Código abierto',
     featureOssBody:
-      'Licencia MIT. Todo el código está en GitHub — léelo, reporta un bug, propone una mejora.',
-    footerCopy: 'Patotube · MIT',
+      'Todo el código está en GitHub — léelo, reporta un bug, propone una mejora.',
+    footerCopy: 'Patotube · © 2026 CybWu',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: 'Próximamente',
@@ -332,8 +350,8 @@ export const DICT: Record<LandingLocale, Dict> = {
       'مبني على Tauri. ملف صغير، نافذة نظام حقيقية، بلا متتبعات، بلا تتبع.',
     featureOssTitle: 'مفتوح المصدر',
     featureOssBody:
-      'ترخيص MIT. الكود بأكمله على GitHub — اقرأه، أبلغ عن خطأ، اقترح تحسينًا.',
-    footerCopy: 'Patotube · MIT',
+      'الكود بأكمله على GitHub — اقرأه، أبلغ عن خطأ، اقترح تحسينًا.',
+    footerCopy: 'Patotube · © 2026 CybWu',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: 'قريبًا',
@@ -392,8 +410,8 @@ export const DICT: Record<LandingLocale, Dict> = {
       'Tauri 製。極小バイナリ、本物の OS ウィンドウ、トラッカーなし、テレメトリなし。',
     featureOssTitle: 'オープンソース',
     featureOssBody:
-      'MIT ライセンス。コードはすべて GitHub 上 — 読んで、バグ報告、改善提案を。',
-    footerCopy: 'Patotube · MIT',
+      'コードはすべて GitHub 上 — 読んで、バグ報告、改善提案を。',
+    footerCopy: 'Patotube · © 2026 CybWu',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: '近日対応',
@@ -452,8 +470,8 @@ export const DICT: Record<LandingLocale, Dict> = {
       '基于 Tauri 构建。体积极小，真正的系统窗口，无追踪，无遥测。',
     featureOssTitle: '开源',
     featureOssBody:
-      'MIT 许可证。所有代码都在 GitHub 上 — 阅读、报告 bug、提出改进。',
-    footerCopy: 'Patotube · MIT',
+      '所有代码都在 GitHub 上 — 阅读、报告 bug、提出改进。',
+    footerCopy: 'Patotube · © 2026 CybWu',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: '即将支持',
@@ -512,8 +530,8 @@ export const DICT: Record<LandingLocale, Dict> = {
       'Byggt á Tauri. Lítill keyrsluskrá, alvöru kerfisgluggi, engar njósnir, engin gagnasöfnun.',
     featureOssTitle: 'Opinn hugbúnaður',
     featureOssBody:
-      'MIT leyfi. Allur kóðinn er á GitHub — lestu hann, tilkynntu villu, leggðu til endurbætur.',
-    footerCopy: 'Patotube · MIT',
+      'Allur kóðinn er á GitHub — lestu hann, tilkynntu villu, leggðu til endurbætur.',
+    footerCopy: 'Patotube · © 2026 CybWu',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: 'Á leiðinni',
@@ -572,8 +590,8 @@ export const DICT: Record<LandingLocale, Dict> = {
       'Construído com Tauri. Binário pequeno, janela nativa real, sem rastreamento, sem telemetria.',
     featureOssTitle: 'Código aberto',
     featureOssBody:
-      'Licença MIT. Todo o código está no GitHub — leia, reporte bugs, sugira melhorias.',
-    footerCopy: 'Patotube · MIT',
+      'Todo o código está no GitHub — leia, reporte bugs, sugira melhorias.',
+    footerCopy: 'Patotube · © 2026 CybWu',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: 'Em breve',
@@ -630,10 +648,10 @@ export const DICT: Record<LandingLocale, Dict> = {
     featureNativeTitle: 'Leggero, veloce, nativo',
     featureNativeBody:
       'Costruito su Tauri. Binario minuscolo, finestra nativa reale, senza tracker, senza telemetria.',
-    featureOssTitle: 'Open source',
+    featureOssTitle: 'Free & transparent',
     featureOssBody:
-      'Licenza MIT. Tutto il codice è su GitHub — leggilo, segnala bug, proponi miglioramenti.',
-    footerCopy: 'Patotube · MIT',
+      'Tutto il codice è su GitHub — leggilo, segnala bug, proponi miglioramenti.',
+    footerCopy: 'Patotube · © 2026 CybWu',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: 'Prossimamente',
@@ -692,8 +710,8 @@ export const DICT: Record<LandingLocale, Dict> = {
       'Auf Tauri basiert. Winzige Binary, echtes OS-Fenster, kein Tracking, keine Telemetrie.',
     featureOssTitle: 'Open Source',
     featureOssBody:
-      'MIT-Lizenz. Der gesamte Code liegt auf GitHub — lies ihn, melde Bugs, schlage Verbesserungen vor.',
-    footerCopy: 'Patotube · MIT',
+      'Der gesamte Code liegt auf GitHub — lies ihn, melde Bugs, schlage Verbesserungen vor.',
+    footerCopy: 'Patotube · © 2026 CybWu',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: 'Demnächst',
@@ -750,10 +768,10 @@ export const DICT: Record<LandingLocale, Dict> = {
     featureNativeTitle: 'Licht, snel, native',
     featureNativeBody:
       'Gebouwd op Tauri. Klein binary, echt OS-venster, geen tracking, geen telemetrie.',
-    featureOssTitle: 'Open source',
+    featureOssTitle: 'Free & transparent',
     featureOssBody:
-      'MIT-licentie. Alle code staat op GitHub — lees het, meld bugs, stel verbeteringen voor.',
-    footerCopy: 'Patotube · MIT',
+      'Alle code staat op GitHub — lees het, meld bugs, stel verbeteringen voor.',
+    footerCopy: 'Patotube · © 2026 CybWu',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: 'Binnenkort',
@@ -810,10 +828,10 @@ export const DICT: Record<LandingLocale, Dict> = {
     featureNativeTitle: 'Lekki, szybki, natywny',
     featureNativeBody:
       'Zbudowany na Tauri. Mały plik binarny, prawdziwe okno OS, bez śledzenia, bez telemetrii.',
-    featureOssTitle: 'Open source',
+    featureOssTitle: 'Free & transparent',
     featureOssBody:
-      'Licencja MIT. Cały kod jest na GitHubie — przeczytaj, zgłoś bug, zaproponuj ulepszenie.',
-    footerCopy: 'Patotube · MIT',
+      'Cały kod jest na GitHubie — przeczytaj, zgłoś bug, zaproponuj ulepszenie.',
+    footerCopy: 'Patotube · © 2026 CybWu',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: 'Wkrótce',
@@ -872,8 +890,8 @@ export const DICT: Record<LandingLocale, Dict> = {
       'Построен на Tauri. Крошечный бинарник, настоящее окно ОС, без слежения, без телеметрии.',
     featureOssTitle: 'Открытый исходный код',
     featureOssBody:
-      'Лицензия MIT. Весь код на GitHub — читайте, сообщайте об ошибках, предлагайте улучшения.',
-    footerCopy: 'Patotube · MIT',
+      'Весь код на GitHub — читайте, сообщайте об ошибках, предлагайте улучшения.',
+    footerCopy: 'Patotube · © 2026 CybWu',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: 'Скоро',
@@ -932,8 +950,8 @@ export const DICT: Record<LandingLocale, Dict> = {
       'Tauri üzerine kurulu. Minik bir ikili dosya, gerçek OS penceresi, takip yok, telemetri yok.',
     featureOssTitle: 'Açık kaynak',
     featureOssBody:
-      "MIT lisansı. Tüm kod GitHub'da — oku, hata bildir, iyileştirme öner.",
-    footerCopy: 'Patotube · MIT',
+      "Tüm kod GitHub'da — oku, hata bildir, iyileştirme öner.",
+    footerCopy: 'Patotube · © 2026 CybWu',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: 'Yakında',
@@ -992,8 +1010,8 @@ export const DICT: Record<LandingLocale, Dict> = {
       'Tauri पर आधारित। छोटी बाइनरी, असली OS विंडो, कोई ट्रैकिंग नहीं, कोई टेलीमेट्री नहीं।',
     featureOssTitle: 'ओपन सोर्स',
     featureOssBody:
-      'MIT लाइसेंस। पूरा कोड GitHub पर है — पढ़ें, बग रिपोर्ट करें, सुधार सुझाएं।',
-    footerCopy: 'Patotube · MIT',
+      'पूरा कोड GitHub पर है — पढ़ें, बग रिपोर्ट करें, सुधार सुझाएं।',
+    footerCopy: 'Patotube · © 2026 CybWu',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: 'जल्द आ रहा है',
@@ -1052,8 +1070,8 @@ export const DICT: Record<LandingLocale, Dict> = {
       'Tauri 기반. 작은 바이너리, 진짜 OS 창, 추적 없음, 텔레메트리 없음.',
     featureOssTitle: '오픈 소스',
     featureOssBody:
-      'MIT 라이선스. 모든 코드는 GitHub에 있습니다 — 읽고, 버그 신고하고, 개선 제안하세요.',
-    footerCopy: 'Patotube · MIT',
+      '모든 코드는 GitHub에 있습니다 — 읽고, 버그 신고하고, 개선 제안하세요.',
+    footerCopy: 'Patotube · © 2026 CybWu',
     footerIssues: 'Issues',
     footerReleases: 'Releases',
     comingSoon: '출시 예정',
