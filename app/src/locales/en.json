@@ -30,6 +30,7 @@
     "downloadThis": "Download",
     "openOnYoutube": "Open on YouTube",
     "playerLoading": "Resolving stream…",
+    "fetchingFromYoutube": "Fetching from YouTube — this can take a moment",
     "playerFailed": "Could not play this video",
     "playerLoadFailed": "Playback failed",
     "starting": "Starting download…",

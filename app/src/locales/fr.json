@@ -30,6 +30,7 @@
     "downloadThis": "Télécharger",
     "openOnYoutube": "Ouvrir sur YouTube",
     "playerLoading": "Récupération du flux…",
+    "fetchingFromYoutube": "Récupération depuis YouTube — ça peut prendre un instant",
     "playerFailed": "Lecture impossible",
     "playerLoadFailed": "Échec de la lecture",
     "starting": "Lancement du téléchargement…",

@@ -186,6 +186,15 @@ class MediaPlaybackService : Service() {
   }
 
   override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    // CONTRACT: every launch arrives via startForegroundService() (see
+    // sendIntent), so Android 12+ kills the whole app with
+    // ForegroundServiceDidNotStartInTimeException unless startForeground()
+    // is called within ~5 s of EACH launch — even for a launch that only
+    // wants to tear the service back down. So we promote to foreground
+    // FIRST, unconditionally, then let the action decide to stay or stop.
+    // (This was the "crashed after 3 taps" bug: STOP_IF_IDLE called
+    // stopSelf() without ever calling startForeground().)
+    goForeground()
     when (intent?.action) {
       ACTION_BG_START -> handleBgStart(intent)
       ACTION_BG_STOP -> handleBgStop()
@@ -199,12 +208,13 @@ class MediaPlaybackService : Service() {
       ACTION_STOP_IF_IDLE -> {
         if (bgPlayer == null) {
           Log.d(TAG, "STOP_IF_IDLE: idle, tearing down")
+          stopForegroundCompat()
           stopSelf()
         } else {
           Log.d(TAG, "STOP_IF_IDLE: bgPlayer alive, staying up")
         }
       }
-      else -> goForeground()
+      else -> { /* already foregrounded above — nothing more to do */ }
     }
     return START_NOT_STICKY
   }

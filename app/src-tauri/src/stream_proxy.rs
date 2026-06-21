@@ -28,18 +28,20 @@ use crate::youtube_kernel::stream_url::{resolve, ResolvedStream};
 // serving a stale signature on the edge of expiry.
 const CACHE_TTL: Duration = Duration::from_secs(60 * 60 * 4);
 
-/// Maximum number of bytes returned per Range response. Without this
-/// the Android WebView issues `Range: bytes=0-` (open-ended) on the
-/// initial fetch, googlevideo happily streams the entire 200-MB file,
-/// and `resp.bytes().await` buffers it ALL in RAM before we can
-/// respond → `java.lang.OutOfMemoryError: Failed to allocate a
-/// 286715944 byte allocation` (caught on a real device).
+/// Maximum number of bytes returned per Range response. Without a cap
+/// the Android WebView issues `Range: bytes=0-` (open-ended), googlevideo
+/// streams the entire file, and `resp.bytes().await` buffers it ALL in
+/// RAM → `java.lang.OutOfMemoryError: Failed to allocate a 286715944
+/// byte allocation` (caught on a real device).
 ///
-/// 4 MiB is a sweet spot: large enough that the WebView usually gets
-/// the MP4 metadata box on the first chunk and can start playing
-/// without further round-trips, small enough that we stay ~50× below
-/// the OOM threshold and don't stall slow-cellular initial loads.
-const MAX_CHUNK_BYTES: u64 = 4 * 1024 * 1024;
+/// The cap MUST exceed the MP4 `moov` atom (the index the player needs
+/// before it can start), or the WebView receives a truncated index and
+/// stalls. A 3 h 360p video (Kaamelott Livre II, 382 MB) carries a
+/// 4.78 MB moov — bigger than the old 4 MiB cap, which is exactly why
+/// long videos failed to start while short ones (small moov) played.
+/// 24 MiB swallows the moov of even an ~8 h video in a single chunk yet
+/// stays ~12× below the OOM threshold.
+const MAX_CHUNK_BYTES: u64 = 24 * 1024 * 1024;
 
 #[derive(Clone)]
 struct CacheEntry {
