@@ -31,13 +31,17 @@ const sheetVariants = cva(
   'fixed z-50 gap-4 bg-card p-6 shadow-2xl border border-border/60 transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-220 data-[state=open]:duration-260',
   {
     variants: {
+      // Each side adds the right Android edge-to-edge safe-area inset so
+      // the sheet's own title/content never slides under the status bar
+      // (top) or the gesture-nav bar (bottom). `max(inset, 1.5rem)` keeps
+      // the desktop p-6 look while pushing past system chrome on mobile.
       side: {
         right:
-          'inset-y-0 right-0 h-full w-80 max-w-[85vw] data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right rounded-l-xl',
-        left: 'inset-y-0 left-0 h-full w-80 max-w-[85vw] data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left rounded-r-xl',
-        top: 'inset-x-0 top-0 data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top rounded-b-xl',
+          'inset-y-0 right-0 h-full w-80 max-w-[85vw] data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right rounded-l-xl pt-[max(env(safe-area-inset-top),1.5rem)] pb-[max(env(safe-area-inset-bottom),1.5rem)]',
+        left: 'inset-y-0 left-0 h-full w-80 max-w-[85vw] data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left rounded-r-xl pt-[max(env(safe-area-inset-top),1.5rem)] pb-[max(env(safe-area-inset-bottom),1.5rem)]',
+        top: 'inset-x-0 top-0 data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top rounded-b-xl pt-[max(env(safe-area-inset-top),1.5rem)]',
         bottom:
-          'inset-x-0 bottom-0 data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom rounded-t-xl',
+          'inset-x-0 bottom-0 data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom rounded-t-xl pb-[max(env(safe-area-inset-bottom),1.5rem)]',
       },
     },
     defaultVariants: { side: 'right' },
@@ -65,7 +69,7 @@ export const SheetContent = React.forwardRef<
         {...props}
       >
         {children}
-        <DialogPrimitive.Close className="absolute right-4 top-4 rounded-md p-1 opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring">
+        <DialogPrimitive.Close className="absolute right-4 top-[max(env(safe-area-inset-top),1rem)] rounded-md p-1 opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring">
           <X className="size-4" />
           <span className="sr-only">{t('a11y.close')}</span>
         </DialogPrimitive.Close>

@@ -22,7 +22,7 @@ export function Header() {
   const [filesOpen, setFilesOpen] = useState(false);
 
   return (
-    <header className="drag-region flex items-center justify-between border-b border-border/40 bg-background/60 px-4 py-3 backdrop-blur-md">
+    <header className="drag-region flex items-center justify-between border-b border-border/40 bg-background/60 px-4 pb-3 pt-[max(env(safe-area-inset-top),0.75rem)] backdrop-blur-md">
       <div className="flex items-center gap-2.5">
         <img
           src="/patotube.png"
