@@ -63,7 +63,10 @@ jobs:
 
       - name: Build AppImage
         working-directory: app
-        run: pnpm tauri build --bundles appimage
+        # Disable updater artifacts here: they require the private signing
+        # key (kept off CI). The AppImage itself is still produced and is
+        # directly downloadable; the desktop updater path stays on Windows.
+        run: pnpm tauri build --bundles appimage --config '{"bundle":{"createUpdaterArtifacts":false}}'
 
       - name: Attach AppImage to the release
         env:
