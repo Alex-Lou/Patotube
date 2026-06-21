@@ -1,0 +1,70 @@
+name: Build Linux AppImage
+
+# Builds the Linux desktop bundle in a clean Ubuntu and attaches the
+# AppImage to an existing GitHub Release. Triggered manually so it can be
+# run for any tag (the local Windows machine can't produce a Linux build).
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to attach the AppImage to (e.g. v0.6.22)"
+        required: true
+        default: "v0.6.22"
+
+permissions:
+  contents: write
+
+jobs:
+  appimage:
+    name: Build AppImage
+    # 22.04 links against an older glibc, so the AppImage runs on a much
+    # wider range of distros than one built on 24.04.
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout the release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag }}
+
+      - name: Install Tauri system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libgtk-3-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            build-essential \
+            curl wget file \
+            libssl-dev \
+            libxdo-dev \
+            patchelf
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build AppImage
+        working-directory: app
+        run: pnpm tauri build --bundles appimage
+
+      - name: Attach AppImage to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          APPIMAGE=$(ls app/src-tauri/target/release/bundle/appimage/*.AppImage | head -1)
+          echo "Uploading: $APPIMAGE"
+          gh release upload "${{ github.event.inputs.tag }}" "$APPIMAGE" --clobber
