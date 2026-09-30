@@ -11,7 +11,7 @@ import { getTauri, type SearchResult } from '@/lib/tauri/bindings';
 import type { MediaInfo } from '@/lib/core/types';
 import { PlatformBadge } from './platform-badge';
 import { SearchResults } from '@/features/search/search-results';
-import { SearchPlayerDialog } from '@/features/search/search-player-dialog';
+import { usePlayback } from '@/features/search/use-playback';
 import { PlayerDownloadDialog } from '@/features/search/player-download-dialog';
 
 const SEARCH_DEBOUNCE_MS = 400;
@@ -55,7 +55,6 @@ export function UrlInput({ onResolved }: UrlInputProps) {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
-  const [playing, setPlaying] = useState<SearchResult | null>(null);
   const [downloadFromPlayer, setDownloadFromPlayer] = useState<SearchResult | null>(null);
 
   // Strict URL detection: the whole trimmed value must parse as an
@@ -229,7 +228,8 @@ export function UrlInput({ onResolved }: UrlInputProps) {
   // search renderer — no extra fetchMediaInfo round-trip needed.
   // Goes straight to the small format-picker modal.
   const handlePick = (r: SearchResult) => setDownloadFromPlayer(r);
-  const handlePlay = (r: SearchResult) => setPlaying(r);
+  const handlePlay = (r: SearchResult) =>
+    usePlayback.getState().open(r, { onDownload: handleDownloadFromPlayer });
   // Player → "Télécharger" : the player stays open behind a small
   // format-picker modal. Both dismiss together on confirm.
   const handleDownloadFromPlayer = (r: SearchResult) => setDownloadFromPlayer(r);
@@ -340,18 +340,12 @@ export function UrlInput({ onResolved }: UrlInputProps) {
         />
       )}
 
-      <SearchPlayerDialog
-        result={playing}
-        onClose={() => setPlaying(null)}
-        onDownload={handleDownloadFromPlayer}
-      />
-
       <PlayerDownloadDialog
         result={downloadFromPlayer}
         onClose={() => setDownloadFromPlayer(null)}
         onConfirmed={() => {
           setDownloadFromPlayer(null);
-          setPlaying(null);
+          usePlayback.getState().close();
           setValue('');
           setResults([]);
         }}

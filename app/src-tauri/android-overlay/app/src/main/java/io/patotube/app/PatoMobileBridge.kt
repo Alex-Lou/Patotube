@@ -51,11 +51,13 @@ class PatoMobileBridge(
         var pendingIntent: String? = null
 
         /** Tracked from JS via `setMediaPlaying(true/false)`. Read
-         *  by MainActivity.onUserLeaveHint to decide whether to
-         *  slip into Picture-in-Picture when the user backgrounds
-         *  the app. */
+         *  by MainActivity.onPause/onStop to keep the WebView alive
+         *  while a <video> plays. */
         @Volatile
         var isMediaPlaying: Boolean = false
+
+        /** Upper bound for readFileBase64 (in-app player on Android). */
+        private const val MAX_INLINE_PLAYBACK_BYTES = 150L * 1024L * 1024L
     }
 
     /** Read-and-clear access to the cross-thread pending intent.
@@ -74,17 +76,13 @@ class PatoMobileBridge(
      *    1. PARTIAL_WAKE_LOCK so the CPU doesn't sleep
      *    2. MediaPlaybackService (foreground with notification) so
      *       Android keeps the WebView alive when the screen is off
-     *    3. The `isMediaPlaying` flag is read by MainActivity for
-     *       Picture-in-Picture decisions and onPause/onStop logic. */
+     *    3. The `isMediaPlaying` flag read by MainActivity.onPause/onStop. */
     @JavascriptInterface
     fun setMediaPlaying(playing: Boolean) {
         isMediaPlaying = playing
         if (playing) {
             acquireWakeLock()
             MediaPlaybackService.start(context)
-            // System PiP intentionally not armed — Patotube uses an
-            // in-app floating mini-player (see use-floating-player.ts)
-            // for a custom-chrome experience the OS PiP can't match.
         } else {
             releaseWakeLock()
             // stopIfIdle, not stop(): a background-audio session
@@ -95,31 +93,12 @@ class PatoMobileBridge(
         }
     }
 
-    /** Called from JS whenever the <video> element learns its
-     *  intrinsic dimensions (loadedmetadata) or moves on screen
-     *  (viewport resize, orientation change). All numbers are in
-     *  device pixels (JS multiplies by devicePixelRatio first). */
-    @JavascriptInterface
-    fun setVideoBounds(
-        left: Int,
-        top: Int,
-        width: Int,
-        height: Int,
-        ratioW: Int,
-        ratioH: Int,
-    ) {
-        val activity = context as? MainActivity ?: return
-        activity.runOnUiThread {
-            activity.applyVideoBounds(left, top, width, height, ratioW, ratioH)
-        }
-    }
-
     /** "Listen in background" mode: hand audio to a native Android
      *  MediaPlayer running in the foreground service so playback
      *  survives the screen lock, the activity being killed, the
      *  user closing the dialog — anything short of a force stop.
-     *  Called explicitly from the UI (button click). Use case:
-     *  user wants music without the visible player. */
+     *  Called from the "Listen in background" buttons, and
+     *  automatically when the app is backgrounded mid-playback. */
     @JavascriptInterface
     fun startBackgroundAudio(
         url: String,
@@ -139,15 +118,11 @@ class PatoMobileBridge(
         MediaPlaybackService.stopBackgroundAudio(context)
     }
 
-    /** "Floating window" mode: enter Picture-in-Picture right now.
-     *  Called explicitly from the UI; the auto path on home-press
-     *  is handled separately by MainActivity.onUserLeaveHint /
-     *  autoEnterEnabled. */
+    /** Live position of the native background player, -1 when no
+     *  background session is alive. Lets JS bring the track back
+     *  into a visible player at the right spot. */
     @JavascriptInterface
-    fun enterPipNow() {
-        val activity = context as? MainActivity ?: return
-        activity.runOnUiThread { activity.enterPipNow() }
-    }
+    fun getBackgroundPositionMs(): Int = MediaPlaybackService.currentPositionMs() ?: -1
 
     private var wakeLock: PowerManager.WakeLock? = null
 
@@ -207,7 +182,17 @@ class PatoMobileBridge(
      *  Returns null on any read error (file missing, permission
      *  denied, …) so JS can surface a clean error toast. */
     @JavascriptInterface
-    fun readFileBase64(path: String): String? = FileOps.readFileBase64(path)
+    fun readFileBase64(path: String): String? {
+        // The whole file travels as one base64 string (+33 %), then gets
+        // copied again in JS: a big video would OOM the app. Refuse
+        // instead; JS shows its "playback failed" toast.
+        val size = java.io.File(path).length()
+        if (size > MAX_INLINE_PLAYBACK_BYTES) {
+            Log.w(TAG, "readFileBase64: $path is $size bytes, over the inline limit")
+            return null
+        }
+        return FileOps.readFileBase64(path)
+    }
 
     /** Strip the video track from `srcPath`, write the audio-only
      *  result to `dstPath`. See file header for the callback
