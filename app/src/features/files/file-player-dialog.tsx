@@ -16,7 +16,6 @@ import {
   hasNativeBridge,
   readAsBlobUrl,
   bindMediaPlaybackNative,
-  bindVideoBoundsNative,
 } from '@/lib/android/bridge';
 import { usePlayerStore } from './player-store';
 
@@ -50,11 +49,6 @@ export function FilePlayerDialog() {
 
   // Wire native bridge so Android keeps audio/video alive in BG.
   useEffect(() => bindMediaPlaybackNative(mediaRef.current), [src]);
-  // PiP aspect/source rect (only meaningful for the video tag).
-  useEffect(() => {
-    if (entry?.mimeKind !== 'video') return;
-    return bindVideoBoundsNative(mediaRef.current as HTMLVideoElement | null);
-  }, [src, entry]);
 
   useEffect(() => {
     if (!entry) {

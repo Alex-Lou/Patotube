@@ -7,11 +7,8 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { Splash } from '@/components/splash';
 import { Header } from '@/components/header';
 import { FilePlayerDialog } from '@/features/files/file-player-dialog';
-import { FloatingPlayer } from '@/features/search/floating-player';
-import { GlobalPlayerDialog } from '@/features/search/global-player-dialog';
-import { useFloatingPlayer } from '@/features/search/use-floating-player';
-import { usePlayerDialog } from '@/features/search/use-player-dialog';
-import { convertFileSrc } from '@tauri-apps/api/core';
+import { PlayerHost } from '@/features/search/player-host';
+import { usePlayback } from '@/features/search/use-playback';
 import type { SearchResult } from '@/lib/tauri/bindings';
 import { usePlayerStore } from '@/features/files/player-store';
 import { consumePendingIntent, hasNativeBridge, type PendingIntent } from '@/lib/android/bridge';
@@ -83,14 +80,7 @@ export function App() {
           viewCount: null,
           published: null,
         };
-        if (intent.mode === 'dialog') {
-          usePlayerDialog.getState().open(result, intent.startAt);
-        } else {
-          // Floating wants a `src` URL — derive it from the videoId
-          // exactly like SearchPlayerDialog does (`patostream://`).
-          const src = convertFileSrc(intent.videoId, 'patostream');
-          useFloatingPlayer.getState().open(result, src, intent.startAt);
-        }
+        usePlayback.getState().open(result, { mode: intent.mode, startAt: intent.startAt });
         // Dismiss when the video is actually playing — best effort
         // via short delay; if playback fails the 4 s auto-dismiss
         // catches it.
@@ -354,15 +344,8 @@ export function App() {
         {/* Embedded player: FilesSheet fallback when no system app handles MIME, or via patotube://open-file. */}
         <FilePlayerDialog />
 
-        {/* In-app floating mini-player. Opened from the "Floating window"
-            button in SearchPlayerDialog; lives at App level so it survives
-            the dialog being unmounted. */}
-        <FloatingPlayer />
-
-        {/* Global re-entry point for SearchPlayerDialog — driven by
-            usePlayerDialog. Used by FloatingPlayer's expand button and
-            by the Android notification's "App" action. */}
-        <GlobalPlayerDialog />
+        {/* The one YouTube player (full dialog or floating), driven by usePlayback. */}
+        <PlayerHost />
       </div>
     </TooltipProvider>
   );
