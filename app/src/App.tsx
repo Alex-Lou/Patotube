@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Toaster, toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -27,6 +27,10 @@ const SPLASH_DURATION_MS = 900;
 
 export function App() {
   const { t } = useTranslation();
+  // Read by the external-action dispatcher, which must stay stable:
+  // its listeners replay the cold-start deep link when re-installed.
+  const tRef = useRef(t);
+  tRef.current = t;
   const { resolvedTheme } = useTheme();
   const [pendingPreview, setPendingPreview] = useState<MediaInfo | null>(null);
   const [dragOver, setDragOver] = useState(false);
@@ -70,7 +74,7 @@ export function App() {
         // tearing down and the WebView <video> hitting `play()` at
         // the right offset — without it the user sees an empty UI
         // and thinks the action did nothing.
-        const tid = toast.loading(t('search.resuming'), { duration: 4000 });
+        const tid = toast.loading(tRef.current('search.resuming'), { duration: 4000 });
         const result: SearchResult = {
           videoId: intent.videoId,
           title: intent.title,

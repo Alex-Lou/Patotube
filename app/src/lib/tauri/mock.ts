@@ -1,12 +1,17 @@
-import type { TauriApi, Unlisten } from './bindings';
+import type {
+  DownloadProgressEvent,
+  DownloadStatusEvent,
+  TauriApi,
+  Unlisten,
+} from './bindings';
 import type { MediaInfo } from '@/lib/core/types';
 import { detectPlatform } from '@/lib/core/platform';
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 export function mockTauri(): TauriApi {
-  const progressHandlers = new Set<(e: any) => void>();
-  const statusHandlers = new Set<(e: any) => void>();
+  const progressHandlers = new Set<(e: DownloadProgressEvent) => void>();
+  const statusHandlers = new Set<(e: DownloadStatusEvent) => void>();
 
   return {
     async fetchMediaInfo(url: string): Promise<MediaInfo> {
