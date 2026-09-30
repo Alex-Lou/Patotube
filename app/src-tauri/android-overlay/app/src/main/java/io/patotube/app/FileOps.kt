@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.media.MediaScannerConnection
 import android.net.Uri
+import android.os.Environment
 import android.util.Base64
 import android.util.Log
 import androidx.core.content.FileProvider
@@ -16,8 +17,41 @@ import java.io.File
 object FileOps {
     private const val TAG = "PatotubeFileOps"
 
+    /** Same list as `classify` in files.rs. */
+    private val MEDIA_EXTS = setOf("mp3", "m4a", "ogg", "opus", "flac", "wav", "aac", "mp4", "mkv", "webm")
+
+    /** These methods are reachable from the WebView, so they only ever
+     *  touch media files. Anything else is refused. */
+    fun isMediaPath(path: String): Boolean =
+        File(path).extension.lowercase() in MEDIA_EXTS
+
+    /** The three output dirs Rust writes into (output_path.rs). Paths
+     *  are canonicalised so `..` and symlinks cannot escape. */
+    fun isInDownloadRoots(context: Context, path: String): Boolean {
+        return try {
+            val target = File(path).canonicalPath
+            val roots = listOfNotNull(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
+                File(context.filesDir, "Download"),
+            )
+            roots.any { target.startsWith(it.canonicalPath + File.separator) }
+        } catch (e: Exception) {
+            Log.w(TAG, "isInDownloadRoots($path) failed", e)
+            false
+        }
+    }
+
+    /** Mutations (delete / rename) are limited to our own downloads. */
+    private fun isWritableTarget(context: Context, path: String): Boolean =
+        isMediaPath(path) && isInDownloadRoots(context, path)
+
     /** Best-effort delete. True if the file is gone after the call. */
-    fun deleteFile(path: String): Boolean {
+    fun deleteFile(context: Context, path: String): Boolean {
+        if (!isWritableTarget(context, path)) {
+            Log.w(TAG, "deleteFile: refused $path")
+            return false
+        }
         return try {
             val f = File(path)
             !f.exists() || f.delete()
@@ -30,7 +64,11 @@ object FileOps {
     /** Atomic-ish rename. Deletes any existing file at `dstPath`
      *  first so renaming over the destination succeeds. Returns
      *  true if the source ended up at the destination. */
-    fun renameFile(srcPath: String, dstPath: String): Boolean {
+    fun renameFile(context: Context, srcPath: String, dstPath: String): Boolean {
+        if (!isWritableTarget(context, srcPath) || !isWritableTarget(context, dstPath)) {
+            Log.w(TAG, "renameFile: refused $srcPath -> $dstPath")
+            return false
+        }
         return try {
             val src = File(srcPath)
             val dst = File(dstPath)
@@ -155,6 +193,12 @@ object FileOps {
      *  asset:// protocol on Android (which silently fails for
      *  arbitrary paths). Returns null on any IO error. */
     fun readFileBase64(path: String): String? {
+        // Read-only, and "Open with → Patotube" can point anywhere on
+        // the device, so only the media-type check applies here.
+        if (!isMediaPath(path)) {
+            Log.w(TAG, "readFileBase64: refused non-media $path")
+            return null
+        }
         return try {
             val bytes = File(path).readBytes()
             Base64.encodeToString(bytes, Base64.NO_WRAP)
