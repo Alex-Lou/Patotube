@@ -66,8 +66,12 @@ jobs:
         id: apk
         run: |
           find app/src-tauri/gen/android/app/build/outputs/apk -name '*.apk' -print
-          apk=$(find app/src-tauri/gen/android/app/build/outputs/apk -path '*release*' -name '*.apk' | head -n1)
-          test -n "$apk" || { echo "no release APK produced"; exit 1; }
+          # Gradle also emits one (empty) split per ABI: take the universal one.
+          apk=app/src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-universal-release.apk
+          test -f "$apk" || { echo "universal release APK not found"; exit 1; }
+          # Without the Rust library the app crashes on launch: never publish that.
+          unzip -l "$apk" | grep -q 'lib/arm64-v8a/libpatotube_lib.so' \
+            || { echo "APK has no arm64 libpatotube_lib.so"; exit 1; }
           cp "$apk" Patotube-preview.apk
           version=$(node -p "require('./app/package.json').version")
           echo "tag=v${version}-preview.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
