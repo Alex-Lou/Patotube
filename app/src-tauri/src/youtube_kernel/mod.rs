@@ -115,7 +115,8 @@ pub async fn start(
     let video_id_owned = video_id.clone();
     let format_choice = input.format.clone();
 
-    tokio::spawn(async move {
+    let task_job_id = job_id.clone();
+    let task = tokio::spawn(async move {
         let result = run_download(
             &app_handle,
             &job_id,
@@ -139,6 +140,8 @@ pub async fn start(
         }
         registry_clone.remove(&job_id);
     });
+    // Lets cancel_download abort this job (drops the stream mid-flight).
+    registry.register_task(task_job_id, task.abort_handle());
 
     Ok(())
 }
