@@ -7,7 +7,16 @@ const MAX_HISTORY = 20;
 const uid = (): string =>
   `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
-const trim = (jobs: DownloadJob[]): DownloadJob[] => jobs.slice(0, MAX_HISTORY);
+/** Still running on the Rust / Kotlin side. */
+export const isInFlight = (job: DownloadJob): boolean =>
+  job.status === 'pending' || job.status === 'downloading' || job.status === 'converting';
+
+/** Caps the history at MAX_HISTORY finished jobs. In-flight jobs are
+ *  never dropped: their events would then land on a missing job. */
+export const trim = (jobs: DownloadJob[]): DownloadJob[] => {
+  let finished = 0;
+  return jobs.filter((j) => isInFlight(j) || ++finished <= MAX_HISTORY);
+};
 
 interface QueueState {
   jobs: DownloadJob[];
@@ -70,9 +79,7 @@ export const useQueueStore = create<QueueState>()(
         if (!state) return;
         state.jobs = trim(
           state.jobs.map((j) =>
-            j.status === 'pending' || j.status === 'downloading' || j.status === 'converting'
-              ? { ...j, status: 'failed' as JobStatus, error: 'Interrupted' }
-              : j,
+            isInFlight(j) ? { ...j, status: 'failed' as JobStatus, error: 'Interrupted' } : j,
           ),
         );
       },
