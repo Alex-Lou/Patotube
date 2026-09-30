@@ -57,9 +57,10 @@ static HTTP_CLIENT: Lazy<reqwest::Client> = Lazy::new(|| {
     reqwest::Client::builder()
         .pool_idle_timeout(Duration::from_secs(30))
         .pool_max_idle_per_host(8)
-        // Generous total timeout per request — large chunks on a
-        // slow link can take a while. Connect timeout is shorter.
-        .timeout(Duration::from_secs(20))
+        // Idle timeout, not a total one: a 24 MiB chunk takes longer
+        // than 20 s below ~1.2 MB/s, which is a slow link, not a
+        // dead one. A stalled read still fails after 20 s.
+        .read_timeout(Duration::from_secs(20))
         .connect_timeout(Duration::from_secs(8))
         .build()
         .expect("http client")

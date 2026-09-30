@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getTauri } from '@/lib/tauri/bindings';
 import { useQueueStore } from '@/lib/core/queue';
@@ -15,6 +15,11 @@ import { enqueueJob, retryJob } from './actions';
 /** Mount in ONE place (App root). Wires Tauri progress/status events to the queue store. */
 export function useDownloadEvents() {
   const { t } = useTranslation();
+  // Listeners are installed once: re-subscribing on a language change
+  // would drop any event fired during the async re-listen (a job then
+  // stays "downloading" forever). They read the current `t` from here.
+  const tRef = useRef(t);
+  tRef.current = t;
 
   useEffect(() => {
     let unsubProgress: (() => void) | undefined;
@@ -43,9 +48,9 @@ export function useDownloadEvents() {
         if (e.filePath) queue.update(e.jobId, { filePath: e.filePath });
 
         if (e.status === 'done') {
-          void handleDoneEvent(e.jobId, t);
+          void handleDoneEvent(e.jobId, tRef.current);
         } else if (e.status === 'failed') {
-          handleFailedEvent(e.jobId, e.error, t);
+          handleFailedEvent(e.jobId, e.error, tRef.current);
         }
       });
 
@@ -65,7 +70,7 @@ export function useDownloadEvents() {
       unsubProgress?.();
       unsubStatus?.();
     };
-  }, [t]);
+  }, []);
 }
 
 /** `done` is final everywhere except Android audio (needs remux). */
@@ -98,7 +103,9 @@ function handleFailedEvent(
   t: TFunc,
 ): void {
   const job = useQueueStore.getState().jobs.find((j) => j.id === jobId);
-  showFailToast(jobId, job?.info.title ?? '', rawError, t);
+  // Removed by the user: its cancellation surfaces as a failure, not news.
+  if (!job) return;
+  showFailToast(jobId, job.info.title, rawError, t);
 }
 
 /** No listeners — just side-effecting actions, safe anywhere. */
