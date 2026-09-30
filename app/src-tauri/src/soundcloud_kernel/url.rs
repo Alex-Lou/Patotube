@@ -8,16 +8,11 @@ const KNOWN_HOSTS: &[&str] = &[
 ];
 
 pub fn is_soundcloud_url(url: &str) -> bool {
-    let lower = url.trim().to_lowercase();
-    KNOWN_HOSTS
-        .iter()
-        .any(|h| lower.contains(&format!("://{h}/")) || lower.contains(&format!("://{h}?")))
+    crate::url_guard::http_host(url).is_some_and(|h| KNOWN_HOSTS.contains(&h.as_str()))
 }
 
 pub fn is_short_url(url: &str) -> bool {
-    url.trim()
-        .to_lowercase()
-        .contains("://on.soundcloud.com/")
+    crate::url_guard::http_host(url).as_deref() == Some("on.soundcloud.com")
 }
 
 pub fn canonicalise(url: &str) -> Option<String> {
@@ -53,6 +48,7 @@ mod tests {
         assert!(!is_soundcloud_url("https://example.com/soundcloud.com/x"));
         assert!(!is_soundcloud_url("https://www.youtube.com/watch?v=abc"));
         assert!(!is_soundcloud_url(""));
+        assert!(!is_soundcloud_url("http://127.0.0.1/://on.soundcloud.com/x"));
     }
 
     #[test]
