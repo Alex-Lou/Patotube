@@ -28,12 +28,16 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.ServiceInfo
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.AudioAttributes
+import android.media.AudioFocusRequest
+import android.media.AudioManager
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
@@ -42,10 +46,12 @@ import java.net.URL
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.os.PowerManager
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.media.app.NotificationCompat.MediaStyle
 import org.json.JSONObject
 
@@ -68,10 +74,13 @@ class MediaPlaybackService : Service() {
     fun currentPositionMs(): Int? {
       val svc = instance ?: return null
       val mp = svc.bgPlayer ?: return null
+      // Still preparing: the session is alive, it just hasn't reached
+      // the requested start position yet.
+      if (!svc.prepared) return svc.startPositionMs
       return try {
         mp.currentPosition
       } catch (_: Throwable) {
-        null
+        svc.startPositionMs
       }
     }
 
@@ -142,6 +151,10 @@ class MediaPlaybackService : Service() {
   )
 
   private var bgPlayer: MediaPlayer? = null
+  /** False between setDataSource and onPrepared. */
+  @Volatile private var prepared: Boolean = false
+  /** Position the current session was asked to start at. */
+  @Volatile private var startPositionMs: Int = 0
   private var mediaSession: MediaSessionCompat? = null
   private var currentTrack: TrackInfo? = null
   /** Decoded thumbnail bitmap shown in the notif + as artwork on the
@@ -167,10 +180,54 @@ class MediaPlaybackService : Service() {
     }
   }
 
+  private val playbackAttributes: AudioAttributes = AudioAttributes.Builder()
+    .setUsage(AudioAttributes.USAGE_MEDIA)
+    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+    .build()
+
+  // ---- audio focus: pause for calls / other apps, duck for short sounds.
+  private var focusRequest: AudioFocusRequest? = null
+  /** Set when a transient focus loss paused us, so the regain resumes. */
+  private var resumeOnFocusGain = false
+  private val focusListener = AudioManager.OnAudioFocusChangeListener { change ->
+    when (change) {
+      AudioManager.AUDIOFOCUS_LOSS -> {
+        resumeOnFocusGain = false
+        togglePlay(false)
+      }
+      AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+        resumeOnFocusGain = isPlaying
+        togglePlay(false)
+      }
+      AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> bgPlayer?.setVolume(0.2f, 0.2f)
+      AudioManager.AUDIOFOCUS_GAIN -> {
+        bgPlayer?.setVolume(1f, 1f)
+        if (resumeOnFocusGain) {
+          resumeOnFocusGain = false
+          togglePlay(true)
+        }
+      }
+    }
+  }
+
+  /** Headphones unplugged / Bluetooth dropped: pause instead of
+   *  blasting through the speaker. */
+  private val noisyReceiver = object : BroadcastReceiver() {
+    override fun onReceive(context: Context?, intent: Intent?) {
+      if (intent?.action == AudioManager.ACTION_AUDIO_BECOMING_NOISY) togglePlay(false)
+    }
+  }
+
   override fun onCreate() {
     super.onCreate()
     instance = this
     createNotificationChannel()
+    ContextCompat.registerReceiver(
+      this,
+      noisyReceiver,
+      IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY),
+      ContextCompat.RECEIVER_NOT_EXPORTED,
+    )
     mediaSession = MediaSessionCompat(this, "PatotubeBgAudio").apply {
       setCallback(object : MediaSessionCompat.Callback() {
         override fun onPlay() = togglePlay(true)
@@ -223,6 +280,9 @@ class MediaPlaybackService : Service() {
 
   override fun onDestroy() {
     mainHandler.removeCallbacks(notifTick)
+    try {
+      unregisterReceiver(noisyReceiver)
+    } catch (_: IllegalArgumentException) { /* not registered */ }
     releaseBgPlayer()
     mediaSession?.run {
       isActive = false
@@ -280,10 +340,14 @@ class MediaPlaybackService : Service() {
 
   private fun handleBgStop() {
     releaseBgPlayer()
+    // Drop the transport actions: nothing left for them to control.
+    refreshNotification()
   }
 
   private fun togglePlay(shouldPlay: Boolean) {
     val mp = bgPlayer ?: return
+    if (!prepared) return
+    if (shouldPlay && !requestAudioFocus()) return
     try {
       if (shouldPlay && !mp.isPlaying) mp.start()
       else if (!shouldPlay && mp.isPlaying) mp.pause()
@@ -304,13 +368,12 @@ class MediaPlaybackService : Service() {
 
   private fun startBgPlayer(url: String, ua: String, positionMs: Int) {
     releaseBgPlayer()
+    startPositionMs = positionMs
     bgPlayer = MediaPlayer().apply {
-      setAudioAttributes(
-        AudioAttributes.Builder()
-          .setUsage(AudioAttributes.USAGE_MEDIA)
-          .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-          .build(),
-      )
+      setAudioAttributes(playbackAttributes)
+      // Keeps the CPU awake while streaming with the screen off; the
+      // WebView's wake lock is released as soon as its <video> pauses.
+      setWakeMode(applicationContext, PowerManager.PARTIAL_WAKE_LOCK)
       val headers = if (ua.isNotEmpty()) mapOf("User-Agent" to ua) else emptyMap()
       try {
         setDataSource(this@MediaPlaybackService, Uri.parse(url), headers)
@@ -320,6 +383,7 @@ class MediaPlaybackService : Service() {
         return@apply
       }
       setOnPreparedListener { mp ->
+        prepared = true
         try {
           if (positionMs > 0) {
             // SEEK_CLOSEST (API 26+) lands on the requested frame —
@@ -332,6 +396,13 @@ class MediaPlaybackService : Service() {
             } else {
               mp.seekTo(positionMs)
             }
+          }
+          if (!requestAudioFocus()) {
+            // A call or another app holds focus: stay paused, the
+            // notification's Play button retries.
+            updatePlaybackState()
+            refreshNotification()
+            return@setOnPreparedListener
           }
           mp.start()
           this@MediaPlaybackService.isPlaying = true
@@ -350,10 +421,8 @@ class MediaPlaybackService : Service() {
         true
       }
       setOnCompletionListener {
-        this@MediaPlaybackService.isPlaying = false
-        updatePlaybackState()
-        refreshNotification()
         releaseBgPlayer()
+        refreshNotification()
       }
       try {
         prepareAsync()
@@ -365,6 +434,8 @@ class MediaPlaybackService : Service() {
   }
 
   private fun releaseBgPlayer() {
+    abandonAudioFocus()
+    prepared = false
     bgPlayer?.apply {
       try {
         if (isPlaying) stop()
@@ -376,6 +447,33 @@ class MediaPlaybackService : Service() {
     bgPlayer = null
     isPlaying = false
     updatePlaybackState()
+  }
+
+  private fun requestAudioFocus(): Boolean {
+    val am = getSystemService(AudioManager::class.java) ?: return true
+    val result = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      val req = focusRequest ?: AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+        .setAudioAttributes(playbackAttributes)
+        .setOnAudioFocusChangeListener(focusListener, mainHandler)
+        .build()
+        .also { focusRequest = it }
+      am.requestAudioFocus(req)
+    } else {
+      @Suppress("DEPRECATION")
+      am.requestAudioFocus(focusListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN)
+    }
+    return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+  }
+
+  private fun abandonAudioFocus() {
+    resumeOnFocusGain = false
+    val am = getSystemService(AudioManager::class.java) ?: return
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      focusRequest?.let { am.abandonAudioFocusRequest(it) }
+    } else {
+      @Suppress("DEPRECATION")
+      am.abandonAudioFocus(focusListener)
+    }
   }
 
   private fun postJsError(message: String) {
@@ -479,6 +577,21 @@ class MediaPlaybackService : Service() {
       PendingIntent.FLAG_UPDATE_CURRENT
     }
     val contentIntent = PendingIntent.getActivity(this, 0, launchIntent, pendingFlags)
+
+    // WebView playback (no native player): the service only keeps the
+    // app alive. Transport / resume actions would have nothing to act
+    // on, so the notification shows none.
+    if (bgPlayer == null) {
+      return NotificationCompat.Builder(this, CHANNEL_ID)
+        .setContentTitle("Patotube")
+        .setContentText("Lecture en cours")
+        .setSmallIcon(android.R.drawable.ic_media_play)
+        .setContentIntent(contentIntent)
+        .setPriority(NotificationCompat.PRIORITY_LOW)
+        .setSilent(true)
+        .setCategory(NotificationCompat.CATEGORY_TRANSPORT)
+        .build()
+    }
 
     val toggleIcon = if (isPlaying) android.R.drawable.ic_media_pause else android.R.drawable.ic_media_play
     val toggleLabel = if (isPlaying) "Pause" else "Lecture"
