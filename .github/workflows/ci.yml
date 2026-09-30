@@ -1,0 +1,87 @@
+name: CI
+
+# Fast checks on every PR and on main: the web app (lint, types, tests,
+# build) and the Rust backend (tests on desktop, compile check for the
+# Android-only code).
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web:
+    name: Web (lint, typecheck, test, build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+
+  rust:
+    name: Rust (test + Android check)
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: app/src-tauri
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Tauri system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libgtk-3-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            libssl-dev \
+            libxdo-dev \
+            gcc-aarch64-linux-gnu
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: app/src-tauri
+
+      # tauri::generate_context! needs the frontend dist and the sidecar
+      # paths to exist; their content is irrelevant for unit tests.
+      - name: Placeholder frontend + sidecars
+        run: |
+          mkdir -p ../dist binaries
+          echo '<!doctype html>' > ../dist/index.html
+          touch binaries/yt-dlp-x86_64-unknown-linux-gnu binaries/ffmpeg-x86_64-unknown-linux-gnu
+
+      - name: Tests (desktop)
+        run: cargo test --lib
+
+      # The YouTube kernel's download path only compiles for Android.
+      # A generic aarch64 GCC is enough to build ring's C for a check.
+      - name: Compile check (Android)
+        env:
+          CC_aarch64_linux_android: aarch64-linux-gnu-gcc
+          AR_aarch64_linux_android: aarch64-linux-gnu-ar
+        run: cargo check --lib --tests --target aarch64-linux-android
