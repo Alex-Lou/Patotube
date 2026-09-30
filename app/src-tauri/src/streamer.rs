@@ -1,7 +1,7 @@
 // Shared plain-CDN streamer (SoundCloud/Bandcamp/Audiomack/Archive). YouTube has its own downloader.
 
 use std::path::PathBuf;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 use futures_util::StreamExt;
 use tauri::AppHandle;
@@ -27,6 +27,10 @@ pub async fn stream_to_disk(
 
     let http = reqwest::Client::builder()
         .user_agent(DESKTOP_UA)
+        // No total timeout (big files on slow links are fine), but a
+        // stalled CDN must fail instead of hanging the job forever.
+        .connect_timeout(Duration::from_secs(15))
+        .read_timeout(Duration::from_secs(30))
         .build()
         .map_err(|e| format!("could not build http client: {e}"))?;
 

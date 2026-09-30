@@ -77,7 +77,8 @@ pub async fn start(
     let app_handle = app.clone();
     let registry_clone = registry.clone();
 
-    tokio::spawn(async move {
+    let task_job_id = job_id.clone();
+    let task = tokio::spawn(async move {
         let result = run_download(&app_handle, &job_id, &track, &title, &output_dir).await;
         match result {
             Ok(path) => emit_status(
@@ -91,6 +92,8 @@ pub async fn start(
         }
         registry_clone.remove(&job_id);
     });
+    // Lets cancel_download abort this job (drops the stream mid-flight).
+    registry.register_task(task_job_id, task.abort_handle());
 
     Ok(())
 }

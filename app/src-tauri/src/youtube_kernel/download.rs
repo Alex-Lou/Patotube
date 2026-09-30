@@ -8,7 +8,7 @@ use std::time::Instant;
 use futures_util::StreamExt;
 use tauri::AppHandle;
 use tokio::fs::File;
-use tokio::io::AsyncWriteExt;
+use tokio::io::{AsyncSeekExt, AsyncWriteExt};
 
 use super::clients::ALL_CLIENTS;
 use super::player_api::http_client;
@@ -91,6 +91,16 @@ async fn try_download_once(
         let status = response.status();
         if !(status.is_success() || status.as_u16() == 206) {
             return Err(format!("CDN returned status {status}"));
+        }
+        // A resume answered with the whole file (200, Range ignored)
+        // must not be appended after the bytes already written: start
+        // the file over instead of corrupting it.
+        if restarts_from_scratch(bytes_done, status.as_u16()) {
+            file.set_len(0).await.map_err(|e| format!("disk truncate error: {e}"))?;
+            file.seek(std::io::SeekFrom::Start(0))
+                .await
+                .map_err(|e| format!("disk seek error: {e}"))?;
+            bytes_done = 0;
         }
 
         // Establish the true total once, from Content-Range (`bytes a-b/TOTAL`)
@@ -188,6 +198,12 @@ fn total_from_response(resp: &reqwest::Response) -> Option<u64> {
     resp.content_length()
 }
 
+/// True when a resume request (`bytes_done > 0`) got the full file
+/// back (200) instead of the requested range (206).
+fn restarts_from_scratch(bytes_done: u64, status: u16) -> bool {
+    bytes_done > 0 && status != 206
+}
+
 async fn open_first_writable(candidates: &[PathBuf]) -> Result<(File, PathBuf), String> {
     let mut last_err: Option<String> = None;
     for candidate in candidates {
@@ -206,4 +222,17 @@ async fn open_first_writable(candidates: &[PathBuf]) -> Result<(File, PathBuf), 
         "could not write to download folder: every candidate refused. Last error: {}",
         last_err.unwrap_or_else(|| "(unknown)".into())
     ))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::restarts_from_scratch;
+
+    #[test]
+    fn resume_ignored_by_cdn_restarts_the_file() {
+        assert!(restarts_from_scratch(1024, 200));
+        assert!(!restarts_from_scratch(1024, 206));
+        assert!(!restarts_from_scratch(0, 200));
+        assert!(!restarts_from_scratch(0, 206));
+    }
 }

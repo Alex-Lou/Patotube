@@ -18,6 +18,10 @@ const UNKEYED_PLAYER_ENDPOINT: &str =
 pub fn http_client(user_agent: &str) -> Result<reqwest::Client, String> {
     reqwest::Client::builder()
         .user_agent(user_agent)
+        // Also used for the media download: no total timeout, but a
+        // stalled connection must fail instead of hanging forever.
+        .connect_timeout(std::time::Duration::from_secs(15))
+        .read_timeout(std::time::Duration::from_secs(30))
         .build()
         .map_err(|e| format!("could not build http client: {e}"))
 }
