@@ -1,14 +1,8 @@
 package io.patotube.app
 
-import android.app.PictureInPictureParams
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.content.res.Configuration
-import android.graphics.Rect
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.util.Rational
 import android.webkit.WebView
 import androidx.activity.enableEdgeToEdge
 import org.json.JSONObject
@@ -34,16 +28,6 @@ class MainActivity : TauriActivity() {
       wv.post { wv.evaluateJavascript(js, null) }
     }
   }
-
-  /** Real aspect ratio of the currently-playing <video>. Updated
-   *  by JS via PatoMobile.setVideoBounds when the element fires
-   *  'loadedmetadata' or on viewport resize. */
-  private var videoAspect: Rational = Rational(16, 9)
-
-  /** Bounding box of the <video> element in device pixels. Used as
-   *  setSourceRectHint so Android animates the PiP transition FROM
-   *  the exact in-app position instead of jumping arbitrarily. */
-  private var videoBounds: Rect? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
     enableEdgeToEdge()
@@ -78,92 +62,6 @@ class MainActivity : TauriActivity() {
   override fun onResume() {
     super.onResume()
     liveWebView?.onResume()
-  }
-
-  /**
-   * Push fresh PiP params to the system. On API 31+ this also
-   * arms auto-enter, so the transition happens silently when the
-   * user navigates home — no need for an explicit
-   * enterPictureInPictureMode call in onUserLeaveHint, and the
-   * resulting animation is the one Android draws natively (much
-   * smoother than the legacy path).
-   */
-  fun refreshPipParams() {
-    if (!pipSupported() || !PatoMobileBridge.isMediaPlaying) return
-    try {
-      setPictureInPictureParams(buildPipParams())
-    } catch (_: IllegalStateException) {
-      /* not allowed in current state — silent */
-    }
-  }
-
-  /** User explicitly clicked "Floating window" in the player UI. */
-  fun enterPipNow() {
-    if (!pipSupported()) return
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && isInPictureInPictureMode) return
-    try {
-      enterPictureInPictureMode(buildPipParams())
-    } catch (_: IllegalStateException) {
-      /* Some launchers refuse runtime PiP — silent fallback. */
-    }
-  }
-
-  private fun buildPipParams(): PictureInPictureParams {
-    val b = PictureInPictureParams.Builder().setAspectRatio(videoAspect)
-    videoBounds?.let { b.setSourceRectHint(it) }
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-      b.setAutoEnterEnabled(true)
-      b.setSeamlessResizeEnabled(true)
-    }
-    return b.build()
-  }
-
-  /** Called from PatoMobileBridge on every <video> loadedmetadata
-   *  and on viewport resize. Numbers are already in device pixels
-   *  (JS multiplies by devicePixelRatio). */
-  fun applyVideoBounds(left: Int, top: Int, width: Int, height: Int, ratioW: Int, ratioH: Int) {
-    if (width > 0 && height > 0) {
-      videoBounds = Rect(left, top, left + width, top + height)
-    }
-    if (ratioW > 0 && ratioH > 0) {
-      videoAspect = clampAspect(Rational(ratioW, ratioH))
-    }
-    refreshPipParams()
-  }
-
-  /** System PiP intentionally disabled — Patotube uses an in-app
-   *  floating mini-player (FloatingPlayer.tsx). Kept as a no-op so
-   *  TauriActivity's super still gets called on lifecycle events. */
-  override fun onUserLeaveHint() {
-    super.onUserLeaveHint()
-  }
-
-  override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
-    super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
-    // Notify the JS layer so the player UI can hide its custom
-    // controls overlay in PiP (system-drawn PiP controls take over).
-    liveWebView?.post {
-      liveWebView?.evaluateJavascript(
-        "window.__patotubeOnPip && window.__patotubeOnPip($isInPictureInPictureMode);",
-        null,
-      )
-    }
-  }
-
-  private fun pipSupported(): Boolean =
-    Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
-      packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
-
-  /** Android refuses PiP aspect ratios beyond ~1:2.39 .. 2.39:1.
-   *  Anything more extreme would throw IllegalArgumentException
-   *  when we feed it to PictureInPictureParams. */
-  private fun clampAspect(r: Rational): Rational {
-    val v = r.toFloat()
-    return when {
-      v < 1f / 2.39f -> Rational(100, 239)
-      v > 2.39f -> Rational(239, 100)
-      else -> r
-    }
   }
 
   override fun onNewIntent(intent: Intent) {

@@ -37,6 +37,7 @@
     "openingYoutube": "Opening YouTube…",
     "toPip": "Floating window",
     "toBackgroundAudio": "Listen in background",
+    "toFullPlayer": "Open full player",
     "backgroundAudioFailed": "Background playback failed",
     "resuming": "Resuming playback…",
     "slowLoading": "Loading is taking a while…",
