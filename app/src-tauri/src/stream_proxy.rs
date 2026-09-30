@@ -196,11 +196,13 @@ fn clamp_range(incoming: Option<&str>) -> String {
 fn extract_video_id(request: &Request<Vec<u8>>) -> Option<String> {
     let path = request.uri().path();
     let id = path.trim_matches('/').split('/').last()?;
-    if id.is_empty() {
-        None
-    } else {
-        Some(id.to_string())
-    }
+    is_valid_video_id(id).then(|| id.to_string())
+}
+
+/// YouTube ids are exactly 11 chars of `[A-Za-z0-9_-]`. Anything else
+/// is refused before it reaches the resolver or the cache.
+fn is_valid_video_id(id: &str) -> bool {
+    id.len() == 11 && id.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'_' || b == b'-')
 }
 
 async fn get_or_resolve(video_id: &str) -> Result<ResolvedStream, String> {
@@ -237,4 +239,42 @@ fn cors_preflight() -> Response<Vec<u8>> {
         .header(header::ACCESS_CONTROL_ALLOW_HEADERS, "Range")
         .body(Vec::new())
         .expect("build preflight")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn video_id_validation() {
+        assert!(is_valid_video_id("dQw4w9WgXcQ"));
+        assert!(is_valid_video_id("a-b_c123456"));
+        assert!(!is_valid_video_id(""));
+        assert!(!is_valid_video_id("short"));
+        assert!(!is_valid_video_id("dQw4w9WgXcQx"));
+        assert!(!is_valid_video_id("../../etc/p"));
+    }
+
+    #[test]
+    fn clamp_range_defaults_to_first_chunk() {
+        let expected = format!("bytes=0-{}", MAX_CHUNK_BYTES - 1);
+        assert_eq!(clamp_range(None), expected);
+        assert_eq!(clamp_range(Some("garbage")), expected);
+    }
+
+    #[test]
+    fn clamp_range_caps_open_and_oversized_ranges() {
+        let end = 100 + MAX_CHUNK_BYTES - 1;
+        assert_eq!(clamp_range(Some("bytes=100-")), format!("bytes=100-{end}"));
+        assert_eq!(
+            clamp_range(Some(&format!("bytes=100-{}", end + 999))),
+            format!("bytes=100-{end}")
+        );
+    }
+
+    #[test]
+    fn clamp_range_keeps_small_ranges_and_first_of_multi() {
+        assert_eq!(clamp_range(Some("bytes=10-20")), "bytes=10-20");
+        assert_eq!(clamp_range(Some("bytes=10-20,30-40")), "bytes=10-20");
+    }
 }

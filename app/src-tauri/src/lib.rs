@@ -8,6 +8,7 @@ mod events;
 mod jobs;
 mod output_path;
 mod streamer;
+mod url_guard;
 mod youtube_url;
 mod youtube_kernel;
 mod soundcloud_kernel;

@@ -27,10 +27,19 @@
       }
     ],
     "security": {
-      "csp": null,
+      "csp": {
+        "default-src": "'self'",
+        "script-src": "'self'",
+        "style-src": "'self' 'unsafe-inline' https://fonts.googleapis.com",
+        "font-src": "'self' data: https://fonts.gstatic.com",
+        "img-src": "'self' data: blob: https: asset: http://asset.localhost",
+        "media-src": "'self' blob: asset: http://asset.localhost patostream: http://patostream.localhost https://patostream.localhost",
+        "connect-src": "'self' ipc: http://ipc.localhost"
+      },
+      "devCsp": null,
       "assetProtocol": {
         "enable": true,
-        "scope": ["**"]
+        "scope": ["$DOWNLOAD/**"]
       }
     }
   },

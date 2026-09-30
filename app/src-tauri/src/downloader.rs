@@ -53,9 +53,10 @@ pub async fn fetch_info(app: &AppHandle, url: &str) -> Result<MediaInfo, String>
             "--skip-download",
             "--print-json",
             "--no-warnings",
-            "--no-check-certificate",
             "--extractor-args",
             YT_EXTRACTOR_ARGS,
+            // `--` ends option parsing: the URL can never be read as a flag.
+            "--",
             url,
         ])
         .output()
@@ -117,7 +118,6 @@ pub async fn start(
         "--no-playlist".into(),
         "--no-warnings".into(),
         "--no-mtime".into(),
-        "--no-check-certificate".into(),
         "--restrict-filenames".into(),
         "--newline".into(),
         "--extractor-args".into(),
@@ -159,6 +159,8 @@ pub async fn start(
         }
     }
 
+    // `--` ends option parsing: the URL can never be read as a flag.
+    args.push("--".into());
     args.push(input.url.clone());
 
     let shell = app.shell();

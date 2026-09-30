@@ -189,11 +189,11 @@ class PatoMobileBridge(
     fun openDownloadsFolder(): Boolean = FileOps.openDownloadsFolder(context)
 
     @JavascriptInterface
-    fun deleteFile(path: String): Boolean = FileOps.deleteFile(path)
+    fun deleteFile(path: String): Boolean = FileOps.deleteFile(context, path)
 
     @JavascriptInterface
     fun renameFile(srcPath: String, dstPath: String): Boolean =
-        FileOps.renameFile(srcPath, dstPath)
+        FileOps.renameFile(context, srcPath, dstPath)
 
     @JavascriptInterface
     fun shareFile(path: String): Boolean = FileOps.shareFile(context, authority, path)
