@@ -25,6 +25,17 @@ fn classify(ext: &str) -> Option<&'static str> {
     }
 }
 
+/// True for an existing regular file with an audio/video extension
+/// Patotube produces. Used to keep WebView-reachable commands from
+/// touching anything else (executables, documents, …).
+pub fn is_media_file(path: &Path) -> bool {
+    let ext_ok = path
+        .extension()
+        .and_then(|e| e.to_str())
+        .is_some_and(|e| classify(e).is_some());
+    ext_ok && path.is_file()
+}
+
 async fn collect_dir(dir: &Path, out: &mut Vec<DownloadEntry>) {
     let mut rd = match tokio::fs::read_dir(dir).await {
         Ok(r) => r,
@@ -115,7 +126,40 @@ pub async fn delete_download(app: AppHandle, path: String) -> Result<(), String>
     if !allowed_roots.iter().any(|root| target.starts_with(root)) {
         return Err("path is outside the downloads tree".to_string());
     }
+    if !is_media_file(&target) {
+        return Err("refusing to delete a non-media file".to_string());
+    }
     tokio::fs::remove_file(&target)
         .await
         .map_err(|e| format!("could not delete {target:?}: {e}"))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn classify_known_media_extensions() {
+        assert_eq!(classify("MP3"), Some("audio"));
+        assert_eq!(classify("mp4"), Some("video"));
+        assert_eq!(classify("exe"), None);
+        assert_eq!(classify(""), None);
+    }
+
+    #[test]
+    fn is_media_file_requires_existing_media_file() {
+        let dir = std::env::temp_dir().join(format!("patotube-files-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let song = dir.join("song.mp3");
+        let script = dir.join("run.sh");
+        std::fs::write(&song, b"x").unwrap();
+        std::fs::write(&script, b"x").unwrap();
+
+        assert!(is_media_file(&song));
+        assert!(!is_media_file(&script));
+        assert!(!is_media_file(&dir.join("missing.mp3")));
+        assert!(!is_media_file(&dir)); // directory, not a file
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
 }

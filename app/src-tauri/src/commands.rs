@@ -24,6 +24,7 @@ pub struct StartDownloadInput {
 
 #[tauri::command]
 pub async fn fetch_media_info(app: AppHandle, url: String) -> Result<MediaInfo, String> {
+    crate::url_guard::ensure_http_url(&url)?;
     // SoundCloud / Bandcamp / Internet Archive are handled by their
     // own native Rust kernels on every platform — much faster than
     // spawning yt-dlp (no subprocess startup, no page parsing
@@ -61,6 +62,7 @@ pub async fn start_download(
     format: FormatChoice,
     output_dir: String,
 ) -> Result<(), String> {
+    crate::url_guard::ensure_http_url(&url)?;
     let input = StartDownloadInput {
         job_id,
         url,
@@ -129,9 +131,21 @@ pub fn default_download_dir(app: AppHandle) -> Result<String, String> {
     Ok(path.to_string_lossy().to_string())
 }
 
+/// Opens a web link in the browser, or a downloaded media file in its
+/// default app. Anything else is refused: this command is reachable
+/// from the WebView, so it must never launch an arbitrary executable.
 #[tauri::command]
 pub fn open_path(app: AppHandle, path: String) -> Result<(), String> {
     use tauri_plugin_opener::OpenerExt;
+    if crate::url_guard::http_host(&path).is_some() {
+        return app
+            .opener()
+            .open_url(path, None::<&str>)
+            .map_err(|e| e.to_string());
+    }
+    if !crate::files::is_media_file(std::path::Path::new(&path)) {
+        return Err("refusing to open a non-media file".to_string());
+    }
     app.opener()
         .open_path(path, None::<&str>)
         .map_err(|e| e.to_string())

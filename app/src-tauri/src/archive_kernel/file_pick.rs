@@ -18,7 +18,7 @@ pub fn pick_best(item: &ItemMetadata) -> Result<PickedFile, String> {
     .or_else(|| item.files.first().cloned())
     .ok_or_else(|| "Internet Archive item has no files".to_string())?;
 
-    let extension = file_extension(&chosen.name).to_string();
+    let extension = safe_extension(&chosen.name);
     Ok(PickedFile {
         name: chosen.name,
         extension,
@@ -47,6 +47,15 @@ fn pick_by_extension(files: &[ItemFile], wanted: &[&str]) -> Option<ItemFile> {
 
 fn file_extension(name: &str) -> &str {
     name.rsplit_once('.').map(|(_, e)| e).unwrap_or("")
+}
+
+/// The extension ends up in the output path, and the file name comes
+/// from a remote server. Anything that is not a short alphanumeric
+/// token (`x/../../evil`, empty, …) becomes the neutral `bin`.
+fn safe_extension(name: &str) -> String {
+    let ext = file_extension(name);
+    let ok = (1..=5).contains(&ext.len()) && ext.chars().all(|c| c.is_ascii_alphanumeric());
+    if ok { ext.to_string() } else { "bin".to_string() }
 }
 
 #[cfg(test)]
@@ -146,5 +155,19 @@ mod tests {
             Ok(_) => panic!("expected error"),
             Err(e) => assert!(e.contains("no files"), "got: {e}"),
         }
+    }
+
+    #[test]
+    fn fallback_file_with_hostile_extension_is_neutralised() {
+        let it = item("texts", vec![file("a.x/../../evil", "Unknown")]);
+        let p = pick_best(&it).unwrap();
+        assert_eq!(p.extension, "bin");
+    }
+
+    #[test]
+    fn safe_extension_rejects_empty_and_long_tokens() {
+        assert_eq!(safe_extension("noext"), "bin");
+        assert_eq!(safe_extension("a.toolongext"), "bin");
+        assert_eq!(safe_extension("a.MP3"), "MP3");
     }
 }
