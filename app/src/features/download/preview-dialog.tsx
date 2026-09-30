@@ -14,7 +14,7 @@ import { useSettings } from '@/lib/core/settings';
 import { DEFAULT_AUDIO_BITRATE } from '@/lib/core/formats';
 import { formatDuration } from '@/lib/utils';
 import { FormatPicker } from './format-picker';
-import { SearchPlayerDialog } from '@/features/search/search-player-dialog';
+import { usePlayback } from '@/features/search/use-playback';
 
 /** Pull the videoId from any YouTube URL shape we accept. */
 function extractYoutubeId(url: string): string | null {
@@ -57,11 +57,6 @@ export function PreviewDialog({ info, onClose, onConfirm }: PreviewDialogProps) 
   const defaultFormat = useSettings((s) => s.defaultFormat);
   const [format, setFormat] = useState<FormatChoice>(defaultFormat);
   const [imgError, setImgError] = useState(false);
-  // Optional preview-player state. Only used when the info comes
-  // from a YouTube URL (videoId extractable) — other platforms
-  // don't have the patostream:// streaming pipeline.
-  const [previewResult, setPreviewResult] = useState<SearchResult | null>(null);
-
   const youtubeId =
     info && info.platform === 'youtube' ? extractYoutubeId(info.url) : null;
 
@@ -103,7 +98,12 @@ export function PreviewDialog({ info, onClose, onConfirm }: PreviewDialogProps) 
                   // download dialog — they can watch before commit.
                   <button
                     type="button"
-                    onClick={() => setPreviewResult(mediaInfoToSearchResult(info, youtubeId))}
+                    onClick={() =>
+                      // Player stacks above this dialog; its Download
+                      // button just closes it — the real download is
+                      // the duck button here.
+                      usePlayback.getState().open(mediaInfoToSearchResult(info, youtubeId))
+                    }
                     aria-label={t('search.play')}
                     title={t('search.play')}
                     className="group/play absolute inset-0 size-full overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -181,16 +181,6 @@ export function PreviewDialog({ info, onClose, onConfirm }: PreviewDialogProps) 
           </>
         )}
       </DialogContent>
-
-      {/* Nested preview player. Stacks above PreviewDialog so the
-          user can watch then "back" returns to format picker. The
-          inner Download button just closes the player — the actual
-          download is the duck button in the outer PreviewDialog. */}
-      <SearchPlayerDialog
-        result={previewResult}
-        onClose={() => setPreviewResult(null)}
-        onDownload={() => setPreviewResult(null)}
-      />
     </Dialog>
   );
 }
