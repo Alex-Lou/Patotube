@@ -4,13 +4,12 @@ import { Inbox, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useQueueStore } from '@/lib/core/queue';
 import { useDownloads } from './use-downloads';
+import { clearAllJobs, removeJob } from './actions';
 import { QueueItem } from './queue-item';
 
 export function QueueList() {
   const { t } = useTranslation();
   const jobs = useQueueStore((s) => s.jobs);
-  const remove = useQueueStore((s) => s.remove);
-  const clearAll = useQueueStore((s) => s.clearAll);
   const { retry, showInFolder, openFile } = useDownloads();
 
   return (
@@ -20,7 +19,7 @@ export function QueueList() {
           {t('queue.title')}
         </h2>
         {jobs.length > 0 && (
-          <Button variant="ghost" size="sm" onClick={clearAll}>
+          <Button variant="ghost" size="sm" onClick={() => void clearAllJobs()}>
             <Trash2 className="size-3.5" />
             {t('queue.clear')}
           </Button>
@@ -36,7 +35,7 @@ export function QueueList() {
               <QueueItem
                 key={job.id}
                 job={job}
-                onRemove={remove}
+                onRemove={(id) => void removeJob(id)}
                 onRetry={retry}
                 onShowInFolder={showInFolder}
                 onOpenFile={openFile}

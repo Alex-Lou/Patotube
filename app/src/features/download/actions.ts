@@ -1,5 +1,5 @@
 import { getTauri } from '@/lib/tauri/bindings';
-import { useQueueStore } from '@/lib/core/queue';
+import { isInFlight, useQueueStore } from '@/lib/core/queue';
 import { useSettings } from '@/lib/core/settings';
 import type { FormatChoice, MediaInfo } from '@/lib/core/types';
 
@@ -55,4 +55,33 @@ export async function retryJob(jobId: string): Promise<void> {
   } catch (err) {
     queue.setStatus(jobId, 'failed', failureMessage(err));
   }
+}
+
+/** Ask Rust to stop the given jobs. Best effort: the queue entries are
+ *  already gone, a failure only means the transfer runs to its end. */
+async function cancelInBackend(jobIds: string[]): Promise<void> {
+  if (jobIds.length === 0) return;
+  try {
+    const api = await getTauri();
+    await Promise.all(jobIds.map((id) => api.cancelDownload(id)));
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn('[patotube] cancelDownload failed:', err);
+  }
+}
+
+/** Remove a job from the queue, stopping its download if still running. */
+export async function removeJob(jobId: string): Promise<void> {
+  const queue = useQueueStore.getState();
+  const job = queue.jobs.find((j) => j.id === jobId);
+  queue.remove(jobId);
+  if (job && isInFlight(job)) await cancelInBackend([jobId]);
+}
+
+/** Clear the queue, stopping every download still running. */
+export async function clearAllJobs(): Promise<void> {
+  const queue = useQueueStore.getState();
+  const running = queue.jobs.filter(isInFlight).map((j) => j.id);
+  queue.clearAll();
+  await cancelInBackend(running);
 }
