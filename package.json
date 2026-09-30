@@ -16,7 +16,8 @@
     "landing:dev": "pnpm --filter patotube-landing dev",
     "landing:build": "pnpm --filter patotube-landing build",
     "format": "prettier --write .",
-    "lint": "eslint app/src --ext .ts,.tsx",
+    "lint": "pnpm --filter patotube-app lint",
+    "test": "pnpm --filter patotube-app test",
     "typecheck": "pnpm --filter patotube-app typecheck"
   },
   "devDependencies": {
