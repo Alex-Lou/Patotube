@@ -25,8 +25,10 @@ for users who prefer Tampermonkey / Violentmonkey / Greasemonkey.
 Chrome refuses to install self-hosted `.crx` files directly since
 2018. The supported off-store path is **developer mode + load unpacked**:
 
-1. Download `patotube-extension-<VERSION>.zip` from the GitHub
-   release and **extract it** somewhere stable (e.g. `~/Patotube/`).
+1. Download `patotube-extension.zip` from the landing page
+   (<https://alex-lou.github.io/Patotube/patotube-extension.zip>, rebuilt
+   from `extension/` on every deploy) and **extract it** somewhere stable
+   (e.g. `~/Patotube/`).
    *Don't delete this folder — Chrome reads from it on every start.*
 2. Open `chrome://extensions` (or `edge://extensions`,
    `brave://extensions`, …).

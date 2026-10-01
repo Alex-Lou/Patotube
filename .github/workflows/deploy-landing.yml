@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'landing/**'
+      - 'extension/**'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
       - 'package.json'
@@ -42,6 +43,10 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      # Served at <site>/patotube-extension.zip (the landing links to it).
+      - name: Package the browser extension
+        run: cd extension && zip -r ../landing/public/patotube-extension.zip . -x 'README.md' '*.DS_Store'
 
       - name: Build landing
         run: pnpm --filter patotube-landing build
