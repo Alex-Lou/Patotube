@@ -58,3 +58,4 @@ coverage/
 *.tmp
 .cache/
 release-final/
+landing/public/patotube-extension.zip
