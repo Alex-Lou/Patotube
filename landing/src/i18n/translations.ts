@@ -102,6 +102,28 @@ type Dict = {
   legalBody?: string;
   alwaysFree?: string;
   footerLicense?: string;
+  // Android install guide (optional, EN + FR like the legal block).
+  installGuideTitle?: string;
+  installGuideIntro?: string;
+  installStep1?: string;
+  installStep2?: string;
+  installStep3?: string;
+  installStep4?: string;
+  installTrustTitle?: string;
+  installTrust1?: string;
+  installTrust2?: string;
+  installTrust3?: string;
+  // Labels drawn inside the carousel's mini screen illustrations.
+  mockHarmful?: string;
+  mockCancel?: string;
+  mockDownloadAnyway?: string;
+  mockUnknownApps?: string;
+  mockAllowSource?: string;
+  mockPlayProtect?: string;
+  mockMoreDetails?: string;
+  mockInstallAnyway?: string;
+  mockUpdateQuestion?: string;
+  mockUpdate?: string;
 };
 
 export const DICT: Record<LandingLocale, Dict> = {
@@ -169,6 +191,31 @@ export const DICT: Record<LandingLocale, Dict> = {
     alwaysFree:
       'Always free. No ads, no premium, no telemetry — and not for resale: free to use, not to copy or sell.',
     footerLicense: 'License',
+    installGuideTitle: 'Installing on Android? Read this first',
+    installGuideIntro:
+      'Patotube is not on the Play Store, so Android shows its usual warnings for apps installed from the web. They are generic — not a sign of a virus. Swipe through the 4 steps:',
+    installStep1:
+      'Tap Android above. If your browser says the file "may be harmful", tap "Download anyway".',
+    installStep2:
+      'Open Patotube.apk. Android asks to allow your browser to install apps: tap "Settings", turn on "Allow from this source", then go back.',
+    installStep3:
+      'If Play Protect shows a warning (unverified or older app), tap "More details" then "Install anyway".',
+    installStep4:
+      'Already have Patotube? The new version installs over the old one and keeps your settings.',
+    installTrustTitle: 'What the app does not do',
+    installTrust1: 'No ads, no account, no trackers.',
+    installTrust2: 'No access to your contacts, location, microphone or camera.',
+    installTrust3: 'Only Internet, storage (your downloads) and notifications (playback controls).',
+    mockHarmful: 'This file might be harmful',
+    mockCancel: 'Cancel',
+    mockDownloadAnyway: 'Download anyway',
+    mockUnknownApps: 'Install unknown apps',
+    mockAllowSource: 'Allow from this source',
+    mockPlayProtect: 'Blocked by Play Protect',
+    mockMoreDetails: 'More details',
+    mockInstallAnyway: 'Install anyway',
+    mockUpdateQuestion: 'Install an update to this app?',
+    mockUpdate: 'Update',
   },
 
   fr: {    navFeatures: 'Fonctionnalités',
@@ -235,6 +282,31 @@ export const DICT: Record<LandingLocale, Dict> = {
     alwaysFree:
       "Toujours gratuit. Pas de pub, pas de premium, pas de télémétrie — et pas à vendre : libre d'usage, pas de copie ni de revente.",
     footerLicense: 'Licence',
+    installGuideTitle: 'Installer sur Android ? À lire avant',
+    installGuideIntro:
+      "Patotube n'est pas sur le Play Store, donc Android affiche ses avertissements habituels pour les apps installées depuis le web. Ils sont génériques — ce n'est pas un signe de virus. Fais défiler les 4 étapes :",
+    installStep1:
+      "Appuie sur Android ci-dessus. Si ton navigateur dit que le fichier « peut être dangereux », appuie sur « Télécharger quand même ».",
+    installStep2:
+      "Ouvre Patotube.apk. Android demande d'autoriser ton navigateur à installer des apps : appuie sur « Paramètres », active « Autoriser cette source », puis reviens.",
+    installStep3:
+      "Si Play Protect affiche un avertissement (app non vérifiée ou ancienne), appuie sur « Plus de détails » puis « Installer quand même ».",
+    installStep4:
+      "Tu as déjà Patotube ? La nouvelle version s'installe par-dessus et garde tes réglages.",
+    installTrustTitle: "Ce que l'app ne fait pas",
+    installTrust1: 'Pas de pub, pas de compte, pas de traqueur.',
+    installTrust2: 'Aucun accès à tes contacts, ta position, ton micro ou ta caméra.',
+    installTrust3: 'Seulement Internet, le stockage (tes téléchargements) et les notifications (contrôles de lecture).',
+    mockHarmful: 'Ce fichier peut être dangereux',
+    mockCancel: 'Annuler',
+    mockDownloadAnyway: 'Télécharger quand même',
+    mockUnknownApps: 'Installer des applis inconnues',
+    mockAllowSource: 'Autoriser cette source',
+    mockPlayProtect: 'Bloquée par Play Protect',
+    mockMoreDetails: 'Plus de détails',
+    mockInstallAnyway: 'Installer quand même',
+    mockUpdateQuestion: 'Installer une mise à jour de cette appli ?',
+    mockUpdate: 'Mettre à jour',
   },
 
   es: {    navFeatures: 'Características',

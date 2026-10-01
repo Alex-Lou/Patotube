@@ -32,6 +32,10 @@ const features = [
   { titleKey: 'featureOssTitle', bodyKey: 'featureOssBody' },
 ] as const;
 
+// Android sideload walkthrough, shown as a small swipeable carousel.
+const installSteps = ['installStep1', 'installStep2', 'installStep3', 'installStep4'] as const;
+const installTrust = ['installTrust1', 'installTrust2', 'installTrust3'] as const;
+
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const en = DICT.en;
 
@@ -222,6 +226,91 @@ const metaJson = JSON.stringify(LOCALE_META);
         <p class="mt-8 text-xs text-center text-fg-subtle leading-relaxed max-w-2xl mx-auto" data-i18n="downloadsHint">
           {en.downloadsHint}
         </p>
+
+        <details class="group/guide mt-4 max-w-2xl mx-auto text-xs">
+          <summary
+            class="cursor-pointer list-none [&::-webkit-details-marker]:hidden text-center text-fg-muted hover:text-fg transition-colors select-none"
+          >
+            <span data-i18n="installGuideTitle">{en.installGuideTitle}</span>
+            <span aria-hidden="true" class="inline-block ms-1 transition-transform group-open/guide:rotate-180">▾</span>
+          </summary>
+          <div class="mt-3 rounded-xl border border-border/60 bg-bg-card/40 px-4 py-4">
+            <p class="text-fg-subtle leading-relaxed" data-i18n="installGuideIntro">{en.installGuideIntro}</p>
+            <ol class="mt-3 flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2">
+              {
+                installSteps.map((k, i) => (
+                  <li class="snap-start shrink-0 w-[85%] sm:w-[47%] rounded-lg border border-border/60 bg-bg-soft/60 p-3">
+                    {/* Mini drawing of the screen this step talks about; the
+                        highlighted control is the one to tap. */}
+                    <div
+                      aria-hidden="true"
+                      class="mb-3 mx-auto w-40 rounded-xl border border-border bg-bg p-2.5 text-[9px] leading-tight text-fg-muted shadow-inner"
+                    >
+                      {i === 0 && (
+                        <>
+                          <p class="font-semibold text-fg" data-i18n="mockHarmful">{en.mockHarmful}</p>
+                          <p class="mt-1 truncate opacity-70">Patotube.apk</p>
+                          <div class="mt-2 flex justify-end gap-1.5">
+                            <span class="px-1.5 py-0.5" data-i18n="mockCancel">{en.mockCancel}</span>
+                            <span class="rounded px-1.5 py-0.5 font-bold text-bg bg-duck ring-2 ring-duck/40" data-i18n="mockDownloadAnyway">{en.mockDownloadAnyway}</span>
+                          </div>
+                        </>
+                      )}
+                      {i === 1 && (
+                        <>
+                          <p class="font-semibold text-fg" data-i18n="mockUnknownApps">{en.mockUnknownApps}</p>
+                          <div class="mt-2 flex items-center justify-between gap-2 rounded px-1 py-1 ring-2 ring-duck/60">
+                            <span data-i18n="mockAllowSource">{en.mockAllowSource}</span>
+                            <span class="relative inline-block h-3 w-6 shrink-0 rounded-full bg-duck">
+                              <span class="absolute end-0.5 top-0.5 h-2 w-2 rounded-full bg-bg"></span>
+                            </span>
+                          </div>
+                        </>
+                      )}
+                      {i === 2 && (
+                        <>
+                          <p class="font-semibold text-fg">🛡️ <span data-i18n="mockPlayProtect">{en.mockPlayProtect}</span></p>
+                          <p class="mt-1 opacity-70">▾ <span data-i18n="mockMoreDetails">{en.mockMoreDetails}</span></p>
+                          <div class="mt-2 flex justify-end">
+                            <span class="rounded px-1.5 py-0.5 font-bold text-bg bg-duck ring-2 ring-duck/40" data-i18n="mockInstallAnyway">{en.mockInstallAnyway}</span>
+                          </div>
+                        </>
+                      )}
+                      {i === 3 && (
+                        <>
+                          <p class="font-semibold text-fg">🦆 Patotube</p>
+                          <p class="mt-1 opacity-70" data-i18n="mockUpdateQuestion">{en.mockUpdateQuestion}</p>
+                          <div class="mt-2 flex justify-end gap-1.5">
+                            <span class="px-1.5 py-0.5" data-i18n="mockCancel">{en.mockCancel}</span>
+                            <span class="rounded px-1.5 py-0.5 font-bold text-bg bg-duck ring-2 ring-duck/40" data-i18n="mockUpdate">{en.mockUpdate}</span>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                    <span class="block font-mono text-[10px] font-bold text-duck">
+                      {i + 1}/{installSteps.length}
+                    </span>
+                    <span class="mt-1 block text-fg-muted leading-relaxed" data-i18n={k}>
+                      {en[k]}
+                    </span>
+                  </li>
+                ))
+              }
+            </ol>
+            <p class="mt-3 font-semibold uppercase tracking-wider text-fg-muted" data-i18n="installTrustTitle">
+              {en.installTrustTitle}
+            </p>
+            <ul class="mt-1 space-y-0.5 text-fg-subtle">
+              {
+                installTrust.map((k) => (
+                  <li>
+                    <span aria-hidden="true" class="text-duck">✓</span> <span data-i18n={k}>{en[k]}</span>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        </details>
 
         <div class="mt-10 max-w-2xl mx-auto rounded-xl border border-border/60 bg-bg-card/40 px-5 py-4">
           <p class="text-xs font-semibold uppercase tracking-wider text-fg-muted" data-i18n="legalTitle">
