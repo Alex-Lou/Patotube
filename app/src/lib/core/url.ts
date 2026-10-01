@@ -26,3 +26,33 @@ export function validateUrl(raw: string): UrlValidation {
     return { ok: false, reason: 'invalid' };
   }
 }
+
+/** Playlist id in a YouTube URL (`list=`), ignoring mixes (`RD…`) and the
+ *  private liked / watch-later lists, which cannot be listed. */
+export function youtubePlaylistId(raw: string): string | null {
+  try {
+    const u = new URL(raw.trim());
+    const host = u.hostname.toLowerCase();
+    if (host !== 'youtube.com' && !host.endsWith('.youtube.com')) return null;
+    const list = u.searchParams.get('list');
+    if (!list || list.startsWith('RD') || list === 'LL' || list === 'WL') return null;
+    return list;
+  } catch {
+    return null;
+  }
+}
+
+/** Keep the user's link next to the resolved media when it points inside
+ *  a YouTube playlist, so the preview can offer the whole list. */
+export function withPlaylistSource<T extends { playlistUrl?: string }>(info: T, sourceUrl: string): T {
+  return youtubePlaylistId(sourceUrl) ? { ...info, playlistUrl: sourceUrl } : info;
+}
+
+/** A link to the playlist page itself (as opposed to one video of it). */
+export function isYoutubePlaylistPage(raw: string): boolean {
+  try {
+    return new URL(raw.trim()).pathname === '/playlist' && youtubePlaylistId(raw) !== null;
+  } catch {
+    return false;
+  }
+}

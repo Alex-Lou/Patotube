@@ -100,6 +100,23 @@ export function mockTauri(): TauriApi {
         published: `${i + 1} day${i === 0 ? '' : 's'} ago`,
       }));
     },
+    async fetchYoutubePlaylist(url: string) {
+      await sleep(400);
+      return {
+        id: new URL(url).searchParams.get('list') ?? 'PLmock',
+        title: 'Mock playlist',
+        entries: Array.from({ length: 10 }, (_, i) => ({
+          videoId: `mockpl${i.toString().padStart(5, '0')}`,
+          title: `Episode ${i + 1}`,
+          channel: 'Mock channel',
+          durationSeconds: 1200 + i * 60,
+          thumbnailUrl: `https://picsum.photos/seed/pl-${i}/320/180`,
+          viewCount: null,
+          published: null,
+        })),
+        truncated: false,
+      };
+    },
     async onProgress(handler) {
       progressHandlers.add(handler);
       const unlisten: Unlisten = () => progressHandlers.delete(handler) as unknown as void;

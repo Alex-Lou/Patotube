@@ -77,7 +77,9 @@
     "confirm": "تنزيل",
     "cancel": "إلغاء",
     "loading": "جلب المعلومات...",
-    "noThumbnail": "لا توجد صورة مصغّرة"
+    "noThumbnail": "لا توجد صورة مصغّرة",
+    "estimatedSize": "≈ {{size}} (تقديري)",
+    "longMedia": "فيديو طويل ({{duration}}): قد يستغرق التنزيل بعض الوقت. أبقِ Patotube مفتوحًا حتى ينتهي."
   },
   "queue": {
     "title": "التنزيلات",
@@ -157,5 +159,17 @@
     "playerLoading": "جاري التحميل…",
     "shareFailed": "تعذّر فتح قائمة المشاركة",
     "playerLoadFailed": "تعذّر تشغيل هذا الملف"
+  },
+  "playlist": {
+    "loading": "جارٍ تحميل قائمة التشغيل…",
+    "failed": "تعذّر تحميل قائمة التشغيل هذه",
+    "selected": "تم تحديد {{selected}} من {{total}}",
+    "selectAll": "تحديد الكل",
+    "selectNone": "إلغاء تحديد الكل",
+    "truncated": "تُعرض أول {{max}} فيديو فقط.",
+    "download": "تنزيل {{count}}",
+    "added": "أُضيف {{count}} تنزيلًا إلى قائمة الانتظار",
+    "fromVideo": "قائمة التشغيل كاملة",
+    "totalSize": "≈ {{size}} إجمالًا"
   }
 }

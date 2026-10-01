@@ -77,7 +77,9 @@
     "confirm": "Hlaða niður",
     "cancel": "Hætta við",
     "loading": "Sæki upplýsingar...",
-    "noThumbnail": "Engin smámynd"
+    "noThumbnail": "Engin smámynd",
+    "estimatedSize": "≈ {{size}} (áætlað)",
+    "longMedia": "Langt myndband ({{duration}}): niðurhalið getur tekið tíma. Hafðu Patotube opið þar til því lýkur."
   },
   "queue": {
     "title": "Niðurhöl",
@@ -157,5 +159,17 @@
     "playerLoading": "Hleður…",
     "shareFailed": "Tókst ekki að opna deilingarvalmynd",
     "playerLoadFailed": "Tókst ekki að spila þessa skrá"
+  },
+  "playlist": {
+    "loading": "Hleð spilunarlista…",
+    "failed": "Ekki tókst að hlaða þessum spilunarlista",
+    "selected": "{{selected}} / {{total}} valin",
+    "selectAll": "Velja allt",
+    "selectNone": "Afvelja allt",
+    "truncated": "Aðeins fyrstu {{max}} myndböndin eru sýnd.",
+    "download": "Sækja {{count}}",
+    "added": "{{count}} niðurhölum bætt í biðröð",
+    "fromVideo": "Allur listinn",
+    "totalSize": "≈ {{size}} samtals"
   }
 }

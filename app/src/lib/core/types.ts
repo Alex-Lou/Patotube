@@ -40,6 +40,9 @@ export interface MediaInfo {
   durationSec?: number;
   thumbnail?: string;
   platform: PlatformId;
+  /** Link the user gave when it pointed inside a YouTube playlist (the
+   *  backend returns the bare video URL): lets the preview offer the list. */
+  playlistUrl?: string;
 }
 
 export type JobStatus =

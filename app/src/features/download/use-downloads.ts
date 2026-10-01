@@ -10,7 +10,7 @@ import {
 } from '@/lib/android/bridge';
 import { runAudioPostProcess } from './post-process';
 import { showFailToast, showSuccessToast, type TFunc } from './toasts';
-import { enqueueJob, retryJob } from './actions';
+import { enqueueJob, pumpQueue, retryJob } from './actions';
 
 /** Mount in ONE place (App root). Wires Tauri progress/status events to the queue store. */
 export function useDownloadEvents() {
@@ -52,6 +52,8 @@ export function useDownloadEvents() {
         } else if (e.status === 'failed') {
           handleFailedEvent(e.jobId, e.error, tRef.current);
         }
+        // A finished transfer frees a slot for the next waiting job.
+        if (e.status === 'done' || e.status === 'failed') pumpQueue();
       });
 
       // Torn down between await and install: unsubscribe and bail.

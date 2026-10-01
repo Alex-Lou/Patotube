@@ -77,7 +77,9 @@
     "confirm": "Baixar",
     "cancel": "Cancelar",
     "loading": "Obtendo informações...",
-    "noThumbnail": "Sem miniatura"
+    "noThumbnail": "Sem miniatura",
+    "estimatedSize": "≈ {{size}} (estimativa)",
+    "longMedia": "Vídeo longo ({{duration}}): o download pode demorar. Mantenha o Patotube aberto até terminar."
   },
   "queue": {
     "title": "Downloads",
@@ -157,5 +159,17 @@
     "playerLoading": "Carregando…",
     "shareFailed": "Não foi possível abrir o menu de compartilhamento",
     "playerLoadFailed": "Não foi possível reproduzir este arquivo"
+  },
+  "playlist": {
+    "loading": "Carregando a playlist…",
+    "failed": "Não foi possível carregar esta playlist",
+    "selected": "{{selected}} / {{total}} selecionados",
+    "selectAll": "Marcar tudo",
+    "selectNone": "Desmarcar tudo",
+    "truncated": "Apenas os primeiros {{max}} vídeos são listados.",
+    "download": "Baixar {{count}}",
+    "added": "{{count}} downloads adicionados à fila",
+    "fromVideo": "Playlist inteira",
+    "totalSize": "≈ {{size}} no total"
   }
 }

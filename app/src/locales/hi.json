@@ -77,7 +77,9 @@
     "confirm": "डाउनलोड करें",
     "cancel": "रद्द करें",
     "loading": "जानकारी प्राप्त हो रही है...",
-    "noThumbnail": "कोई थंबनेल नहीं"
+    "noThumbnail": "कोई थंबनेल नहीं",
+    "estimatedSize": "≈ {{size}} (अनुमानित)",
+    "longMedia": "लंबा वीडियो ({{duration}}): डाउनलोड में समय लग सकता है। पूरा होने तक Patotube खुला रखें।"
   },
   "queue": {
     "title": "डाउनलोड",
@@ -157,5 +159,17 @@
     "playerLoading": "लोड हो रहा है…",
     "shareFailed": "साझा मेनू नहीं खोल सका",
     "playerLoadFailed": "इस फ़ाइल को चलाया नहीं जा सका"
+  },
+  "playlist": {
+    "loading": "प्लेलिस्ट लोड हो रही है…",
+    "failed": "यह प्लेलिस्ट लोड नहीं हो सकी",
+    "selected": "{{total}} में से {{selected}} चुने गए",
+    "selectAll": "सभी चुनें",
+    "selectNone": "कोई नहीं चुनें",
+    "truncated": "केवल पहले {{max}} वीडियो दिखाए गए हैं।",
+    "download": "{{count}} डाउनलोड करें",
+    "added": "{{count}} डाउनलोड कतार में जोड़े गए",
+    "fromVideo": "पूरी प्लेलिस्ट",
+    "totalSize": "≈ कुल {{size}}"
   }
 }

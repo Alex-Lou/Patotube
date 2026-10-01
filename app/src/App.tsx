@@ -14,11 +14,13 @@ import { usePlayerStore } from '@/features/files/player-store';
 import { consumePendingIntent, hasNativeBridge, type PendingIntent } from '@/lib/android/bridge';
 import { UrlInput } from '@/features/download/url-input';
 import { PreviewDialog } from '@/features/download/preview-dialog';
+import { PlaylistDialog } from '@/features/download/playlist-dialog';
+import { usePlaylistDialog } from '@/features/download/use-playlist-dialog';
 import { QueueList } from '@/features/download/queue-list';
 import { useDownloadActions, useDownloadEvents } from '@/features/download/use-downloads';
 import { useTheme } from '@/features/theme/theme-provider';
 import { detectPlatform, isActive } from '@/lib/core/platform';
-import { validateUrl } from '@/lib/core/url';
+import { isYoutubePlaylistPage, validateUrl, withPlaylistSource } from '@/lib/core/url';
 import { getTauri } from '@/lib/tauri/bindings';
 import type { MediaInfo } from '@/lib/core/types';
 
@@ -53,11 +55,15 @@ export function App() {
         if (!v.ok) return;
         const platform = detectPlatform(v.url);
         if (!isActive(platform)) return;
+        if (isYoutubePlaylistPage(v.url)) {
+          usePlaylistDialog.getState().open(v.url);
+          return;
+        }
         void (async () => {
           try {
             const api = await getTauri();
             const info = await api.fetchMediaInfo(v.url);
-            setPendingPreview(info);
+            setPendingPreview(withPlaylistSource(info, v.url));
           } catch {
             /* swallowed; the URL input flow surfaces fetch errors */
           }
@@ -236,11 +242,15 @@ export function App() {
       if (!v.ok) return;
       const platform = detectPlatform(v.url);
       if (!isActive(platform)) return;
+      if (isYoutubePlaylistPage(v.url)) {
+        usePlaylistDialog.getState().open(v.url);
+        return;
+      }
       void (async () => {
         try {
           const api = await getTauri();
           const info = await api.fetchMediaInfo(v.url);
-          setPendingPreview(info);
+          setPendingPreview(withPlaylistSource(info, v.url));
         } catch {
           /* swallowed; URL input flow already shows errors when typed */
         }
@@ -347,6 +357,9 @@ export function App() {
 
         {/* Embedded player: FilesSheet fallback when no system app handles MIME, or via patotube://open-file. */}
         <FilePlayerDialog />
+
+        {/* YouTube playlist picker, opened from the URL field or a video preview. */}
+        <PlaylistDialog />
 
         {/* The one YouTube player (full dialog or floating), driven by usePlayback. */}
         <PlayerHost />

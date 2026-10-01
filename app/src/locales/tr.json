@@ -77,7 +77,9 @@
     "confirm": "İndir",
     "cancel": "İptal",
     "loading": "Bilgiler alınıyor...",
-    "noThumbnail": "Küçük resim yok"
+    "noThumbnail": "Küçük resim yok",
+    "estimatedSize": "≈ {{size}} (tahmini)",
+    "longMedia": "Uzun video ({{duration}}): indirme biraz sürebilir. Bitene kadar Patotube'u açık tut."
   },
   "queue": {
     "title": "İndirilenler",
@@ -157,5 +159,17 @@
     "playerLoading": "Yükleniyor…",
     "shareFailed": "Paylaşım menüsü açılamadı",
     "playerLoadFailed": "Bu dosya oynatılamadı"
+  },
+  "playlist": {
+    "loading": "Oynatma listesi yükleniyor…",
+    "failed": "Bu oynatma listesi yüklenemedi",
+    "selected": "{{selected}} / {{total}} seçildi",
+    "selectAll": "Tümünü seç",
+    "selectNone": "Hiçbirini seçme",
+    "truncated": "Yalnızca ilk {{max}} video listelenir.",
+    "download": "{{count}} indir",
+    "added": "{{count}} indirme kuyruğa eklendi",
+    "fromVideo": "Tüm liste",
+    "totalSize": "≈ toplam {{size}}"
   }
 }
