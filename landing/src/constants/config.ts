@@ -1,6 +1,8 @@
 // Single source of truth for the landing — bump APP_VERSION on each release (download URLs and GitHub API URL derive from it).
 
-export const APP_VERSION = '0.6.22';
+export const APP_VERSION = '0.6.23';
+// Release day of APP_VERSION (YYYY-MM-DD), shown next to the version.
+export const APP_RELEASE_DATE = '2026-10-01';
 
 export const GITHUB_OWNER = 'Alex-Lou';
 export const GITHUB_REPO = 'Patotube';

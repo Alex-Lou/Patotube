@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import { GITHUB_BASE, GITHUB_OWNER, GITHUB_REPO, DOWNLOAD_URLS, APP_VERSION } from '../constants/config';
+import { GITHUB_BASE, GITHUB_OWNER, GITHUB_REPO, DOWNLOAD_URLS, APP_VERSION, APP_RELEASE_DATE } from '../constants/config';
 import { DICT, LOCALE_META, RTL, SUPPORTED } from '../i18n/translations';
 
 const downloads = [
@@ -32,7 +32,6 @@ const features = [
   { titleKey: 'featureOssTitle', bodyKey: 'featureOssBody' },
 ] as const;
 
-const year = new Date().getFullYear();
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const en = DICT.en;
 
@@ -238,7 +237,7 @@ const metaJson = JSON.stringify(LOCALE_META);
         </p>
 
         <p class="mt-2 text-[10px] text-center text-fg-subtle font-mono opacity-60">
-          v{APP_VERSION}
+          v{APP_VERSION} · <time datetime={APP_RELEASE_DATE}>{APP_RELEASE_DATE}</time>
         </p>
       </div>
     </section>
@@ -382,7 +381,7 @@ const metaJson = JSON.stringify(LOCALE_META);
 
         <div class="mt-10 pt-6 border-t border-border/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-fg-subtle">
           <span>
-            &copy; {year} <span data-i18n="footerCopy">{en.footerCopy}</span> · v{APP_VERSION}
+            <span data-i18n="footerCopy">{en.footerCopy}</span> · v{APP_VERSION} · <time datetime={APP_RELEASE_DATE}>{APP_RELEASE_DATE}</time>
           </span>
           <span class="inline-flex items-center gap-1.5">
             <span>Made with</span>
