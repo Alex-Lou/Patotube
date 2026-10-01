@@ -54,3 +54,36 @@ export function getResolvedFormatLabel(
       return isAndroid ? 'M4A · AAC' : `MP3 · ${format.bitrate}k`;
   }
 }
+
+/** Above this, the preview warns that the download will take a while. */
+export const LONG_MEDIA_SECONDS = 60 * 60;
+
+// Typical total bitrate (video + audio, bits/s) YouTube serves for each
+// quality cap. Only used for a rough size hint, never for logic.
+const VIDEO_BITRATE_BPS: Record<VideoQuality, number> = {
+  best: 5_000_000,
+  high: 3_000_000,
+  medium: 1_800_000,
+  low: 1_000_000,
+};
+// Android keeps YouTube's AAC stream (~128 kbps) whatever bitrate is picked.
+const ANDROID_AUDIO_BPS = 128_000;
+
+/** Rough output size in bytes for a media of `durationSec`, or null when
+ *  the duration is unknown. An estimate: real files vary by ±50 %. */
+export function estimateSizeBytes(
+  durationSec: number | undefined,
+  format: FormatChoice,
+  isAndroid: boolean,
+): number | null {
+  if (typeof durationSec !== 'number' || !Number.isFinite(durationSec) || durationSec <= 0) {
+    return null;
+  }
+  const bps =
+    format.kind === 'video'
+      ? VIDEO_BITRATE_BPS[format.quality]
+      : isAndroid
+        ? ANDROID_AUDIO_BPS
+        : format.bitrate * 1000;
+  return Math.round((bps / 8) * durationSec);
+}

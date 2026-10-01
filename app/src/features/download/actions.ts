@@ -14,35 +14,20 @@ function failureMessage(err: unknown): string {
   return err instanceof Error ? err.message : String(err);
 }
 
-/** Add a fresh job to the queue and ask Rust to start it. */
-export async function enqueueJob(
-  info: MediaInfo,
-  format: FormatChoice,
-): Promise<void> {
-  const job = useQueueStore.getState().add(info, format);
+/** Transfers running at once. A playlist enqueues many jobs; starting
+ *  them all together gets the client throttled by the CDN and makes every
+ *  one of them slow. The rest wait as `pending`. */
+export const MAX_CONCURRENT_DOWNLOADS = 2;
+
+// Pending jobs already handed to Rust (it has not reported "downloading"
+// yet). Without this a pending job would be started twice.
+const handedToBackend = new Set<string>();
+
+async function startInBackend(jobId: string): Promise<void> {
+  const job = useQueueStore.getState().jobs.find((j) => j.id === jobId);
+  if (!job) return;
   // try-wrapped: resolveOutputDir can reject (Linux without
   // ~/.config/user-dirs.dirs), otherwise the job would stick on `pending`.
-  try {
-    const api = await getTauri();
-    const outputDir = await resolveOutputDir();
-    await api.startDownload({
-      jobId: job.id,
-      url: info.url,
-      format,
-      outputDir,
-    });
-  } catch (err) {
-    useQueueStore.getState().setStatus(job.id, 'failed', failureMessage(err));
-  }
-}
-
-/** Re-arm an existing job (typically after a failure) and start it again. */
-export async function retryJob(jobId: string): Promise<void> {
-  const queue = useQueueStore.getState();
-  const job = queue.jobs.find((j) => j.id === jobId);
-  if (!job) return;
-  queue.setStatus(jobId, 'pending');
-  queue.update(jobId, { progress: 0, error: undefined });
   try {
     const api = await getTauri();
     const outputDir = await resolveOutputDir();
@@ -53,8 +38,47 @@ export async function retryJob(jobId: string): Promise<void> {
       outputDir,
     });
   } catch (err) {
-    queue.setStatus(jobId, 'failed', failureMessage(err));
+    handedToBackend.delete(jobId);
+    useQueueStore.getState().setStatus(jobId, 'failed', failureMessage(err));
+    pumpQueue();
   }
+}
+
+/** Start waiting jobs, oldest first, until MAX_CONCURRENT_DOWNLOADS run.
+ *  Call it whenever a job is added, retried, removed, or finishes. */
+export function pumpQueue(): void {
+  const jobs = useQueueStore.getState().jobs;
+  for (const id of handedToBackend) {
+    if (!jobs.some((j) => j.id === id && j.status === 'pending')) handedToBackend.delete(id);
+  }
+  let running = jobs.filter(
+    (j) => j.status === 'downloading' || (j.status === 'pending' && handedToBackend.has(j.id)),
+  ).length;
+  // `jobs` is newest first: walk it backwards to start the oldest.
+  for (let i = jobs.length - 1; i >= 0 && running < MAX_CONCURRENT_DOWNLOADS; i--) {
+    const job = jobs[i]!;
+    if (job.status !== 'pending' || handedToBackend.has(job.id)) continue;
+    handedToBackend.add(job.id);
+    running++;
+    void startInBackend(job.id);
+  }
+}
+
+/** Add a fresh job to the queue; it starts as soon as a slot is free. */
+export async function enqueueJob(info: MediaInfo, format: FormatChoice): Promise<void> {
+  useQueueStore.getState().add(info, format);
+  pumpQueue();
+}
+
+/** Re-arm an existing job (typically after a failure) and queue it again. */
+export async function retryJob(jobId: string): Promise<void> {
+  const queue = useQueueStore.getState();
+  const job = queue.jobs.find((j) => j.id === jobId);
+  if (!job) return;
+  handedToBackend.delete(jobId);
+  queue.setStatus(jobId, 'pending');
+  queue.update(jobId, { progress: 0, error: undefined });
+  pumpQueue();
 }
 
 /** Ask Rust to stop the given jobs. Best effort: the queue entries are
@@ -75,6 +99,7 @@ export async function removeJob(jobId: string): Promise<void> {
   const queue = useQueueStore.getState();
   const job = queue.jobs.find((j) => j.id === jobId);
   queue.remove(jobId);
+  pumpQueue();
   if (job && isInFlight(job)) await cancelInBackend([jobId]);
 }
 

@@ -85,7 +85,9 @@
     "confirm": "Télécharger",
     "cancel": "Annuler",
     "loading": "Récupération des infos...",
-    "noThumbnail": "Pas de miniature"
+    "noThumbnail": "Pas de miniature",
+    "estimatedSize": "≈ {{size}} (estimation)",
+    "longMedia": "Vidéo longue ({{duration}}) : le téléchargement peut prendre du temps. Garde Patotube ouvert jusqu'à la fin."
   },
   "queue": {
     "title": "Téléchargements",

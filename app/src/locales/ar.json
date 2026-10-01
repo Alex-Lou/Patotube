@@ -77,7 +77,9 @@
     "confirm": "تنزيل",
     "cancel": "إلغاء",
     "loading": "جلب المعلومات...",
-    "noThumbnail": "لا توجد صورة مصغّرة"
+    "noThumbnail": "لا توجد صورة مصغّرة",
+    "estimatedSize": "≈ {{size}} (تقديري)",
+    "longMedia": "فيديو طويل ({{duration}}): قد يستغرق التنزيل بعض الوقت. أبقِ Patotube مفتوحًا حتى ينتهي."
   },
   "queue": {
     "title": "التنزيلات",
