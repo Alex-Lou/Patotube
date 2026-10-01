@@ -39,7 +39,9 @@ if (-not (Test-Path $nsis)) { throw "Windows bundle missing at $nsis" }
 Write-Host "`n=== 4/6 Build Android (~4 min) ===" -ForegroundColor Cyan
 # Sync the Kotlin overlay first so the manifest + bridge are fresh.
 pnpm android:sync
-pnpm tauri android build --apk --target aarch64
+# No --target: build every ABI (arm64, armv7, x86, x86_64) so the single
+# universal APK also installs on older 32-bit phones.
+pnpm tauri android build --apk
 # Workaround: if Tauri only writes the .so, manually copy + gradle.
 # If it produced a universal APK directly, the second copy is a no-op.
 $so = "$APP\src-tauri\target\aarch64-linux-android\release\libpatotube_lib.so"
@@ -66,11 +68,14 @@ New-Item -ItemType Directory -Path $STAGE | Out-Null
 Copy-Item "$APP\src-tauri\target\release\bundle\nsis\Patotube_${VERSION}_x64-setup.exe"     $STAGE
 Copy-Item "$APP\src-tauri\target\release\bundle\nsis\Patotube_${VERSION}_x64-setup.exe.sig" $STAGE
 
-# APK: prefer arm64/release, fall back to universal/release.
+# APK: prefer the universal (all-ABI) one; Gradle also emits one split per
+# ABI next to it, and those must not be shipped.
+$apkFat       = "$APP\src-tauri\gen\android\app\build\outputs\apk\universal\release\app-universal-universal-release.apk"
 $apkArm64     = "$APP\src-tauri\gen\android\app\build\outputs\apk\arm64\release\app-arm64-release.apk"
 $apkUniversal = "$APP\src-tauri\gen\android\app\build\outputs\apk\universal\release\app-universal-release.apk"
 $apkPatotube  = "$APP\src-tauri\gen\android\app\build\outputs\apk\arm64\release\Patotube.apk"
-if     (Test-Path $apkPatotube)  { Copy-Item $apkPatotube  "$STAGE\Patotube.apk" }
+if     (Test-Path $apkFat)       { Copy-Item $apkFat       "$STAGE\Patotube.apk" }
+elseif (Test-Path $apkPatotube)  { Copy-Item $apkPatotube  "$STAGE\Patotube.apk" }
 elseif (Test-Path $apkArm64)     { Copy-Item $apkArm64     "$STAGE\Patotube.apk" }
 elseif (Test-Path $apkUniversal) { Copy-Item $apkUniversal "$STAGE\Patotube.apk" }
 else                             { throw "No release APK found" }
