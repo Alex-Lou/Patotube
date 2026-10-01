@@ -159,5 +159,17 @@
     "playerLoading": "Laden…",
     "shareFailed": "Kon het deelmenu niet openen",
     "playerLoadFailed": "Kon dit bestand niet afspelen"
+  },
+  "playlist": {
+    "loading": "Afspeellijst laden…",
+    "failed": "Deze afspeellijst kon niet worden geladen",
+    "selected": "{{selected}} / {{total}} geselecteerd",
+    "selectAll": "Alles selecteren",
+    "selectNone": "Niets selecteren",
+    "truncated": "Alleen de eerste {{max}} video's worden getoond.",
+    "download": "{{count}} downloaden",
+    "added": "{{count}} downloads toegevoegd aan de wachtrij",
+    "fromVideo": "Hele afspeellijst",
+    "totalSize": "≈ {{size}} in totaal"
   }
 }

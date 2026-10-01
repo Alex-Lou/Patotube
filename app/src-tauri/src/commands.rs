@@ -168,6 +168,16 @@ pub async fn search_youtube(
     crate::youtube_kernel::search::search(&query, n).await
 }
 
+/// Lists a YouTube playlist (first MAX_PLAYLIST_ITEMS videos). The
+/// frontend then queues each video as a normal download job.
+#[tauri::command]
+pub async fn fetch_youtube_playlist(
+    url: String,
+) -> Result<crate::youtube_kernel::playlist::PlaylistInfo, String> {
+    crate::url_guard::ensure_http_url(&url)?;
+    crate::youtube_kernel::playlist::fetch(&url).await
+}
+
 #[tauri::command]
 pub async fn get_youtube_stream_url(video_id: String) -> Result<String, String> {
     crate::youtube_kernel::stream_url::fetch_combined_stream(&video_id).await

@@ -2,6 +2,7 @@
 
 mod clients;
 mod player_api;
+pub mod playlist;
 pub mod search;
 mod sigcipher;
 pub mod stream_url;

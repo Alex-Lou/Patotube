@@ -159,5 +159,17 @@
     "playerLoading": "Загрузка…",
     "shareFailed": "Не удалось открыть меню «Поделиться»",
     "playerLoadFailed": "Не удалось воспроизвести файл"
+  },
+  "playlist": {
+    "loading": "Загрузка плейлиста…",
+    "failed": "Не удалось загрузить этот плейлист",
+    "selected": "Выбрано {{selected}} из {{total}}",
+    "selectAll": "Выбрать все",
+    "selectNone": "Снять выбор",
+    "truncated": "Показаны только первые {{max}} видео.",
+    "download": "Скачать {{count}}",
+    "added": "В очередь добавлено загрузок: {{count}}",
+    "fromVideo": "Весь плейлист",
+    "totalSize": "≈ {{size}} всего"
   }
 }

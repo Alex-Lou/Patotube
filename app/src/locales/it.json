@@ -159,5 +159,17 @@
     "playerLoading": "Caricamento…",
     "shareFailed": "Impossibile aprire il menu di condivisione",
     "playerLoadFailed": "Impossibile riprodurre questo file"
+  },
+  "playlist": {
+    "loading": "Caricamento della playlist…",
+    "failed": "Impossibile caricare questa playlist",
+    "selected": "{{selected}} / {{total}} selezionati",
+    "selectAll": "Seleziona tutto",
+    "selectNone": "Deseleziona tutto",
+    "truncated": "Sono elencati solo i primi {{max}} video.",
+    "download": "Scarica {{count}}",
+    "added": "{{count}} download aggiunti alla coda",
+    "fromVideo": "Tutta la playlist",
+    "totalSize": "≈ {{size}} in totale"
   }
 }
