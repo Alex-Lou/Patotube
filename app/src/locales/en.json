@@ -85,7 +85,9 @@
     "confirm": "Download",
     "cancel": "Cancel",
     "loading": "Fetching info...",
-    "noThumbnail": "No thumbnail available"
+    "noThumbnail": "No thumbnail available",
+    "estimatedSize": "≈ {{size}} (estimate)",
+    "longMedia": "Long video ({{duration}}): the download can take a while. Keep Patotube open until it finishes."
   },
   "queue": {
     "title": "Downloads",

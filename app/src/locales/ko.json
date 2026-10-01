@@ -77,7 +77,9 @@
     "confirm": "다운로드",
     "cancel": "취소",
     "loading": "정보 가져오는 중...",
-    "noThumbnail": "미리보기 없음"
+    "noThumbnail": "미리보기 없음",
+    "estimatedSize": "약 {{size}} (추정)",
+    "longMedia": "긴 영상({{duration}}): 다운로드에 시간이 걸릴 수 있습니다. 끝날 때까지 Patotube를 열어 두세요."
   },
   "queue": {
     "title": "다운로드",

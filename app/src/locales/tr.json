@@ -77,7 +77,9 @@
     "confirm": "İndir",
     "cancel": "İptal",
     "loading": "Bilgiler alınıyor...",
-    "noThumbnail": "Küçük resim yok"
+    "noThumbnail": "Küçük resim yok",
+    "estimatedSize": "≈ {{size}} (tahmini)",
+    "longMedia": "Uzun video ({{duration}}): indirme biraz sürebilir. Bitene kadar Patotube'u açık tut."
   },
   "queue": {
     "title": "İndirilenler",

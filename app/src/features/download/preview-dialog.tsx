@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Clock, User, ImageOff, Download, Play } from 'lucide-react';
+import { Clock, User, ImageOff, Download, Play, HardDrive, AlertTriangle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -11,8 +11,9 @@ import { Button } from '@/components/ui/button';
 import type { FormatChoice, MediaInfo } from '@/lib/core/types';
 import type { SearchResult } from '@/lib/tauri/bindings';
 import { useSettings } from '@/lib/core/settings';
-import { DEFAULT_AUDIO_BITRATE } from '@/lib/core/formats';
-import { formatDuration } from '@/lib/utils';
+import { DEFAULT_AUDIO_BITRATE, estimateSizeBytes, LONG_MEDIA_SECONDS } from '@/lib/core/formats';
+import { formatBytes, formatDuration } from '@/lib/utils';
+import { isAndroid } from '@/lib/android/bridge';
 import { FormatPicker } from './format-picker';
 import { usePlayback } from '@/features/search/use-playback';
 
@@ -67,6 +68,8 @@ export function PreviewDialog({ info, onClose, onConfirm }: PreviewDialogProps) 
   // either, so we don't gate it.
   const AUDIO_ONLY_PLATFORMS = new Set(['soundcloud', 'bandcamp', 'audiomack']);
   const audioOnly = !!info && AUDIO_ONLY_PLATFORMS.has(info.platform);
+  const estimatedSize = info ? estimateSizeBytes(info.durationSec, format, isAndroid()) : null;
+  const isLong = typeof info?.durationSec === 'number' && info.durationSec >= LONG_MEDIA_SECONDS;
 
   useEffect(() => {
     if (info) {
@@ -151,7 +154,20 @@ export function PreviewDialog({ info, onClose, onConfirm }: PreviewDialogProps) 
                   {formatDuration(info.durationSec)}
                 </span>
               )}
+              {estimatedSize !== null && (
+                <span className="inline-flex items-center gap-1.5">
+                  <HardDrive className="size-3.5" />
+                  {t('preview.estimatedSize', { size: formatBytes(estimatedSize) })}
+                </span>
+              )}
             </div>
+
+            {isLong && (
+              <p className="flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
+                <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
+                {t('preview.longMedia', { duration: formatDuration(info.durationSec!) })}
+              </p>
+            )}
 
             <div className="border-t border-border/50 pt-4 space-y-3">
               <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">

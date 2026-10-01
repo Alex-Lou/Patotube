@@ -77,7 +77,9 @@
     "confirm": "ダウンロード",
     "cancel": "キャンセル",
     "loading": "情報を取得中...",
-    "noThumbnail": "サムネイルなし"
+    "noThumbnail": "サムネイルなし",
+    "estimatedSize": "約 {{size}}(推定)",
+    "longMedia": "長い動画({{duration}}):ダウンロードに時間がかかることがあります。完了するまで Patotube を開いたままにしてください。"
   },
   "queue": {
     "title": "ダウンロード",

@@ -77,7 +77,9 @@
     "confirm": "Hlaða niður",
     "cancel": "Hætta við",
     "loading": "Sæki upplýsingar...",
-    "noThumbnail": "Engin smámynd"
+    "noThumbnail": "Engin smámynd",
+    "estimatedSize": "≈ {{size}} (áætlað)",
+    "longMedia": "Langt myndband ({{duration}}): niðurhalið getur tekið tíma. Hafðu Patotube opið þar til því lýkur."
   },
   "queue": {
     "title": "Niðurhöl",
