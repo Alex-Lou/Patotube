@@ -15,8 +15,12 @@
     }
     const host = url.hostname;
     const path = url.pathname;
-    if (host.endsWith('youtube.com')) {
-      return path === '/watch' && url.searchParams.has('v');
+    if (host === 'youtu.be') {
+      return path.length > 1;
+    }
+    if (host === 'youtube.com' || host.endsWith('.youtube.com')) {
+      if (path === '/watch') return url.searchParams.has('v');
+      return /^\/shorts\/[\w-]+/.test(path);
     }
     if (host === 'soundcloud.com') {
       const segs = path.split('/').filter(Boolean);
@@ -43,12 +47,23 @@
   const sendBtn = document.getElementById('send');
 
   let activeUrl = '';
+  let activeTabId = null;
 
+  // The popup itself cannot launch an external protocol: Chrome blocks it,
+  // or the "Open Patotube?" prompt dies with the popup. Pointing the active
+  // tab at patotube:// shows that prompt in the tab, and the page stays put.
   function fire(url) {
     if (!url) return;
-    window.location.href = 'patotube://download?url=' + encodeURIComponent(url);
-    // Tiny grace period so the OS gets the URL before we close.
-    setTimeout(() => window.close(), 150);
+    const deepLink = 'patotube://download?url=' + encodeURIComponent(url);
+    const launched =
+      activeTabId !== null
+        ? ext.tabs.update(activeTabId, { url: deepLink })
+        : ext.tabs.create({ url: deepLink });
+    Promise.resolve(launched)
+      .catch(() => {
+        window.open(deepLink);
+      })
+      .finally(() => window.close());
   }
 
   function recompute() {
@@ -68,7 +83,9 @@
     .query({ active: true, currentWindow: true })
     .then((tabs) => {
       const tab = tabs && tabs[0];
-      if (!tab || !tab.url) return;
+      if (!tab) return;
+      if (typeof tab.id === 'number') activeTabId = tab.id;
+      if (!tab.url) return;
       if (isSupported(tab.url)) {
         activeUrl = tab.url;
         detected.textContent = tab.url;

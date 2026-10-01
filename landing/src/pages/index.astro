@@ -49,7 +49,8 @@ const companions = [
   },
   {
     key: 'extension',
-    href: `${GITHUB_BASE}/releases/latest/download/patotube-extension-${APP_VERSION}.zip`,
+    // Built from extension/ by the deploy workflow, so it always matches main.
+    href: `${base}/patotube-extension.zip`,
     icon: '\u{1F9E9}',
     hintHref: `${GITHUB_BASE}/blob/main/extension/README.md`,
   },
@@ -359,7 +360,7 @@ const metaJson = JSON.stringify(LOCALE_META);
                   href={c.href}
                   class="mt-5 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-duck/15 text-duck hover:bg-duck/25 font-semibold text-sm transition-colors"
                   data-i18n={`${c.key}Cta`}
-                  download={c.key === 'extension' ? `patotube-extension-${APP_VERSION}.zip` : undefined}
+                  download={c.key === 'extension' ? 'patotube-extension.zip' : undefined}
                 >
                   {(en as any)[`${c.key}Cta`]}
                 </a>
