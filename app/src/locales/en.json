@@ -167,5 +167,17 @@
     "playerLoading": "Loading…",
     "shareFailed": "Could not open the share sheet",
     "playerLoadFailed": "Could not play this file"
+  },
+  "playlist": {
+    "loading": "Loading playlist…",
+    "failed": "Could not load this playlist",
+    "selected": "{{selected}} / {{total}} selected",
+    "selectAll": "Select all",
+    "selectNone": "Select none",
+    "truncated": "Only the first {{max}} videos are listed.",
+    "download": "Download {{count}}",
+    "added": "{{count}} downloads added to the queue",
+    "fromVideo": "Whole playlist",
+    "totalSize": "≈ {{size}} in total"
   }
 }

@@ -159,5 +159,17 @@
     "playerLoading": "正在加载…",
     "shareFailed": "无法打开分享菜单",
     "playerLoadFailed": "无法播放此文件"
+  },
+  "playlist": {
+    "loading": "正在加载播放列表…",
+    "failed": "无法加载此播放列表",
+    "selected": "已选 {{selected}} / {{total}}",
+    "selectAll": "全选",
+    "selectNone": "全不选",
+    "truncated": "仅列出前 {{max}} 个视频。",
+    "download": "下载 {{count}} 个",
+    "added": "已将 {{count}} 个下载加入队列",
+    "fromVideo": "整个播放列表",
+    "totalSize": "总计约 {{size}}"
   }
 }

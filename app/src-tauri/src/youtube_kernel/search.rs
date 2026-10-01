@@ -160,7 +160,7 @@ fn parse_video_renderer(v: &Value) -> Option<SearchResult> {
     })
 }
 
-fn extract_runs(runs: Option<&Value>) -> Option<String> {
+pub(super) fn extract_runs(runs: Option<&Value>) -> Option<String> {
     let arr = runs?.as_array()?;
     let mut s = String::new();
     for r in arr {
@@ -176,7 +176,7 @@ fn extract_runs(runs: Option<&Value>) -> Option<String> {
 }
 
 // "3:45" or "1:23:45" → seconds. None on parse failure / empty.
-fn parse_duration(s: &str) -> Option<u32> {
+pub(super) fn parse_duration(s: &str) -> Option<u32> {
     if s.is_empty() {
         return None;
     }

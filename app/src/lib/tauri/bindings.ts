@@ -46,6 +46,15 @@ export interface SearchResult {
   published: string | null;
 }
 
+/** Mirrors youtube_kernel::playlist::PlaylistInfo. */
+export interface PlaylistInfo {
+  id: string;
+  title: string;
+  entries: SearchResult[];
+  /** More videos exist than the backend's cap (only the first ones are listed). */
+  truncated: boolean;
+}
+
 export interface TauriApi {
   fetchMediaInfo(url: string): Promise<MediaInfo>;
   startDownload(input: {
@@ -63,6 +72,7 @@ export interface TauriApi {
   deleteDownload(path: string): Promise<void>;
   searchYoutube(query: string, limit: number): Promise<SearchResult[]>;
   getYoutubeStreamUrl(videoId: string): Promise<string>;
+  fetchYoutubePlaylist(url: string): Promise<PlaylistInfo>;
   getYoutubeNativeStream(videoId: string): Promise<{ url: string; userAgent: string }>;
   onProgress(handler: (e: DownloadProgressEvent) => void): Promise<Unlisten>;
   onStatus(handler: (e: DownloadStatusEvent) => void): Promise<Unlisten>;
@@ -93,6 +103,7 @@ async function realApi(): Promise<TauriApi> {
     deleteDownload: (path) => invoke('delete_download', { path }),
     searchYoutube: (query, limit) => invoke('search_youtube', { query, limit }),
     getYoutubeStreamUrl: (videoId) => invoke('get_youtube_stream_url', { videoId }),
+    fetchYoutubePlaylist: (url) => invoke('fetch_youtube_playlist', { url }),
     getYoutubeNativeStream: (videoId) => invoke('get_youtube_native_stream', { videoId }),
     onProgress: subscribe<DownloadProgressEvent>('download://progress'),
     onStatus: subscribe<DownloadStatusEvent>('download://status'),

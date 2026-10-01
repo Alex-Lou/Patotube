@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Clock, User, ImageOff, Download, Play, HardDrive, AlertTriangle } from 'lucide-react';
+import { Clock, User, ImageOff, Download, Play, HardDrive, AlertTriangle, ListVideo } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,7 @@ import { useSettings } from '@/lib/core/settings';
 import { DEFAULT_AUDIO_BITRATE, estimateSizeBytes, LONG_MEDIA_SECONDS } from '@/lib/core/formats';
 import { formatBytes, formatDuration } from '@/lib/utils';
 import { isAndroid } from '@/lib/android/bridge';
+import { usePlaylistDialog } from './use-playlist-dialog';
 import { FormatPicker } from './format-picker';
 import { usePlayback } from '@/features/search/use-playback';
 
@@ -70,6 +71,8 @@ export function PreviewDialog({ info, onClose, onConfirm }: PreviewDialogProps) 
   const audioOnly = !!info && AUDIO_ONLY_PLATFORMS.has(info.platform);
   const estimatedSize = info ? estimateSizeBytes(info.durationSec, format, isAndroid()) : null;
   const isLong = typeof info?.durationSec === 'number' && info.durationSec >= LONG_MEDIA_SECONDS;
+  // This video was opened from inside a playlist: offer the whole list.
+  const playlistUrl = info?.platform === 'youtube' ? info.playlistUrl : undefined;
 
   useEffect(() => {
     if (info) {
@@ -181,7 +184,20 @@ export function PreviewDialog({ info, onClose, onConfirm }: PreviewDialogProps) 
               />
             </div>
 
-            <div className="flex justify-end gap-2 pt-2">
+            <div className="flex flex-wrap justify-end gap-2 pt-2">
+              {playlistUrl && (
+                <Button
+                  variant="ghost"
+                  className="me-auto"
+                  onClick={() => {
+                    usePlaylistDialog.getState().open(playlistUrl);
+                    onClose();
+                  }}
+                >
+                  <ListVideo className="size-4" />
+                  {t('playlist.fromVideo')}
+                </Button>
+              )}
               <Button variant="ghost" onClick={onClose}>
                 {t('preview.cancel')}
               </Button>

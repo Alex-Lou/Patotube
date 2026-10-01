@@ -159,5 +159,17 @@
     "playerLoading": "Ładowanie…",
     "shareFailed": "Nie można otworzyć menu udostępniania",
     "playerLoadFailed": "Nie można odtworzyć tego pliku"
+  },
+  "playlist": {
+    "loading": "Wczytywanie playlisty…",
+    "failed": "Nie udało się wczytać tej playlisty",
+    "selected": "Zaznaczono {{selected}} / {{total}}",
+    "selectAll": "Zaznacz wszystko",
+    "selectNone": "Odznacz wszystko",
+    "truncated": "Wyświetlono tylko pierwsze {{max}} filmów.",
+    "download": "Pobierz {{count}}",
+    "added": "Dodano {{count}} pobrań do kolejki",
+    "fromVideo": "Cała playlista",
+    "totalSize": "≈ {{size}} łącznie"
   }
 }
