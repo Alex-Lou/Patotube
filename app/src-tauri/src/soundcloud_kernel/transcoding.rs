@@ -6,10 +6,15 @@ use super::types::{Track, Transcoding};
 pub struct PickedTranscoding {
     pub url: String,
     pub extension: &'static str,
+    /// Stream URL points to an HLS media playlist (segments to concatenate)
+    /// rather than a single progressive file.
+    pub hls: bool,
 }
 
-// HLS-only → caller surfaces clear error (no HLS player on mobile).
-pub fn pick_progressive(track: &Track) -> Result<PickedTranscoding, String> {
+/// Progressive MP3 first (one plain GET), then any progressive, then
+/// plain HLS — which is all SoundCloud serves for most tracks now.
+/// Only DRM-encrypted HLS is refused.
+pub fn pick_transcoding(track: &Track) -> Result<PickedTranscoding, String> {
     let mp3s: Vec<&Transcoding> = track
         .media
         .transcodings
@@ -28,23 +33,72 @@ pub fn pick_progressive(track: &Track) -> Result<PickedTranscoding, String> {
         return Ok(PickedTranscoding {
             url: t.url.clone(),
             extension: "mp3",
+            hls: false,
         });
     }
 
-    let any = track
+    if let Some(any) = track.media.transcodings.iter().find(|t| is_progressive(t)) {
+        return Ok(PickedTranscoding {
+            url: any.url.clone(),
+            extension: extension_from_mime(&any.format.mime_type),
+            hls: false,
+        });
+    }
+
+    let best_hls = track
         .media
         .transcodings
         .iter()
-        .find(|t| is_progressive(t))
-        .ok_or_else(|| {
-            "track has no progressive transcoding (HLS only) — not yet supported on mobile"
-                .to_string()
-        })?;
+        .filter(|t| is_plain_hls(t))
+        .max_by_key(|t| hls_rank(t));
+    if let Some(t) = best_hls {
+        return Ok(PickedTranscoding {
+            url: t.url.clone(),
+            extension: extension_from_mime(&t.format.mime_type),
+            hls: true,
+        });
+    }
 
-    Ok(PickedTranscoding {
-        url: any.url.clone(),
-        extension: extension_from_mime(&any.format.mime_type),
-    })
+    if track
+        .media
+        .transcodings
+        .iter()
+        .any(|t| t.format.protocol.to_ascii_lowercase().contains("encrypted"))
+    {
+        return Err("SoundCloud track is DRM-encrypted (encrypted HLS)".into());
+    }
+    Err("SoundCloud offered no downloadable audio format for this track".into())
+}
+
+/// Unencrypted HLS carrying audio segments. `audio/mpegurl` is the
+/// adaptive master playlist (abr_*) — skipped, its variants are listed
+/// individually anyway.
+fn is_plain_hls(t: &Transcoding) -> bool {
+    t.format.protocol.eq_ignore_ascii_case("hls")
+        && !t.format.mime_type.to_ascii_lowercase().contains("mpegurl")
+}
+
+/// (quality tier, bitrate from preset e.g. `aac_160k` → 160).
+fn hls_rank(t: &Transcoding) -> (u8, u32) {
+    let tier = match t.quality.as_deref().map(str::to_ascii_lowercase).as_deref() {
+        Some("hq") => 2,
+        Some("sq") => 1,
+        _ => 0,
+    };
+    let kbps = t
+        .preset
+        .as_deref()
+        .and_then(|p| {
+            let digits: String = p
+                .rsplit('_')
+                .next()?
+                .chars()
+                .take_while(char::is_ascii_digit)
+                .collect();
+            digits.parse().ok()
+        })
+        .unwrap_or(0);
+    (tier, kbps)
 }
 
 fn is_mp3(t: &Transcoding) -> bool {
@@ -112,7 +166,7 @@ mod tests {
             t(Some("mp3_1_0"), "progressive", "audio/mpeg", "mp3.url"),
             t(Some("opus_1_0"), "progressive", "audio/ogg", "opus.url"),
         ]);
-        let picked = pick_progressive(&track).unwrap();
+        let picked = pick_transcoding(&track).unwrap();
         assert_eq!(picked.url, "mp3.url");
         assert_eq!(picked.extension, "mp3");
     }
@@ -123,21 +177,54 @@ mod tests {
             t(Some("hls_aac_128"), "hls", "audio/mp4", "hls.url"),
             t(Some("opus_1_0"), "progressive", "audio/ogg", "opus.url"),
         ]);
-        let picked = pick_progressive(&track).unwrap();
+        let picked = pick_transcoding(&track).unwrap();
         assert_eq!(picked.url, "opus.url");
         assert_eq!(picked.extension, "opus");
     }
 
+    // Shape observed live on api-v2 (2026-11): no progressive at all.
     #[test]
-    fn errors_when_only_hls_available() {
+    fn picks_best_plain_hls_when_no_progressive() {
+        let mut aac160 = t(Some("aac_160k"), "hls", "audio/mp4; codecs=\"mp4a.40.2\"", "160.url");
+        aac160.quality = Some("sq".into());
+        let mut aac96 = t(Some("aac_96k"), "hls", "audio/mp4; codecs=\"mp4a.40.2\"", "96.url");
+        aac96.quality = Some("lq".into());
+        let mut abr = t(Some("abr_sq"), "hls", "audio/mpegurl", "abr.url");
+        abr.quality = Some("sq".into());
+        let track = track_with(vec![aac96, abr, aac160]);
+        let picked = pick_transcoding(&track).unwrap();
+        assert_eq!(picked.url, "160.url");
+        assert_eq!(picked.extension, "m4a");
+        assert!(picked.hls);
+    }
+
+    #[test]
+    fn hls_mp3_gets_mp3_extension() {
+        let track = track_with(vec![t(Some("mp3_1_0"), "hls", "audio/mpeg", "hls.url")]);
+        let picked = pick_transcoding(&track).unwrap();
+        assert_eq!(picked.extension, "mp3");
+        assert!(picked.hls);
+    }
+
+    #[test]
+    fn progressive_still_wins_over_hls() {
         let track = track_with(vec![
-            t(Some("hls_aac_128"), "hls", "audio/mp4", "hls1.url"),
-            t(Some("hls_mp3_1_0"), "hls", "audio/mpeg", "hls2.url"),
+            t(Some("aac_160k"), "hls", "audio/mp4", "hls.url"),
+            t(Some("mp3_1_0"), "progressive", "audio/mpeg", "mp3.url"),
         ]);
-        match pick_progressive(&track) {
-            Ok(_) => panic!("expected error"),
-            Err(e) => assert!(e.contains("HLS only"), "got: {e}"),
-        }
+        let picked = pick_transcoding(&track).unwrap();
+        assert_eq!(picked.url, "mp3.url");
+        assert!(!picked.hls);
+    }
+
+    #[test]
+    fn errors_when_only_encrypted_hls_available() {
+        let track = track_with(vec![
+            t(Some("aac_160k"), "cbc-encrypted-hls", "audio/mp4", "a"),
+            t(Some("aac_160k"), "ctr-encrypted-hls", "audio/mp4", "b"),
+        ]);
+        let err = pick_transcoding(&track).unwrap_err();
+        assert!(err.contains("DRM-encrypted"), "got: {err}");
     }
 
     #[test]
@@ -148,7 +235,7 @@ mod tests {
             "audio/mpeg",
             "x",
         )]);
-        assert!(pick_progressive(&track).is_ok());
+        assert!(pick_transcoding(&track).is_ok());
     }
 
     #[test]
@@ -157,7 +244,7 @@ mod tests {
             t(Some("mp3_1_0"), "progressive", "audio/mpeg", "standard.mp3"),
             t_hq(Some("mp3_0_0"), "progressive", "audio/mpeg", "hq.mp3"),
         ]);
-        let picked = pick_progressive(&track).unwrap();
+        let picked = pick_transcoding(&track).unwrap();
         assert_eq!(picked.url, "hq.mp3");
     }
 
@@ -169,7 +256,7 @@ mod tests {
             "audio/mp4",
             "weird.url",
         )]);
-        let picked = pick_progressive(&track).unwrap();
+        let picked = pick_transcoding(&track).unwrap();
         assert_eq!(picked.extension, "m4a");
     }
 }

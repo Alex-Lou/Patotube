@@ -40,8 +40,9 @@ export function getResolvedFormatLabel(
   // Android: bit-perfect MediaExtractor remux. Desktop: yt-dlp + ffmpeg encode.
   switch (platform) {
     case 'soundcloud':
-      // Server-side MP3, no bitrate choice.
-      return 'MP3';
+      // Server-side format, no bitrate choice: AAC (.m4a) over HLS for
+      // most tracks today, MP3 on the few that still have progressive.
+      return 'M4A · AAC';
     case 'bandcamp':
       // Free preview tier is fixed 128 kbps.
       return 'MP3 · 128k';

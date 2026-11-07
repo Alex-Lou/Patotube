@@ -1,11 +1,12 @@
 // SoundCloud kernel. Pipeline:
 //   api::resolve_track (api-v2/resolve)
-//     → transcoding::pick_progressive (mp3 preferred)
+//     → transcoding::pick_transcoding (progressive mp3 > progressive > plain HLS)
 //     → api::fetch_stream_url (per-format hop, retries once on 401)
-//     → streamer::stream_to_disk
+//     → streamer::stream_to_disk (progressive) | hls::download_to_disk (HLS)
 
 mod api;
 mod client_id;
+mod hls;
 mod transcoding;
 mod types;
 mod url;
@@ -105,9 +106,13 @@ async fn run_download(
     title: &str,
     output_dir: &str,
 ) -> Result<PathBuf, String> {
-    let picked = transcoding::pick_progressive(track)?;
+    let picked = transcoding::pick_transcoding(track)?;
     let stream_url = api::fetch_stream_url(&picked.url).await?;
     let candidates =
         destination_candidates(output_dir, &format!("{title}.{}", picked.extension)).await?;
-    stream_to_disk(app, job_id, &stream_url, &candidates).await
+    if picked.hls {
+        hls::download_to_disk(app, job_id, &stream_url, &candidates).await
+    } else {
+        stream_to_disk(app, job_id, &stream_url, &candidates).await
+    }
 }

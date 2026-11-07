@@ -57,7 +57,7 @@
     "videoUnavailable": "This video is unavailable.",
     "couldNotOpenFile": "Could not open file",
     "couldNotOpenFolder": "Could not open folder",
-    "scHlsOnly": "This SoundCloud track is only available as HLS (segmented stream). Patotube can't download HLS yet on mobile.",
+    "scEncrypted": "This SoundCloud track is DRM-protected (encrypted stream) and can't be downloaded.",
     "scPlaylist": "This is a SoundCloud playlist, not a single track. Open one of its tracks to download it.",
     "scShortLinkBroken": "This SoundCloud short link could not be expanded. Try opening it on the website to get the full URL.",
     "scNotFound": "This SoundCloud track was not found. It may have been deleted or made private."

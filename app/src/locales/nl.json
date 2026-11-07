@@ -49,7 +49,6 @@
     "videoUnavailable": "Deze video is niet beschikbaar.",
     "couldNotOpenFile": "Kon bestand niet openen",
     "couldNotOpenFolder": "Kon map niet openen",
-    "scHlsOnly": "Deze SoundCloud-track is alleen beschikbaar als HLS (gesegmenteerde stream). Patotube kan HLS nog niet downloaden op mobiel.",
     "scPlaylist": "Dit is een SoundCloud-afspeellijst, geen enkele track. Open een van de tracks om die te downloaden.",
     "scShortLinkBroken": "Deze SoundCloud-korte link kon niet worden uitgebreid. Open hem op de website om de volledige URL te krijgen.",
     "scNotFound": "Deze SoundCloud-track is niet gevonden. Mogelijk is deze verwijderd of privé gemaakt."

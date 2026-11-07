@@ -66,10 +66,10 @@ describe('friendlyError', () => {
   });
 
   describe('SoundCloud-specific', () => {
-    it('maps HLS-only errors', () => {
+    it('maps DRM-encrypted errors', () => {
       expect(
-        friendlyError('track has no progressive transcoding (HLS only) — not yet supported on mobile', t),
-      ).toBe('<errors.scHlsOnly>');
+        friendlyError('SoundCloud track is DRM-encrypted (encrypted HLS)', t),
+      ).toBe('<errors.scEncrypted>');
     });
 
     it('maps playlist errors', () => {

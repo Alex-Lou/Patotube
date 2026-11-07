@@ -49,7 +49,6 @@
     "videoUnavailable": "この動画は利用できません。",
     "couldNotOpenFile": "ファイルを開けませんでした",
     "couldNotOpenFolder": "フォルダを開けませんでした",
-    "scHlsOnly": "このSoundCloudトラックはHLS（分割ストリーム）でのみ提供されています。Patotubeはモバイルでまだ HLS をダウンロードできません。",
     "scPlaylist": "これはSoundCloudのプレイリストで、単一のトラックではありません。ダウンロードするには中のトラックを開いてください。",
     "scShortLinkBroken": "このSoundCloud短縮リンクを展開できませんでした。完全なURLを取得するにはウェブサイトで開いてください。",
     "scNotFound": "このSoundCloudトラックが見つかりませんでした。削除されたか非公開にされた可能性があります。"

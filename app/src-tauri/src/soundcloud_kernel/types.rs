@@ -35,8 +35,9 @@ pub struct Transcoding {
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct TranscodingFormat {
-    /// `progressive` (single HTTPS GET → real .mp3) or `hls`
-    /// (m3u8 playlist). We always pick progressive — no HLS muxing.
+    /// `progressive` (single HTTPS GET → real .mp3), `hls` (m3u8
+    /// playlist, segments concatenated by `hls.rs`), or
+    /// `*-encrypted-hls` (DRM, refused).
     pub protocol: String,
     pub mime_type: String,
 }

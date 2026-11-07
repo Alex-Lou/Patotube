@@ -49,7 +49,6 @@
     "videoUnavailable": "Þetta myndband er ekki í boði.",
     "couldNotOpenFile": "Tókst ekki að opna skrá",
     "couldNotOpenFolder": "Tókst ekki að opna möppu",
-    "scHlsOnly": "Þetta SoundCloud-lag er aðeins í boði sem HLS (búta-stream). Patotube getur ekki sótt HLS á síma ennþá.",
     "scPlaylist": "Þetta er SoundCloud-spilunarlisti, ekki einstakt lag. Opnaðu eitt laganna til að hlaða því niður.",
     "scShortLinkBroken": "Tókst ekki að stækka þennan stutta SoundCloud-tengil. Opnaðu hann á vefnum til að fá fulla slóð.",
     "scNotFound": "Þetta SoundCloud-lag fannst ekki. Því kann að hafa verið eytt eða gert að einkamáli."
