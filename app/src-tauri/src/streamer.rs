@@ -25,14 +25,7 @@ pub async fn stream_to_disk(
         return Err("no destination candidates provided".into());
     }
 
-    let http = reqwest::Client::builder()
-        .user_agent(DESKTOP_UA)
-        // No total timeout (big files on slow links are fine), but a
-        // stalled CDN must fail instead of hanging the job forever.
-        .connect_timeout(Duration::from_secs(15))
-        .read_timeout(Duration::from_secs(30))
-        .build()
-        .map_err(|e| format!("could not build http client: {e}"))?;
+    let http = cdn_client()?;
 
     let response = http
         .get(url)
@@ -55,8 +48,7 @@ pub async fn stream_to_disk(
 
     let mut stream = response.bytes_stream();
     let mut bytes_done: u64 = 0;
-    let mut last_emit = Instant::now();
-    let started = Instant::now();
+    let mut progress = ProgressReporter::new(app, job_id);
 
     while let Some(chunk) = stream.next().await {
         let chunk = chunk.map_err(|e| format!("stream interrupted: {e}"))?;
@@ -64,25 +56,7 @@ pub async fn stream_to_disk(
             .await
             .map_err(|e| format!("disk write error: {e}"))?;
         bytes_done += chunk.len() as u64;
-
-        if last_emit.elapsed().as_millis() >= PROGRESS_THROTTLE_MS {
-            let elapsed = started.elapsed().as_secs_f64().max(0.001);
-            let speed = bytes_done as f64 / elapsed;
-            let eta = bytes_total
-                .filter(|&t| t > bytes_done && speed > 0.0)
-                .map(|t| (t - bytes_done) as f64 / speed);
-            emit_progress(
-                app,
-                ProgressPayload {
-                    job_id: job_id.to_string(),
-                    bytes_done,
-                    bytes_total,
-                    speed_bps: Some(speed),
-                    eta_sec: eta,
-                },
-            );
-            last_emit = Instant::now();
-        }
+        progress.report(bytes_done, bytes_total, false);
     }
 
     file.flush()
@@ -91,7 +65,58 @@ pub async fn stream_to_disk(
     Ok(out_path)
 }
 
-async fn open_first_writable(
+/// HTTP client for plain CDN downloads. No total timeout (big files on
+/// slow links are fine), but a stalled CDN must fail instead of hanging
+/// the job forever.
+pub(crate) fn cdn_client() -> Result<reqwest::Client, String> {
+    reqwest::Client::builder()
+        .user_agent(DESKTOP_UA)
+        .connect_timeout(Duration::from_secs(15))
+        .read_timeout(Duration::from_secs(30))
+        .build()
+        .map_err(|e| format!("could not build http client: {e}"))
+}
+
+/// Throttled progress events (speed + ETA) for one job.
+pub(crate) struct ProgressReporter<'a> {
+    app: &'a AppHandle,
+    job_id: &'a str,
+    started: Instant,
+    last_emit: Instant,
+}
+
+impl<'a> ProgressReporter<'a> {
+    pub(crate) fn new(app: &'a AppHandle, job_id: &'a str) -> Self {
+        let now = Instant::now();
+        Self { app, job_id, started: now, last_emit: now }
+    }
+
+    /// Emits at most every PROGRESS_THROTTLE_MS; `force` bypasses the
+    /// throttle so the final tick always lands.
+    pub(crate) fn report(&mut self, bytes_done: u64, bytes_total: Option<u64>, force: bool) {
+        if !force && self.last_emit.elapsed().as_millis() < PROGRESS_THROTTLE_MS {
+            return;
+        }
+        let elapsed = self.started.elapsed().as_secs_f64().max(0.001);
+        let speed = bytes_done as f64 / elapsed;
+        let eta = bytes_total
+            .filter(|&t| t > bytes_done && speed > 0.0)
+            .map(|t| (t - bytes_done) as f64 / speed);
+        emit_progress(
+            self.app,
+            ProgressPayload {
+                job_id: self.job_id.to_string(),
+                bytes_done,
+                bytes_total,
+                speed_bps: Some(speed),
+                eta_sec: eta,
+            },
+        );
+        self.last_emit = Instant::now();
+    }
+}
+
+pub(crate) async fn open_first_writable(
     candidates: &[PathBuf],
 ) -> Result<(File, PathBuf), String> {
     let mut last_err: Option<String> = None;
