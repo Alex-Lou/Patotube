@@ -49,7 +49,6 @@
     "videoUnavailable": "Bu video kullanılamıyor.",
     "couldNotOpenFile": "Dosya açılamadı",
     "couldNotOpenFolder": "Klasör açılamadı",
-    "scHlsOnly": "Bu SoundCloud parçası yalnızca HLS (parçalı akış) olarak mevcut. Patotube mobilde henüz HLS indiremiyor.",
     "scPlaylist": "Bu bir SoundCloud çalma listesi, tek bir parça değil. İndirmek için içindeki bir parçayı açın.",
     "scShortLinkBroken": "Bu SoundCloud kısa bağlantısı genişletilemedi. Tam URL için web sitesinde açmayı deneyin.",
     "scNotFound": "Bu SoundCloud parçası bulunamadı. Silinmiş veya özel yapılmış olabilir."

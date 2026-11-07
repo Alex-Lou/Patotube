@@ -49,7 +49,6 @@
     "videoUnavailable": "Este vídeo no está disponible.",
     "couldNotOpenFile": "No se pudo abrir el archivo",
     "couldNotOpenFolder": "No se pudo abrir la carpeta",
-    "scHlsOnly": "Esta pista de SoundCloud solo está disponible como HLS (transmisión segmentada). Patotube aún no puede descargar HLS en móvil.",
     "scPlaylist": "Esto es una lista de SoundCloud, no una pista. Abre una de sus pistas para descargarla.",
     "scShortLinkBroken": "No se pudo expandir este enlace corto de SoundCloud. Intenta abrirlo en la web para obtener la URL completa.",
     "scNotFound": "No se encontró esta pista de SoundCloud. Puede haber sido eliminada o hecha privada."

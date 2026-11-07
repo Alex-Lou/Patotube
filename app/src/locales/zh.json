@@ -49,7 +49,6 @@
     "videoUnavailable": "此视频不可用。",
     "couldNotOpenFile": "无法打开文件",
     "couldNotOpenFolder": "无法打开文件夹",
-    "scHlsOnly": "此 SoundCloud 曲目仅以 HLS（分段流）形式提供。Patotube 暂时无法在移动端下载 HLS。",
     "scPlaylist": "这是 SoundCloud 播放列表，不是单曲。请打开其中一首单曲再下载。",
     "scShortLinkBroken": "无法展开此 SoundCloud 短链接。请在网页上打开以获取完整 URL。",
     "scNotFound": "未找到此 SoundCloud 曲目。可能已被删除或设为私有。"

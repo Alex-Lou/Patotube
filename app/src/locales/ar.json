@@ -49,7 +49,6 @@
     "videoUnavailable": "هذا الفيديو غير متاح.",
     "couldNotOpenFile": "تعذّر فتح الملف",
     "couldNotOpenFolder": "تعذّر فتح المجلد",
-    "scHlsOnly": "مسار SoundCloud هذا متوفّر فقط بصيغة HLS (تدفق مقسّم). لا يستطيع Patotube تنزيل HLS على الهاتف بعد.",
     "scPlaylist": "هذه قائمة تشغيل SoundCloud وليست مسارًا واحدًا. افتح أحد مساراتها لتنزيله.",
     "scShortLinkBroken": "تعذّر توسيع هذا الرابط القصير لـ SoundCloud. افتحه على الموقع للحصول على الرابط الكامل.",
     "scNotFound": "لم يتم العثور على مسار SoundCloud هذا. قد يكون قد حُذف أو جُعل خاصًا."
