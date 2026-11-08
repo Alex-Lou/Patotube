@@ -76,7 +76,9 @@
     "confirm": "Pobierz",
     "cancel": "Anuluj",
     "loading": "Pobieranie informacji...",
-    "noThumbnail": "Brak miniatury"
+    "noThumbnail": "Brak miniatury",
+    "estimatedSize": "≈ {{size}} (szacunkowo)",
+    "longMedia": "Długie wideo ({{duration}}): pobieranie może chwilę potrwać. Nie zamykaj Patotube do końca."
   },
   "queue": {
     "title": "Pobierania",
@@ -156,5 +158,17 @@
     "playerLoading": "Ładowanie…",
     "shareFailed": "Nie można otworzyć menu udostępniania",
     "playerLoadFailed": "Nie można odtworzyć tego pliku"
+  },
+  "playlist": {
+    "loading": "Wczytywanie playlisty…",
+    "failed": "Nie udało się wczytać tej playlisty",
+    "selected": "Zaznaczono {{selected}} / {{total}}",
+    "selectAll": "Zaznacz wszystko",
+    "selectNone": "Odznacz wszystko",
+    "truncated": "Wyświetlono tylko pierwsze {{max}} filmów.",
+    "download": "Pobierz {{count}}",
+    "added": "Dodano {{count}} pobrań do kolejki",
+    "fromVideo": "Cała playlista",
+    "totalSize": "≈ {{size}} łącznie"
   }
 }

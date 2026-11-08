@@ -85,7 +85,9 @@
     "confirm": "Download",
     "cancel": "Cancel",
     "loading": "Fetching info...",
-    "noThumbnail": "No thumbnail available"
+    "noThumbnail": "No thumbnail available",
+    "estimatedSize": "≈ {{size}} (estimate)",
+    "longMedia": "Long video ({{duration}}): the download can take a while. Keep Patotube open until it finishes."
   },
   "queue": {
     "title": "Downloads",
@@ -165,5 +167,17 @@
     "playerLoading": "Loading…",
     "shareFailed": "Could not open the share sheet",
     "playerLoadFailed": "Could not play this file"
+  },
+  "playlist": {
+    "loading": "Loading playlist…",
+    "failed": "Could not load this playlist",
+    "selected": "{{selected}} / {{total}} selected",
+    "selectAll": "Select all",
+    "selectNone": "Select none",
+    "truncated": "Only the first {{max}} videos are listed.",
+    "download": "Download {{count}}",
+    "added": "{{count}} downloads added to the queue",
+    "fromVideo": "Whole playlist",
+    "totalSize": "≈ {{size}} in total"
   }
 }

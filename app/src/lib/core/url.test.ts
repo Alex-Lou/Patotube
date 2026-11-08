@@ -1,7 +1,13 @@
 // Unit tests for the URL helpers used by the input field.
 
 import { describe, expect, it } from 'vitest';
-import { extractFirstUrl, validateUrl } from './url';
+import {
+  extractFirstUrl,
+  isYoutubePlaylistPage,
+  validateUrl,
+  withPlaylistSource,
+  youtubePlaylistId,
+} from './url';
 
 describe('extractFirstUrl', () => {
   it('returns the input unchanged when it is already a clean URL', () => {
@@ -80,5 +86,36 @@ describe('validateUrl', () => {
   it('rejects non-http(s) protocols', () => {
     const v = validateUrl('ftp://example.com/file');
     expect(v.ok).toBe(false);
+  });
+});
+
+describe('YouTube playlists', () => {
+  it('reads the list id from playlist and watch URLs', () => {
+    expect(youtubePlaylistId('https://www.youtube.com/playlist?list=PLabc')).toBe('PLabc');
+    expect(youtubePlaylistId('https://m.youtube.com/watch?v=dQw4w9WgXcQ&list=PLxyz')).toBe('PLxyz');
+  });
+
+  it('ignores mixes, private lists and other sites', () => {
+    expect(youtubePlaylistId('https://www.youtube.com/watch?v=x&list=RDdQw4w9WgXcQ')).toBeNull();
+    expect(youtubePlaylistId('https://www.youtube.com/playlist?list=WL')).toBeNull();
+    expect(youtubePlaylistId('https://www.youtube.com/watch?v=dQw4w9WgXcQ')).toBeNull();
+    expect(youtubePlaylistId('https://example.com/playlist?list=PLabc')).toBeNull();
+    expect(youtubePlaylistId('not a url')).toBeNull();
+  });
+
+  it('tells a playlist page from a video inside a playlist', () => {
+    expect(isYoutubePlaylistPage('https://www.youtube.com/playlist?list=PLabc')).toBe(true);
+    expect(isYoutubePlaylistPage('https://www.youtube.com/watch?v=x&list=PLabc')).toBe(false);
+  });
+});
+
+describe('withPlaylistSource', () => {
+  const info = { title: 'x' } as { title: string; playlistUrl?: string };
+  it('keeps a link that points inside a playlist', () => {
+    const src = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=PLabc';
+    expect(withPlaylistSource(info, src).playlistUrl).toBe(src);
+  });
+  it('leaves other links alone', () => {
+    expect(withPlaylistSource(info, 'https://youtu.be/dQw4w9WgXcQ').playlistUrl).toBeUndefined();
   });
 });

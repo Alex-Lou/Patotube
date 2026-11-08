@@ -6,7 +6,8 @@ import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { detectPlatform } from '@/lib/core/platform';
-import { extractFirstUrl, validateUrl } from '@/lib/core/url';
+import { extractFirstUrl, isYoutubePlaylistPage, validateUrl, withPlaylistSource } from '@/lib/core/url';
+import { usePlaylistDialog } from './use-playlist-dialog';
 import { getTauri, type SearchResult } from '@/lib/tauri/bindings';
 import type { MediaInfo } from '@/lib/core/types';
 import { PlatformBadge } from './platform-badge';
@@ -156,11 +157,18 @@ export function UrlInput({ onResolved }: UrlInputProps) {
       setError(t('errors.comingSoon', { platform: t(`platform.${p.id}`) }));
       return;
     }
+    // A playlist page has no single media to preview: list its videos.
+    if (isYoutubePlaylistPage(v.url)) {
+      usePlaylistDialog.getState().open(v.url);
+      setValue('');
+      setResults([]);
+      return;
+    }
     setBusy(true);
     try {
       const api = await getTauri();
       const info = await api.fetchMediaInfo(v.url);
-      onResolved(info);
+      onResolved(withPlaylistSource(info, v.url));
       setValue('');
       setResults([]);
     } catch (err) {
